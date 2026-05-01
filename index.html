@@ -211,17 +211,9 @@ a{text-decoration:none;color:inherit;}
 }
 /* small stack icon made from CSS */
 .img-count::before{
-  content:'';
-  display:inline-block;
-  width:8px;height:7px;
-  background:
-    linear-gradient(var(--ink2) 1px, transparent 1px),
-    linear-gradient(var(--ink2) 1px, transparent 1px),
-    linear-gradient(var(--ink2) 1px, transparent 1px);
-  background-size:8px 3px, 8px 3px, 8px 3px;
-  background-position:0 0, 0 3px, 0 6px;
-  background-repeat:no-repeat;
-  opacity:0.7;
+  content:'⧉';
+  font-size:0.7rem;
+  opacity:0.8;
 }
 
 .item-overlay{
@@ -831,7 +823,7 @@ function renderGallery() {
     const thumb = p.cover?.small_square_url || p.cover?.thumb_url || '';
     const title = p.title || 'Untitled';
     const count = p.assets_count || 1;
-    const badge = count > 1 ? `<span class="img-count">${count}</span>` : '';
+    const badge = count > 1 ? `<span class="img-count"></span>` : '';
     return `
       <div class="gallery-item" data-index="${i}">
         <div class="thumb"><img src="${thumb}" alt="${title}" loading="lazy"/></div>
