@@ -555,7 +555,7 @@ a{text-decoration:none;color:inherit;}
       <div class="filter-bar" style="padding-left:1rem;">
         <button class="filter-btn active" data-filter="all">All</button>
         <button class="filter-btn" data-filter="personal">Personal</button>
-        <button class="filter-btn" data-filter="professional">Professional</button>
+        <button class="filter-btn" data-filter="treasureisland">Treasure Island in Space</button>
       </div>
       <div class="gallery-grid" id="gallery-grid">
         <div class="gallery-loading">
@@ -777,9 +777,9 @@ function renderGallery() {
     ? allProjects
     : allProjects.filter(p => {
         const combined = [...(p.categories||[]).map(c=>c.name.toLowerCase()), ...(p.tags||[])].join(' ');
-        return activeFilter === 'professional'
-          ? combined.includes('professional') || combined.includes('commission')
-          : !(combined.includes('professional') || combined.includes('commission'));
+        return activeFilter === 'treasureisland'
+          ? combined.includes('treasureisland') || combined.includes('TIIS')
+          : !(combined.includes('treasureisland') || combined.includes('TIIS'));
       });
 
   count.textContent = '';
