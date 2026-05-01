@@ -743,7 +743,7 @@ const AS_USER = 'donsrice';
 const AS_API = `https://www.artstation.com/users/${AS_USER}/projects.json?page=1&per_page=50`;
 
 // EDIT: replace with your Cloudflare Worker URL
-const CF_WORKER = 'https://YOUR-WORKER-NAME.workers.dev';
+const CF_WORKER = 'https://floral-voice-7a8b.nah-d-ruiz.workers.dev';
 
 async function fetchWithFallback(url) {
   const res = await fetch(`${CF_WORKER}?url=${encodeURIComponent(url)}`);
