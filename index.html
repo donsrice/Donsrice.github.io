@@ -778,8 +778,8 @@ function renderGallery() {
     : allProjects.filter(p => {
         const combined = [...(p.categories||[]).map(c=>c.name.toLowerCase()), ...(p.tags||[])].join(' ');
         return activeFilter === 'treasureisland'
-          ? combined.includes('treasureisland') || combined.includes('TIIS')
-          : !(combined.includes('treasureisland') || combined.includes('TIIS'));
+          ? combined.includes('treasureisland') || combined.includes('tiis')
+          : !(combined.includes('treasureisland') || combined.includes('tiis'));
       });
 
   count.textContent = '';
