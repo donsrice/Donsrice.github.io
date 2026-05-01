@@ -174,7 +174,7 @@ a{text-decoration:none;color:inherit;}
 /* gallery has its own subtle padding — no max-width so it feels full-bleed */
 .gallery-grid{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(5,1fr);
   gap:2px;
   padding:2px 1rem;
 }
@@ -370,7 +370,7 @@ a{text-decoration:none;color:inherit;}
 
 .about-layout{
   display:grid;
-  grid-template-columns:220px 1fr;
+  grid-template-columns:280px 1fr;
   gap:3rem;
   align-items:start;
 }
@@ -584,8 +584,7 @@ a{text-decoration:none;color:inherit;}
       </div>
       <div class="filter-bar" style="padding-left:1rem;">
         <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="personal">Personal</button>
-        <button class="filter-btn" data-filter="professional">Professional</button>
+        <button class="filter-btn" data-filter="treasureisland">Treasure Island in Space</button>
       </div>
       <div class="gallery-grid" id="gallery-grid">
         <div class="gallery-loading">
@@ -773,7 +772,7 @@ const AS_USER = 'donsrice';
 const AS_API = `https://www.artstation.com/users/${AS_USER}/projects.json?page=1&per_page=50`;
 
 // EDIT: replace with your Cloudflare Worker URL
-const CF_WORKER = 'https://YOUR-WORKER-NAME.workers.dev';
+const CF_WORKER = 'https://floral-voice-7a8b.nah-d-ruiz.workers.dev';
 
 async function fetchWithFallback(url) {
   const res = await fetch(`${CF_WORKER}?url=${encodeURIComponent(url)}`);
@@ -808,9 +807,9 @@ function renderGallery() {
   // Find the slug in the ArtStation URL: artstation.com/artwork/SLUG
   // Example: https://www.artstation.com/artwork/w6lDyL → slug is "w6lDyL"
   const TIIS_SLUGS = [
-    // ADD YOUR TREASURE ISLAND IN SPACE PROJECT hash_ids HERE, e.g:
-    // 'w6lDyL',
-    // 'abc123',
+    'BkdYn8',
+    'XJolqa',
+
   ];
 
   filteredProjects = activeFilter === 'all'
@@ -821,7 +820,6 @@ function renderGallery() {
         }
         return true;
       });
-
   count.textContent = '';
 
   if (!filteredProjects.length) {
