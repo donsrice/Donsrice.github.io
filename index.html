@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NAHU RUIZ</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400&family=Barlow+Condensed:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+
+:root{
+  --bg:#080808;
+  --bg2:#0e0e0e;
+  --ink:#e8e4dc;
+  --ink2:#9a9590;   /* brighter mid tone */
+  --ink3:#383430;   /* brighter subtle tone */
+  --red:#c0392b;
+  --display:'Bebas Neue',sans-serif;
+  --mono:'DM Mono',monospace;
+  --body:'Barlow Condensed',sans-serif;
+}
+
+html,body{height:100%;}
+
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--body);
+  font-weight:300;
+  overflow:hidden;
+}
+
+a{text-decoration:none;color:inherit;}
+
+/* ── LAYOUT ── */
+#app{
+  display:grid;
+  grid-template-rows:48px 1fr;
+  height:100vh;
+  overflow:hidden;
+}
+
+/* ── TOP NAV ── */
+#topnav{
+  grid-row:1;
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 2rem;
+  border-bottom:1px solid var(--ink3);
+  background:var(--bg);
+  z-index:10;
+  flex-shrink:0;
+}
+
+.logo{
+  font-family:var(--display);
+  font-size:2.5rem;
+  letter-spacing:0.08em;
+  color:var(--ink);
+  line-height:1;
+  cursor:pointer;
+  background:none;border:none;
+  transition:color 0.2s;
+}
+.logo:hover{color:var(--ink2);}
+.logo span{color:var(--red);}
+
+.nav{display:flex;flex-direction:row;align-items:center;}
+
+.nav-btn{
+  padding:0 1.1rem;
+  height:48px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);
+  font-size:0.9rem;
+  letter-spacing:0.2em;
+  text-transform:uppercase;
+  color:var(--ink2);
+  border:none;background:none;
+  cursor:pointer;
+  transition:color 0.2s;
+  position:relative;
+}
+.nav-btn::after{
+  content:'';position:absolute;
+  bottom:0;left:1.1rem;right:1.1rem;
+  height:2px;background:var(--red);
+  opacity:0;transition:opacity 0.2s;
+}
+.nav-btn:hover{color:var(--ink);}
+.nav-btn.active{color:var(--ink);}
+.nav-btn.active::after{opacity:1;}
+
+/* ── MAIN ── */
+#main{
+  grid-row:2;
+  overflow:hidden;
+  position:relative;
+  height:calc(100vh - 48px);
+}
+
+/* all page content gets side margins via a wrapper */
+.page-inner{
+  max-width:1200px;
+  margin:0 auto;
+  padding:0 3rem;
+}
+
+/* ── PAGES ── */
+.page{
+  position:absolute;inset:0;
+  overflow-y:auto;overflow-x:hidden;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s ease;
+  scrollbar-width:thin;
+  scrollbar-color:var(--ink3) transparent;
+}
+.page.active{opacity:1;pointer-events:all;}
+.page::-webkit-scrollbar{width:3px;}
+.page::-webkit-scrollbar-thumb{background:var(--ink3);}
+
+/* ── PAGE HEADER ── */
+.page-header{
+  padding:1.5rem 0 0;
+  display:flex;align-items:baseline;justify-content:space-between;
+  position:sticky;top:0;
+  background:rgba(8,8,8,0.96);
+  backdrop-filter:blur(6px);
+  z-index:5;
+  flex-shrink:0;
+}
+.page-title{
+  font-family:var(--display);
+  font-size:2.5rem;       /* big — WORK / ABOUT / CONTACT */
+  letter-spacing:0.1em;
+}
+.page-meta{
+  font-family:var(--mono);font-size:0.7rem;
+  letter-spacing:0.2em;color:var(--ink2);text-transform:uppercase;
+}
+
+/* ── GALLERY ── */
+#page-gallery .page-header{padding-bottom:0;border-bottom:none;}
+
+.filter-bar{
+  display:flex;gap:0;
+  padding:0.4rem 0 0;
+  border-bottom:1px solid var(--ink3);
+  position:sticky;top:52px;
+  background:rgba(8,8,8,0.96);
+  backdrop-filter:blur(6px);
+  z-index:4;
+}
+.filter-btn{
+  font-family:var(--mono);font-size:0.7rem;
+  letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--ink2);background:none;border:none;
+  padding:0.6rem 1rem 0.6rem 0;
+  cursor:pointer;transition:color 0.2s;position:relative;
+}
+.filter-btn::after{
+  content:'';position:absolute;
+  bottom:0;left:0;right:1rem;height:1px;
+  background:var(--red);opacity:0;transition:opacity 0.2s;
+}
+.filter-btn:hover{color:var(--ink);}
+.filter-btn.active{color:var(--ink);}
+.filter-btn.active::after{opacity:1;}
+
+/* gallery has its own subtle padding — no max-width so it feels full-bleed */
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:2px;
+  padding:2px 1rem;
+}
+
+.gallery-item{
+  position:relative;overflow:hidden;
+  background:var(--bg2);cursor:pointer;
+}
+.gallery-item .thumb{
+  aspect-ratio:1;overflow:hidden;display:block;
+}
+.gallery-item img{
+  width:100%;height:100%;
+  object-fit:cover;display:block;
+  transition:transform 0.5s cubic-bezier(.23,1,.32,1),filter 0.4s;
+  filter:grayscale(15%);
+}
+.gallery-item:hover img{transform:scale(1.04);filter:grayscale(0%);}
+
+/* multi-image badge */
+.img-count{
+  position:absolute;
+  top:0.5rem;right:0.5rem;
+  font-family:var(--mono);
+  font-size:0.48rem;
+  letter-spacing:0.1em;
+  color:var(--ink);
+  background:rgba(0,0,0,0.65);
+  backdrop-filter:blur(4px);
+  padding:0.2rem 0.45rem;
+  display:flex;align-items:center;gap:0.3rem;
+  pointer-events:none;
+  border:1px solid rgba(255,255,255,0.1);
+}
+/* small stack icon made from CSS */
+.img-count::before{
+  content:'\2750';
+  font-size:0.7rem;
+  opacity:1;
+}
+
+.item-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,rgba(0,0,0,0.85) 0%,transparent 55%);
+  opacity:0;transition:opacity 0.3s;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0.75rem;pointer-events:none;
+}
+.gallery-item:hover .item-overlay{opacity:1;}
+.item-title{
+  font-family:var(--display);font-size:1.0rem;
+  letter-spacing:0.08em;line-height:1;
+}
+
+.gallery-loading{
+  grid-column:1/-1;padding:5rem 2rem;
+  text-align:center;font-family:var(--mono);
+  font-size:0.68rem;letter-spacing:0.2em;
+  text-transform:uppercase;color:var(--ink2);
+}
+.load-dot{display:inline-block;animation:pulse 1.2s ease-in-out infinite;}
+.load-dot:nth-child(2){animation-delay:0.2s;}
+.load-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes pulse{0%,100%{opacity:0.2;}50%{opacity:1;}}
+
+.as-link-bar{
+  padding:1rem 2rem;border-top:1px solid var(--ink3);
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;
+}
+.as-note{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.15em;color:var(--ink2);}
+.as-note a{color:var(--red);border-bottom:1px solid rgba(192,57,43,0.3);padding-bottom:1px;transition:border-color 0.2s;}
+.as-note a:hover{border-color:var(--red);}
+.nda-tag{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  font-family:var(--mono);font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;
+  color:var(--ink2);border:1px solid var(--ink3);padding:0.3rem 0.7rem;
+  cursor:pointer;transition:border-color 0.2s,color 0.2s;background:none;
+}
+.nda-tag:hover{border-color:var(--red);color:var(--red);}
+.nda-tag::before{content:'⊘';color:var(--red);}
+
+/* ── LIGHTBOX ── */
+#lightbox{
+  position:fixed;
+  /* sits below the topnav so nav stays visible */
+  top:48px;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.97);
+  z-index:100;
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.3s;
+  overflow:hidden;
+}
+#lightbox.open{opacity:1;pointer-events:all;}
+
+/* top bar inside lightbox */
+.lb-topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0.7rem 1.5rem;
+  flex-shrink:0;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+
+.lb-close{
+  font-family:var(--mono);font-size:0.52rem;
+  letter-spacing:0.2em;color:var(--ink2);
+  cursor:pointer;transition:color 0.2s;text-transform:uppercase;
+  background:none;border:none;
+}
+.lb-close:hover{color:var(--ink);}
+
+.lb-nav{display:flex;align-items:center;gap:0.5rem;}
+
+.lb-counter{
+ display:none;
+}
+
+.lb-as-link{
+  font-family:var(--mono);font-size:0.52rem;
+  letter-spacing:0.15em;color:var(--ink2);
+  text-decoration:none;text-transform:uppercase;
+  transition:color 0.2s;
+}
+.lb-as-link:hover{color:var(--red);}
+
+/* main viewer area: arrows on sides, scroll in middle */
+.lb-viewer{
+  flex:1;
+  display:grid;
+  grid-template-columns:56px 1fr 56px;
+  overflow:hidden;
+  min-height:0;
+}
+
+/* side arrow buttons */
+.lb-arrow{
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:1.4rem;
+  color:var(--ink2);background:none;border:none;
+  cursor:pointer;transition:color 0.2s;
+  user-select:none;flex-shrink:0;
+}
+.lb-arrow:hover{color:var(--ink);}
+.lb-arrow.hidden{opacity:0.15;pointer-events:none;}
+
+/* scrollable image column */
+.lb-scroll{
+  overflow-y:auto;overflow-x:hidden;
+  padding:1.5rem 1rem;
+  display:flex;flex-direction:column;
+  align-items:center;gap:1rem;
+  scrollbar-width:thin;scrollbar-color:var(--ink3) transparent;
+  min-height:0;
+}
+.lb-scroll::-webkit-scrollbar{width:3px;}
+.lb-scroll::-webkit-scrollbar-thumb{background:var(--ink3);}
+
+/* images sized to fit viewport height so first image always fits on screen */
+.lb-scroll img{
+  max-width:100%;
+  max-height:calc(100vh - 48px - 44px - 3rem); /* viewport - topnav - lb-topbar - padding */
+  width:auto;
+  display:block;
+  object-fit:contain;
+}
+
+.lb-title{
+  font-family:var(--display);font-size:0.9rem;
+  letter-spacing:0.1em;color:var(--ink2);
+  text-align:center;padding-bottom:1rem;
+  flex-shrink:0;
+}
+
+.lb-loading{
+  font-family:var(--mono);font-size:0.55rem;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--ink2);display:none;margin:auto;
+}
+.lb-loading.show{display:block;}
+
+/* ── ABOUT ── */
+#page-about .content{padding:2rem;}
+
+.about-layout{
+  display:grid;
+  grid-template-columns:300px 1fr;
+  gap:3rem;
+  align-items:start;
+}
+
+.about-photo{
+  width:100%;aspect-ratio:3/4;
+  background:var(--bg2);border:1px solid var(--ink3);
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;position:relative;flex-shrink:0;
+}
+.about-photo::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  height:2px;background:var(--red);
+}
+.about-photo img{
+  width:100%;height:100%;object-fit:cover;display:block;
+  filter:contrast(1.05) grayscale(10%);
+}
+.photo-ph{
+  font-family:var(--mono);font-size:0.52rem;
+  letter-spacing:0.2em;color:var(--ink3);text-align:center;
+}
+
+.about-copy h2{
+  font-family:var(--display);
+  font-size:4.6rem;
+  letter-spacing:0.04em;line-height:0.95;
+  margin-bottom:1.2rem;
+}
+.about-copy h2 .hollow{
+  -webkit-text-stroke:1.5px var(--red);
+  color:transparent;
+}
+.about-copy p{
+  font-size:1.2rem;
+  font-weight:300;
+  color:var(--ink2);line-height:1.8;
+  margin-bottom:1rem;max-width:52ch;
+}
+.chips{display:flex;flex-wrap:wrap;gap:0.4rem;margin-top:1.5rem;margin-bottom:2rem;}
+.chip{
+  font-family:var(--mono);font-size:0.62rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  padding:0.28rem 0.65rem;border:1px solid var(--ink3);color:var(--ink2);
+}
+.chip.on{border-color:var(--red);color:var(--red);}
+
+.btn-red{
+  font-family:var(--mono);font-size:0.7rem;
+  letter-spacing:0.2em;text-transform:uppercase;
+  background:var(--red);color:#fff;border:none;
+  padding:0.8rem 1.8rem;cursor:pointer;
+  transition:background 0.2s;
+  display:inline-flex;align-items:center;gap:0.5rem;
+}
+.btn-red:hover{background:#e74c3c;}
+
+/* ── CONTACT ── */
+#page-contact .content{
+  padding:2rem;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+.contact-form-wrap{
+  width:100%;max-width:480px;
+  margin-bottom:3rem;
+}
+
+.contact-intro p{
+  font-size:1.2rem;
+  font-weight:300;
+  color:var(--ink2);line-height:1.8;
+  margin-bottom:2rem;
+}
+
+.form-field{margin-bottom:1.2rem;}
+.form-field label{
+  display:block;font-family:var(--mono);
+  font-size:0.6rem;letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--ink2);margin-bottom:0.4rem;
+}
+.form-field input,
+.form-field textarea,
+.form-field select{
+  width:100%;background:var(--bg2);
+  border:1px solid var(--ink3);color:var(--ink);
+  font-family:var(--body);font-size:1.05rem;font-weight:300;
+  padding:0.7rem 0.9rem;outline:none;
+  transition:border-color 0.2s;
+  appearance:none;-webkit-appearance:none;
+}
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus{border-color:var(--ink2);}
+.form-field textarea{resize:vertical;min-height:110px;}
+.form-field select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a9590'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 1rem center;
+  padding-right:2.5rem;
+}
+.form-field select option{background:var(--bg2);}
+
+.submit-btn{
+  font-family:var(--mono);font-size:0.68rem;
+  letter-spacing:0.2em;text-transform:uppercase;
+  background:var(--red);color:#fff;border:none;
+  padding:0.8rem 2rem;cursor:pointer;
+  transition:background 0.2s;
+  display:inline-flex;align-items:center;gap:0.5rem;margin-top:0.3rem;
+}
+.submit-btn:hover{background:#e74c3c;}
+
+/* socials grid */
+.socials-wrap{
+  width:100%;max-width:680px;
+  border-top:1px solid var(--ink3);
+  padding-top:2rem;padding-bottom:3rem;
+}
+.socials-label{
+  font-family:var(--mono);font-size:0.6rem;
+  letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--ink3);margin-bottom:1.5rem;text-align:center;
+}
+.socials-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:1rem;}
+.social-card{
+  display:flex;flex-direction:column;align-items:center;
+  gap:0.5rem;padding:1.2rem 1.5rem;
+  border:1px solid var(--ink3);text-decoration:none;
+  transition:border-color 0.2s,transform 0.2s;min-width:110px;
+}
+.social-card:hover{border-color:var(--ink2);transform:translateY(-2px);}
+.social-icon{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:var(--ink2);transition:color 0.2s;}
+.social-card:hover .social-icon{color:var(--ink);}
+.social-icon svg{width:20px;height:20px;fill:currentColor;}
+.soc-name{
+  font-family:var(--body);font-size:0.9rem;font-weight:400;
+  letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);
+}
+.soc-handle{
+  font-family:var(--mono);font-size:0.6rem;
+  letter-spacing:0.1em;color:var(--ink2);
+}
+
+/* ── GRAIN ── */
+.grain{
+  position:fixed;inset:0;pointer-events:none;z-index:9000;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  body{overflow:auto;}
+  #app{
+    display:flex;flex-direction:column;
+    height:auto;min-height:100vh;overflow:visible;
+  }
+  #topnav{flex-shrink:0;position:sticky;top:0;z-index:100;}
+  #main{
+    height:auto;overflow:visible;position:relative;
+    flex:1;
+  }
+  .page{
+    position:relative;inset:auto;
+    opacity:1;pointer-events:all;
+    display:none;overflow:visible;
+    height:auto;
+  }
+  .page.active{display:block;}
+  .gallery-grid{grid-template-columns:repeat(2,1fr);}
+  .about-layout{grid-template-columns:1fr;gap:2rem;}
+  .about-photo{max-width:180px;}
+  .about-copy h2{font-size:2.2rem;}
+  .socials-grid{gap:0.75rem;}
+  .social-card{min-width:90px;padding:1rem;}
+  .lb-topbar{padding:0.7rem 1rem;}
+  .lb-as-link{flex:0 0 auto;}
+  .lb-close{flex:0 0 auto;margin-left:auto;}
+}
+
+@media(max-width:460px){
+  .gallery-grid{grid-template-columns:repeat(2,1fr);}
+  #topnav{padding:0 1rem;}
+  #page-about .content,
+  #page-contact .content{padding:1.5rem;}
+}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div id="app">
+
+  <!-- TOP NAV -->
+  <header id="topnav">
+    <button class="logo" id="logo-home">NR<span>.</span></button>
+    <nav class="nav">
+      <button class="nav-btn active" data-page="gallery">Portfolio</button>
+      <button class="nav-btn" data-page="about">About</button>
+      <button class="nav-btn" data-page="contact">Contact</button>
+    </nav>
+  </header>
+
+  <main id="main">
+
+    <!-- ── GALLERY ── -->
+    <div id="page-gallery" class="page active">
+      <div class="page-header" style="padding-left:1rem;padding-right:1rem;">
+        <h1 class="page-title">PORTFOLIO</h1>
+        <span class="page-meta" id="gallery-count"></span>
+      </div>
+      <div class="filter-bar" id="filter-bar" style="padding-left:1rem;">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <!-- album filters injected here by JS -->
+      </div>
+      <div class="gallery-grid" id="gallery-grid">
+        <div class="gallery-loading">
+          <span class="load-dot">·</span>
+          <span class="load-dot">·</span>
+          <span class="load-dot">·</span>
+          <span style="margin-left:0.5rem">Fetching from ArtStation</span>
+        </div>
+      </div>
+      <div class="as-link-bar" style="padding-left:1rem;padding-right:1rem;">
+        <span class="as-note">
+          Live feed from <a href="https://www.artstation.com/donsrice" target="_blank" rel="noopener">ArtStation</a> — updates automatically.
+        </span>
+        <button class="nda-tag" style="display:none;" onclick="showPage('contact')">NDA Work — Upon Request</button>
+      </div>
+    </div>
+
+    <!-- ── ABOUT ── -->
+    <div id="page-about" class="page">
+      <div class="page-inner">
+      <div class="page-header">
+        <h1 class="page-title">ABOUT</h1>
+        <span class="page-meta">Character Concept Artist</span>
+      </div>
+      <div class="content">
+        <div class="about-layout">
+
+         <div class="about-photo">
+           <img src="photo.jpg" alt="Nahu Ruiz">
+          </div>
+
+          <div class="about-copy">
+            <h2>NAHU<br><span class="hollow">RUIZ.</span></h2>
+
+            <p>Character Concept Artist with three years of industry experience and nine years working across illustration and visual development. My background spans animation, book illustration, comic books, and video games — a breadth that has shaped me into a versatile and adaptable artist.</p>
+            <p>I focus on character and prop design, driven by a commitment to building engaging, visually compelling worlds. I'm self-directed, solutions-oriented, and bring a strong work ethic to every project. I'm currently at Playground Games, contributing to the development of the upcoming title Fable.</p>
+
+            <a href="https://www.artstation.com/donsrice" target="_blank" rel="noopener" class="btn-red">
+              <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:currentColor;flex-shrink:0;" xmlns="http://www.w3.org/2000/svg"><path d="M0 17.723l2.027 3.505h.001a2.424 2.424 0 0 0 2.164 1.333h13.457l-2.792-4.838H0zm24 .025c0-.484-.143-.935-.388-1.314L15.728 2.728a2.424 2.424 0 0 0-2.142-1.289H9.419L21.598 22.54l1.92-3.325c.378-.637.482-.919.482-1.467zm-11.129-3.462L7.428 4.858l-5.444 9.428h10.887z"/></svg>
+              View on ArtStation
+            </a>
+          </div>
+
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <!-- ── CONTACT ── -->
+    <div id="page-contact" class="page">
+      <div class="page-inner">
+      <div class="page-header">
+        <h1 class="page-title">CONTACT</h1>
+        <span class="page-meta">Get in touch</span>
+      </div>
+      <div class="content">
+
+        <div class="contact-form-wrap">
+          <div class="contact-intro">
+            <p>Currently open to freelance and full-time opportunities. Feel free to reach out directly at <a href="mailto:nah.d.ruiz@gmail.com" style="color:var(--red);text-decoration:none;">nah.d.ruiz@gmail.com</a> or by using the contact form below.</p>
+          </div>
+
+          <!--
+            TO ACTIVATE FORM SUBMISSIONS:
+            1. Go to formspree.io → create free account
+            2. Create a new form → copy the URL (e.g. https://formspree.io/f/XXXXXXXX)
+            3. Replace action="#" below with that URL
+            Done — submissions go straight to your inbox.
+          -->
+          <form id="contact-form" action="https://formspree.io/f/mvzdenkv" method="post">
+            <div class="form-field">
+              <label for="subject">// Subject</label>
+              <input type="text" id="subject" name="subject" placeholder="What's this about?"/>
+            </div>
+            <div class="form-field">
+              <label for="email">// Email</label>
+              <input type="email" id="email" name="email" placeholder="your@email.com" required/>
+            </div>
+            <div class="form-field">
+              <label for="name">// Name</label>
+              <input type="text" id="name" name="name" placeholder="Your name" required/>
+            </div>
+            <div class="form-field">
+              <label for="message">// Message</label>
+              <textarea id="message" name="message" placeholder="Feel free to share as much or as little as you'd like…" required></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Send Message →</button>
+          </form>
+        </div>
+
+        <!-- SOCIALS -->
+        <div class="socials-wrap">
+          <p class="socials-label">// Find me on</p>
+          <div class="socials-grid">
+
+            <!-- ArtStation -->
+            <a href="https://www.artstation.com/donsrice" target="_blank" rel="noopener" class="social-card">
+              <span class="social-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0 17.723l2.027 3.505h.001a2.424 2.424 0 0 0 2.164 1.333h13.457l-2.792-4.838H0zm24 .025c0-.484-.143-.935-.388-1.314L15.728 2.728a2.424 2.424 0 0 0-2.142-1.289H9.419L21.598 22.54l1.92-3.325c.378-.637.482-.919.482-1.467zm-11.129-3.462L7.428 4.858l-5.444 9.428h10.887z"/>
+                </svg>
+              </span>
+              <span class="soc-name">ArtStation</span>
+              <span class="soc-handle">@donsrice</span>
+            </a>
+
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/donsrice" target="_blank" rel="noopener" class="social-card">
+              <span class="social-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+                </svg>
+              </span>
+              <span class="soc-name">Instagram</span>
+              <span class="soc-handle">@donsrice</span>
+            </a>
+
+            <!-- LinkedIn -->
+            <a href="https://www.linkedin.com/in/nahu-ruiz" target="_blank" rel="noopener" class="social-card">
+              <span class="social-icon">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </span>
+              <span class="soc-name">LinkedIn</span>
+              <span class="soc-handle">nahu-ruiz</span>
+            </a>
+
+            <!-- Cara -->
+            <a href="https://cara.app/donsrice" target="_blank" rel="noopener" class="social-card">
+              <span class="social-icon">
+                <!-- Cara doesn't have a standard SVG icon, using a simple "C" lettermark -->
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <text x="2" y="19" font-family="serif" font-size="22" font-weight="bold" fill="currentColor">C</text>
+                </svg>
+              </span>
+              <span class="soc-name">Cara</span>
+              <span class="soc-handle">@donsrice</span>
+            </a>
+
+          </div>
+        </div>
+
+      </div>
+      </div><!-- end page-inner -->
+    </div>
+
+  </main>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="lightbox">
+  <div class="lb-topbar">
+    <a class="lb-as-link" id="lb-as-link" href="#" target="_blank" rel="noopener">↗ ArtStation</a>
+    <button class="lb-close" id="lb-close">Close ✕</button>
+  </div>
+  <div class="lb-viewer">
+    <button class="lb-arrow hidden" id="lb-prev">←</button>
+    <div class="lb-scroll" id="lb-scroll">
+      <span class="lb-loading" id="lb-loading">Loading<span class="load-dot">·</span><span class="load-dot">·</span><span class="load-dot">·</span></span>
+      <p class="lb-title" id="lb-title"></p>
+    </div>
+    <button class="lb-arrow hidden" id="lb-next">→</button>
+  </div>
+</div>
+
+<script>
+// ── PAGE SWITCHING ──
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelector('[data-page="' + id + '"]').classList.add('active');
+  document.getElementById('lightbox').classList.remove('open');
+}
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', () => showPage(btn.dataset.page));
+});
+document.getElementById('logo-home').addEventListener('click', () => showPage('gallery'));
+
+// ── ARTSTATION FEED ──
+const AS_USER = 'donsrice';
+const AS_API = `https://www.artstation.com/users/${AS_USER}/projects.json?page=1&per_page=50`;
+const AS_ALBUMS_API = `https://www.artstation.com/users/${AS_USER}/collections.json`;
+
+const CF_WORKER = 'https://floral-voice-7a8b.nah-d-ruiz.workers.dev';
+
+async function fetchWithFallback(url) {
+  const res = await fetch(`${CF_WORKER}?url=${encodeURIComponent(url)}`);
+  if (!res.ok) throw new Error('Proxy failed');
+  return res;
+}
+
+let allProjects = [];
+let filteredProjects = [];
+let activeFilter = 'all';
+let albums = [];                  // [{id, title}]
+let albumProjects = {};           // {albumId: [hash_ids]}
+const projectCache = {};
+
+// ── LOAD ALBUMS ──
+async function loadAlbums() {
+  try {
+    const res = await fetchWithFallback(AS_ALBUMS_API);
+    const data = await res.json();
+    albums = (data.data || []).filter(a => a.projects_count > 0);
+    renderFilterBar();
+  } catch(e) {
+    // albums failed — filter bar just stays as "All"
+  }
+}
+
+function renderFilterBar() {
+  const bar = document.getElementById('filter-bar');
+  // keep the All button, remove any previously injected buttons
+  const existing = bar.querySelectorAll('.filter-btn:not([data-filter="all"])');
+  existing.forEach(b => b.remove());
+
+  albums.forEach(album => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.dataset.filter = `album_${album.id}`;
+    btn.dataset.albumId = album.id;
+    btn.textContent = album.title;
+    bar.appendChild(btn);
+  });
+
+  // re-attach click handlers to all filter buttons
+  bar.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      bar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+
+      // if this is an album filter and we haven't fetched its projects yet, fetch now
+      if (activeFilter.startsWith('album_') && !albumProjects[btn.dataset.albumId]) {
+        await loadAlbumProjects(btn.dataset.albumId);
+      }
+      renderGallery();
+    });
+  });
+}
+
+// fetch the project hash_ids belonging to a specific album
+async function loadAlbumProjects(albumId) {
+  try {
+    const url = `https://www.artstation.com/users/${AS_USER}/collections/${albumId}/projects.json?per_page=100`;
+    const res = await fetchWithFallback(url);
+    const data = await res.json();
+    albumProjects[albumId] = (data.data || []).map(p => p.hash_id);
+  } catch(e) {
+    albumProjects[albumId] = [];
+  }
+}
+
+// ── LOAD GALLERY ──
+async function loadGallery() {
+  const grid = document.getElementById('gallery-grid');
+  try {
+    const [projectsRes] = await Promise.all([
+      fetchWithFallback(AS_API),
+      loadAlbums()
+    ]);
+    const data = await projectsRes.json();
+    allProjects = data.data || [];
+    renderGallery();
+  } catch(e) {
+    grid.innerHTML = `<div class="gallery-loading">Could not load ArtStation feed.<br><br><span style="color:var(--ink3)">Works on your live domain — may be blocked locally.</span></div>`;
+    document.getElementById('gallery-count').textContent = '';
+  }
+}
+
+function renderGallery() {
+  const grid = document.getElementById('gallery-grid');
+
+  if (activeFilter === 'all') {
+    filteredProjects = allProjects;
+  } else if (activeFilter.startsWith('album_')) {
+    const albumId = activeFilter.replace('album_', '');
+    const ids = albumProjects[albumId] || [];
+    filteredProjects = allProjects.filter(p => ids.includes(p.hash_id));
+  } else {
+    filteredProjects = allProjects;
+  }
+
+  document.getElementById('gallery-count').textContent = '';
+
+  if (!filteredProjects.length) {
+    grid.innerHTML = '<div class="gallery-loading">No projects found.</div>';
+    return;
+  }
+
+  grid.innerHTML = filteredProjects.map((p, i) => {
+    const thumb = p.cover?.small_square_url || p.cover?.thumb_url || '';
+    const title = p.title || 'Untitled';
+    const count = p.assets_count || 1;
+    const badge = count > 1 ? `<span class="img-count"></span>` : '';
+    return `
+      <div class="gallery-item" data-index="${i}">
+        <div class="thumb"><img src="${thumb}" alt="${title}" loading="lazy"/></div>
+        ${badge}
+        <div class="item-overlay"><p class="item-title">${title.toUpperCase()}</p></div>
+      </div>`;
+  }).join('');
+
+  grid.querySelectorAll('.gallery-item').forEach(item => {
+    item.addEventListener('click', () => openLightbox(parseInt(item.dataset.index)));
+  });
+}
+
+// ── LIGHTBOX ──
+let lbIndex = 0;
+
+async function openLightbox(index) {
+  lbIndex = index;
+  document.getElementById('lightbox').classList.add('open');
+  await renderLightboxProject();
+}
+
+async function renderLightboxProject() {
+  const p = filteredProjects[lbIndex];
+  if (!p) return;
+
+  const scroll = document.getElementById('lb-scroll');
+  const loading = document.getElementById('lb-loading');
+  const title = document.getElementById('lb-title');
+
+  scroll.scrollTop = 0;
+  Array.from(scroll.querySelectorAll('img')).forEach(el => el.remove());
+  loading.classList.add('show');
+  title.textContent = '';
+  document.getElementById('lb-as-link').href = p.permalink || '#';
+  updateArrows();
+
+  try {
+    if (!projectCache[p.hash_id]) {
+      const res = await fetchWithFallback(`https://www.artstation.com/projects/${p.hash_id}.json`);
+      if (!res.ok) throw new Error();
+      projectCache[p.hash_id] = await res.json();
+    }
+    const proj = projectCache[p.hash_id];
+    const assets = (proj.assets || []).filter(a => a.asset_type === 'image');
+    const imgs = assets.length
+      ? assets.map(a => a.image_url || a.url).filter(Boolean)
+      : [proj.cover?.medium_image_url || proj.cover?.image_url].filter(Boolean);
+
+    loading.classList.remove('show');
+    title.textContent = (proj.title || '').toUpperCase();
+
+    imgs.forEach(src => {
+      const img = document.createElement('img');
+      img.src = src;
+      img.alt = proj.title || '';
+      img.loading = 'lazy';
+      scroll.insertBefore(img, title);
+    });
+
+  } catch(e) {
+    loading.classList.remove('show');
+    title.textContent = 'Could not load images';
+  }
+}
+
+function updateArrows() {
+  document.getElementById('lb-prev').classList.toggle('hidden', lbIndex === 0);
+  document.getElementById('lb-next').classList.toggle('hidden', lbIndex >= filteredProjects.length - 1);
+}
+
+document.getElementById('lb-prev').addEventListener('click', () => {
+  if (lbIndex > 0) { lbIndex--; renderLightboxProject(); }
+});
+document.getElementById('lb-next').addEventListener('click', () => {
+  if (lbIndex < filteredProjects.length - 1) { lbIndex++; renderLightboxProject(); }
+});
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+document.getElementById('lb-close').addEventListener('click', closeLightbox);
+document.getElementById('lightbox').addEventListener('click', e => {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+});
+document.addEventListener('keydown', e => {
+  if (!document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'Escape')     closeLightbox();
+  if (e.key === 'ArrowLeft')  { if (lbIndex > 0) { lbIndex--; renderLightboxProject(); } }
+  if (e.key === 'ArrowRight') { if (lbIndex < filteredProjects.length - 1) { lbIndex++; renderLightboxProject(); } }
+});
+
+// ── CONTACT FORM ──
+document.getElementById('contact-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const btn = e.target.querySelector('.submit-btn');
+  const action = e.target.getAttribute('action');
+  if (action && action !== '#' && !action.endsWith('#')) { e.target.submit(); return; }
+  btn.textContent = 'Add Formspree URL to activate →';
+  setTimeout(() => btn.textContent = 'Send Message →', 3000);
+});
+
+loadGallery();
+</script>
+</body>
+</html>
