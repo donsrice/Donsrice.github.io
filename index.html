@@ -537,17 +537,6 @@ a{text-decoration:none;color:inherit;}
   .social-card{min-width:90px;padding:1rem;}
   #lightbox{align-items:flex-start;padding-top:3rem;}
   #lb-img{max-width:96vw;max-height:70vh;}
-  .lb-topbar{
-    justify-content:space-between;
-    gap:0;
-  }
-  .lb-as-link{
-    flex:1;
-  }
-  .lb-close{
-    flex-shrink:0;
-    margin-left:auto;
-  }
 }
 
 @media(max-width:460px){
@@ -736,11 +725,10 @@ a{text-decoration:none;color:inherit;}
 
 <!-- LIGHTBOX -->
 <div id="lightbox">
-  <div class="lb-topbar">
-    <a class="lb-as-link" id="lb-as-link" href="#" target="_blank" rel="noopener">↗ View on ArtStation</a>
-    <span class="lb-counter" id="lb-counter"></span>
-    <button class="lb-close" id="lb-close">Close ✕</button>
-  </div>
+<div class="lb-topbar">
+  <a class="lb-as-link" id="lb-as-link" href="#" target="_blank" rel="noopener">↗ ArtStation</a>
+  <button class="lb-close" id="lb-close">Close ✕</button>
+</div>
   <div class="lb-viewer">
     <button class="lb-arrow hidden" id="lb-prev">←</button>
     <div class="lb-scroll" id="lb-scroll">
