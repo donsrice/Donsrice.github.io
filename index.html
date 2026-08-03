@@ -572,10 +572,7 @@ a{text-decoration:none;color:inherit;}
         <h1 class="page-title">PORTFOLIO</h1>
         <span class="page-meta" id="gallery-count"></span>
       </div>
-      <div class="filter-bar" style="padding-left:1rem;">
-        <button class="filter-btn active" data-filter="all">All</button>
-        <button class="filter-btn" data-filter="treasureisland">Treasure Island in Space</button>
-      </div>
+      <div id="filter-bar" style="display:none;"></div>
    <div class="gallery-grid" id="gallery-grid">
         <div class="gallery-loading" style="display:flex;flex-direction:column;align-items:center;gap:2rem;padding:5rem 2rem;">
           <p style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.2em;color:var(--ink2);text-transform:uppercase;">In the meantime, please visit these links</p>
@@ -793,16 +790,7 @@ let activeFilter = 'all';
 const projectCache = {};  // cache fetched project details
 
 async function loadGallery() {
-  const grid = document.getElementById('gallery-grid');
-  try {
-    const res = await fetchWithFallback(AS_API);
-    const data = await res.json();
-    allProjects = data.data || [];
-    renderGallery();
-  } catch(e) {
-    grid.innerHTML = `<div class="gallery-loading">Could not load ArtStation feed.<br><br><span style="color:var(--ink3)">Works on your live domain — may be blocked locally.</span></div>`;
-    document.getElementById('gallery-count').textContent = '';
-  }
+  // Gallery temporarily disabled — placeholder shown instead
 }
 
 function renderGallery() {
