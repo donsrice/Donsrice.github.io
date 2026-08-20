@@ -558,7 +558,7 @@ a{text-decoration:none;color:inherit;}
   <header id="topnav">
     <button class="logo" id="logo-home">NR<span>.</span></button>
     <nav class="nav">
-      <button class="nav-btn active" data-page="gallery">Portfolio <span style="font-size:0.5em;opacity:0.6;">(Under Construction)</span></button>
+      <button class="nav-btn active" data-page="gallery">Portfolio</button>
       <button class="nav-btn" data-page="about">About</button>
       <button class="nav-btn" data-page="contact">Contact</button>
     </nav>
@@ -569,39 +569,21 @@ a{text-decoration:none;color:inherit;}
     <!-- ── GALLERY ── -->
     <div id="page-gallery" class="page active">
       <div class="page-header" style="padding-left:1rem;padding-right:1rem;">
-        <h1 class="page-title">PORTFOLIO<span style="font-size:0.5em;opacity:0.6;">(Under Construction)</span></h1>
+        <h1 class="page-title">PORTFOLIO</h1>
         <span class="page-meta" id="gallery-count"></span>
       </div>
-      <div id="filter-bar" style="display:none;"></div>
-   <div class="gallery-grid" id="gallery-grid">
-        <div class="gallery-loading" style="display:flex;flex-direction:column;align-items:center;gap:2rem;padding:5rem 2rem;">
-          <p style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.2em;color:var(--ink2);text-transform:uppercase;">In the meantime, please visit these links</p>
-          <div style="display:flex;gap:1.5rem;">
-
-            <a href="https://www.artstation.com/donsrice" target="_blank" rel="noopener"
-               style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;color:var(--ink2);text-decoration:none;transition:color 0.2s;"
-               onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--ink2)'">
-              <svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:currentColor;">
-                <path d="M0 17.723l2.027 3.505h.001a2.424 2.424 0 0 0 2.164 1.333h13.457l-2.792-4.838H0zm24 .025c0-.484-.143-.935-.388-1.314L15.728 2.728a2.424 2.424 0 0 0-2.142-1.289H9.419L21.598 22.54l1.92-3.325c.378-.637.482-.919.482-1.467zm-11.129-3.462L7.428 4.858l-5.444 9.428h10.887z"/>
-              </svg>
-              <span style="font-family:var(--mono);font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;">ArtStation</span>
-            </a>
-
-            <a href="https://www.instagram.com/donsrice" target="_blank" rel="noopener"
-               style="display:flex;flex-direction:column;align-items:center;gap:0.5rem;color:var(--ink2);text-decoration:none;transition:color 0.2s;"
-               onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--ink2)'">
-              <svg viewBox="0 0 24 24" style="width:32px;height:32px;fill:currentColor;">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
-              </svg>
-              <span style="font-family:var(--mono);font-size:0.55rem;letter-spacing:0.15em;text-transform:uppercase;">Instagram</span>
-            </a>
-
-          </div>
+      <div class="filter-bar" id="filter-bar" style="padding-left:1rem;">
+        <button class="filter-btn active" data-filter="all">All</button>
+        <!-- category buttons are injected by JS from PROJECTS data -->
+      </div>
+      <div class="gallery-grid" id="gallery-grid">
+        <div class="gallery-loading">
+          <span class="load-dot">·</span><span class="load-dot">·</span><span class="load-dot">·</span>
         </div>
       </div>
       <div class="as-link-bar" style="padding-left:1rem;padding-right:1rem;">
         <span class="as-note">
-          Live feed from <a href="https://www.artstation.com/donsrice" target="_blank" rel="noopener">ArtStation</a> — updates automatically.
+          <a href="https://www.artstation.com/donsrice" target="_blank" rel="noopener">ArtStation</a>
         </span>
         <button class="nda-tag" style="display:none;" onclick="showPage('contact')">NDA Work — Upon Request</button>
       </div>
@@ -763,7 +745,6 @@ function showPage(id) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   document.querySelector('[data-page="' + id + '"]').classList.add('active');
-  // close lightbox if open when switching pages
   document.getElementById('lightbox').classList.remove('open');
 }
 document.querySelectorAll('.nav-btn').forEach(btn => {
@@ -771,52 +752,74 @@ document.querySelectorAll('.nav-btn').forEach(btn => {
 });
 document.getElementById('logo-home').addEventListener('click', () => showPage('gallery'));
 
-// ── ARTSTATION FEED ──
-const AS_USER = 'donsrice';
-const AS_API = `https://www.artstation.com/users/${AS_USER}/projects.json?page=1&per_page=50`;
+// ══════════════════════════════════════════════
+// ── YOUR PROJECTS ──
+// Add one entry per artwork. Fields:
+//   title    — displayed on hover and in lightbox
+//   thumb    — path to your square thumbnail image
+//   images   — array of full-size image paths (can be just one)
+//   category — must match a key in CATEGORIES below
+//
+// Example entry:
+// {
+//   title: "Attuma",
+//   thumb: "images/thumbs/attuma.jpg",
+//   images: [
+//     "images/full/attuma/attuma-1.jpg",
+//     "images/full/attuma/attuma-2.jpg",
+//   ],
+//   category: "personal"
+// },
+// ══════════════════════════════════════════════
+const PROJECTS = [
+  // ADD YOUR PROJECTS HERE — copy the block above and fill in your details
+];
 
-// EDIT: replace with your Cloudflare Worker URL
-const CF_WORKER = 'https://floral-voice-7a8b.nah-d-ruiz.workers.dev';
+// ── CATEGORIES ──
+// Add a label for each category key you use in PROJECTS above.
+// "all" is always shown automatically — don't add it here.
+// Example: { key: "tiis", label: "Treasure Island in Space" }
+const CATEGORIES = [
+  { key: "personal",     label: "Personal" },
+  { key: "professional", label: "Professional" },
+  { key: "tiis",        label: "Treasure Island in Space" },
+];
+// ══════════════════════════════════════════════
 
-async function fetchWithFallback(url) {
-  const res = await fetch(`${CF_WORKER}?url=${encodeURIComponent(url)}`);
-  if (!res.ok) throw new Error('Proxy failed');
-  return res;
-}
-
-let allProjects = [];   // full list from API
-let filteredProjects = []; // currently shown list
+let filteredProjects = [];
 let activeFilter = 'all';
-const projectCache = {};  // cache fetched project details
 
-async function loadGallery() {
-  // Gallery temporarily disabled — placeholder shown instead
+// build filter buttons from CATEGORIES
+function buildFilterBar() {
+  const bar = document.getElementById('filter-bar');
+  // remove any previously injected buttons
+  bar.querySelectorAll('.filter-btn:not([data-filter="all"])').forEach(b => b.remove());
+  // only show categories that have at least one project
+  const usedKeys = new Set(PROJECTS.map(p => p.category));
+  CATEGORIES.filter(c => usedKeys.has(c.key)).forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn';
+    btn.dataset.filter = c.key;
+    btn.textContent = c.label;
+    bar.appendChild(btn);
+  });
+  // attach click handlers
+  bar.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      bar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      activeFilter = btn.dataset.filter;
+      renderGallery();
+    });
+  });
 }
 
 function renderGallery() {
   const grid = document.getElementById('gallery-grid');
-  const count = document.getElementById('gallery-count');
-
-  // ── MANUAL FILTER LISTS ──
-  // Add the slug of each project you want in a category.
-  // Find the slug in the ArtStation URL: artstation.com/artwork/SLUG
-  // Example: https://www.artstation.com/artwork/w6lDyL → slug is "w6lDyL"
-  const TIIS_SLUGS = [
-    'BkdYn8',
-    'XJolqa',
-    'gRk4WG',
-
-  ];
 
   filteredProjects = activeFilter === 'all'
-    ? allProjects
-    : allProjects.filter(p => {
-        if (activeFilter === 'treasureisland') {
-          return TIIS_SLUGS.includes(p.hash_id);
-        }
-        return true;
-      });
-  count.textContent = '';
+    ? PROJECTS
+    : PROJECTS.filter(p => p.category === activeFilter);
 
   if (!filteredProjects.length) {
     grid.innerHTML = '<div class="gallery-loading">No projects found.</div>';
@@ -824,15 +827,12 @@ function renderGallery() {
   }
 
   grid.innerHTML = filteredProjects.map((p, i) => {
-    const thumb = p.cover?.small_square_url || p.cover?.thumb_url || '';
-    const title = p.title || 'Untitled';
-    const count = p.assets_count || 1;
-    const badge = count > 1 ? `<span class="img-count"></span>` : '';
+    const badge = p.images && p.images.length > 1 ? `<span class="img-count"></span>` : '';
     return `
       <div class="gallery-item" data-index="${i}">
-        <div class="thumb"><img src="${thumb}" alt="${title}" loading="lazy"/></div>
+        <div class="thumb"><img src="${p.thumb}" alt="${p.title}" loading="lazy"/></div>
         ${badge}
-        <div class="item-overlay"><p class="item-title">${title.toUpperCase()}</p></div>
+        <div class="item-overlay"><p class="item-title">${p.title.toUpperCase()}</p></div>
       </div>`;
   }).join('');
 
@@ -841,26 +841,21 @@ function renderGallery() {
   });
 }
 
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    activeFilter = btn.dataset.filter;
-    renderGallery();
-  });
-});
-
-// ── LIGHTBOX — project navigation, stacked images ──
-let lbIndex = 0;
-
-async function openLightbox(index) {
-  lbIndex = index;
-  const lb = document.getElementById('lightbox');
-  lb.classList.add('open');
-  await renderLightboxProject();
+function loadGallery() {
+  buildFilterBar();
+  renderGallery();
 }
 
-async function renderLightboxProject() {
+// ── LIGHTBOX ──
+let lbIndex = 0;
+
+function openLightbox(index) {
+  lbIndex = index;
+  document.getElementById('lightbox').classList.add('open');
+  renderLightboxProject();
+}
+
+function renderLightboxProject() {
   const p = filteredProjects[lbIndex];
   if (!p) return;
 
@@ -868,43 +863,24 @@ async function renderLightboxProject() {
   const loading = document.getElementById('lb-loading');
   const title = document.getElementById('lb-title');
 
-  // reset scroll and show loader
   scroll.scrollTop = 0;
-  // clear images but keep loader and title elements
   Array.from(scroll.querySelectorAll('img')).forEach(el => el.remove());
-  loading.classList.add('show');
-  title.textContent = '';
-  document.getElementById('lb-as-link').href = p.permalink || '#';
+  loading.classList.remove('show');
+  title.textContent = p.title.toUpperCase();
+
+  // hide ArtStation link since we're self-hosted
+  document.getElementById('lb-as-link').style.display = 'none';
+
+  const imgs = p.images && p.images.length ? p.images : [p.thumb];
+  imgs.forEach(src => {
+    const img = document.createElement('img');
+    img.src = src;
+    img.alt = p.title;
+    img.loading = 'lazy';
+    scroll.insertBefore(img, title);
+  });
+
   updateArrows();
-
-  try {
-    if (!projectCache[p.hash_id]) {
-      const res = await fetchWithFallback(`https://www.artstation.com/projects/${p.hash_id}.json`);
-      if (!res.ok) throw new Error();
-      projectCache[p.hash_id] = await res.json();
-    }
-    const proj = projectCache[p.hash_id];
-    const assets = (proj.assets || []).filter(a => a.asset_type === 'image');
-    const imgs = assets.length
-      ? assets.map(a => a.image_url || a.url).filter(Boolean)
-      : [proj.cover?.medium_image_url || proj.cover?.image_url].filter(Boolean);
-
-    loading.classList.remove('show');
-    title.textContent = (proj.title || '').toUpperCase();
-
-    // insert images before the title
-    imgs.forEach(src => {
-      const img = document.createElement('img');
-      img.src = src;
-      img.alt = proj.title || '';
-      img.loading = 'lazy';
-      scroll.insertBefore(img, title);
-    });
-
-  } catch(e) {
-    loading.classList.remove('show');
-    title.textContent = 'Could not load images';
-  }
 }
 
 function updateArrows() {
