@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Zapping 90s — Simulador de grilla</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&family=Archivo+Narrow:wght@400;600&display=swap');
+
+  :root{
+    --bg: #0a0e18;
+    --panel: #0f1b2e;
+    --guide: #142a4d;
+    --cyan: #4be0e8;
+    --yellow: #ffcf3f;
+    --ink: #e8ecf4;
+    --muted: #6f85ab;
+    --line: #23385c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:24px; background:var(--bg); color:var(--ink);
+    font-family:'Archivo Narrow', sans-serif;
+    display:flex; justify-content:center;
+  }
+  .tv{
+    width:100%; max-width:920px; background:var(--panel);
+    border:2px solid var(--line); border-radius:10px; overflow:hidden;
+    position:relative;
+  }
+  .scanlines{
+    position:absolute; inset:0; pointer-events:none; z-index:5;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
+    opacity:.35;
+  }
+  .static-flash{
+    position:absolute; inset:0; background:var(--ink); opacity:0; pointer-events:none; z-index:6;
+    transition:opacity .08s;
+  }
+  .static-flash.on{opacity:.9;}
+
+  .topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 20px; border-bottom:2px solid var(--line); background:var(--guide);
+  }
+  .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
+  .clockbox{display:flex; align-items:center; gap:10px; font-family:'VT323', monospace; font-size:20px; color:var(--cyan);}
+  .clockbox input[type="datetime-local"]{
+    background:#0a1830; color:var(--ink); border:1px solid var(--line); border-radius:4px;
+    font-family:'VT323', monospace; font-size:16px; padding:3px 6px;
+  }
+  .clockbox button{
+    background:var(--cyan); color:#04222a; border:none; border-radius:4px; padding:5px 10px;
+    font-family:'Archivo Narrow', sans-serif; font-weight:600; font-size:12px; cursor:pointer;
+  }
+  .clockbox button:hover{background:#7dedf3;}
+  .clockbox .live{
+    background:transparent; color:var(--muted); border:1px solid var(--line); font-weight:400;
+  }
+  .live-date{color:var(--ink); font-size:16px; padding-right:4px;}
+
+  .body{display:flex; min-height:420px;}
+  .channels{
+    width:190px; border-right:2px solid var(--line); background:#0b1524;
+  }
+  .ch-row{
+    display:flex; align-items:center; gap:10px; padding:12px 14px;
+    border-bottom:1px solid var(--line); cursor:pointer;
+  }
+  .ch-row:hover{background:#122543;}
+  .ch-row.active{background:var(--guide); box-shadow:inset 3px 0 0 var(--yellow);}
+  .ch-num{
+    font-family:'VT323', monospace; font-size:22px; color:var(--muted); width:26px; text-align:right;
+  }
+  .ch-row.active .ch-num{color:var(--yellow);}
+  .ch-name{font-size:14px; font-weight:600;}
+  .ch-row.active .ch-name{color:var(--yellow);}
+
+  .main{flex:1; padding:22px 26px;}
+
+  .cover{
+    width:100%; aspect-ratio:16/9; background:#050a14; border:1px solid var(--line);
+    border-radius:6px; overflow:hidden; margin-bottom:18px;
+  }
+  .cover iframe{width:100%; height:100%; border:0; display:block;}
+
+  .eyebrow{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:0 0 4px;}
+  .show-title{font-family:'VT323', monospace; font-size:34px; color:var(--ink); margin:0 0 2px; line-height:1;}
+  .ep-title{font-size:15px; color:var(--cyan); margin:0 0 14px;}
+
+  .watch-link{
+    display:inline-flex; align-items:center; gap:8px; background:var(--yellow); color:#2a1e00;
+    text-decoration:none; font-weight:600; font-size:13px; padding:8px 14px; border-radius:5px;
+    margin-bottom:18px;
+  }
+  .watch-link:hover{background:#ffe08a;}
+  .no-link{
+    font-size:12px; color:var(--muted); margin-bottom:18px;
+  }
+
+  .progress-wrap{margin-bottom:6px;}
+  .progress-bar{
+    height:10px; background:#0a1830; border:1px solid var(--line); border-radius:5px; overflow:hidden;
+  }
+  .progress-fill{height:100%; background:var(--yellow);}
+  .progress-labels{
+    display:flex; justify-content:space-between; font-family:'VT323', monospace; font-size:15px; color:var(--muted); margin-top:4px;
+  }
+
+  .up-next{
+    margin-top:26px; padding-top:14px; border-top:1px dashed var(--line);
+  }
+  .up-next .eyebrow{margin-bottom:8px;}
+  .up-next-item{font-size:13px; color:var(--ink); opacity:.8; margin:3px 0;}
+
+  .off-air{font-family:'VT323', monospace; font-size:22px; color:var(--muted); padding:40px 0;}
+
+  .ticker{
+    border-top:2px solid var(--line); background:#0b1524; padding:8px 0; overflow:hidden; white-space:nowrap;
+  }
+  .ticker span{
+    display:inline-block; padding-left:100%; font-family:'VT323', monospace; font-size:16px; color:var(--muted);
+    animation:scroll 28s linear infinite;
+  }
+  @keyframes scroll{ from{transform:translateX(0);} to{transform:translateX(-100%);} }
+</style>
+</head>
+<body>
+
+<div class="tv">
+  <div class="scanlines"></div>
+  <div class="static-flash" id="flash"></div>
+
+  <div class="topbar">
+    <div class="brand">◉ ZAPPING 90s</div>
+    <div class="clockbox">
+      <span id="liveDate" class="live-date"></span>
+      <input type="datetime-local" id="dtInput">
+      <button onclick="sintonizar()">Sintonizar</button>
+      <button class="live" onclick="volverEnVivo()">En vivo</button>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="channels" id="channelList"></div>
+    <div class="main">
+      <div id="embedContainer"></div>
+      <div id="mainPanel"></div>
+    </div>
+  </div>
+
+  <div class="ticker"><span id="tickerText"></span></div>
+</div>
+
+<script>
+// ── FECHA DE INICIO DE LA PROGRAMACIÓN ──
+// A partir de esta fecha (y hora) el sistema empieza a contar los capítulos.
+// Ej: si Digimon arranca acá y tiene 100 capítulos, en el capítulo 101 vuelve a empezar desde el 1.
+const EPOCH = new Date("2026-05-27T00:00:00");
+
+// ─────────────────────────────────────────────────────────────
+// GENERADORES DE EPISODIOS
+// Cada episodio final es {title, url?, embedUrl?}.
+// - "url": link directo, aparece como botón "▶ Ver este capítulo".
+// - "embedUrl": el reproductor se embebe en la página, buscando automáticamente
+//   el segundo exacto donde debería ir (con el parámetro que definas, ej ?fromTime=).
+// Si un capítulo tiene los dos, se muestran los dos. Si no tiene ninguno, avisa que falta cargar.
+// ─────────────────────────────────────────────────────────────
+
+function mkEpisodes(n){
+  return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`}));
+}
+
+// baseUrl tiene que terminar en el número del CAPÍTULO 1. Genera automáticamente
+// los siguientes incrementando ese número. opts.field: "url" (default) o "embedUrl".
+function mkEpisodesFromLink(baseUrl, n, opts={}){
+  const match = baseUrl.match(/^(.*?)(\d+)([^\d]*)$/);
+  if(!match){
+    console.warn("mkEpisodesFromLink: no encontré un número al final de", baseUrl);
+    return mkEpisodes(n);
+  }
+  const [, prefix, numStr, suffix] = match;
+  const startNum = parseInt(numStr, 10);
+  const pad = numStr.length;
+  const field = opts.field || "url";
+  const titlePrefix = opts.titlePrefix || "Capítulo";
+
+  return Array.from({length:n}, (_,i)=>{
+    const num = startNum + i;
+    const numFormatted = opts.zeroPad ? String(num).padStart(pad,"0") : String(num);
+    return {
+      title:`${titlePrefix} ${i+1}`,
+      [field]: `${prefix}${numFormatted}${suffix}`
+    };
+  });
+}
+
+// Para series con temporadas que NO numeran corrido: un tramo por temporada.
+function mkEpisodesFromSeasons(seasons, opts={}){
+  let out = [];
+  seasons.forEach((s)=>{
+    out = out.concat(mkEpisodesFromLink(s.baseUrl, s.count, {
+      titlePrefix:s.label, zeroPad:s.zeroPad, field:opts.field || "url"
+    }));
+  });
+  return out;
+}
+
+// Placeholder genérico — reemplazalo por tus links reales.
+const PLACEHOLDER = "https://tusitio.com/serie/capitulo/1001";
+
+// Arma un canal a partir de filas [horaInicio, horaFin, título, cantEpisodios, duraciónMin?].
+// Por default todos los bloques corren los 7 días (no hay distinción finde/semana en
+// la grilla que cargaste); si más adelante querés separar sábado/domingo, dividí las
+// filas en dos arrays y pasales "days" distinto.
+function buildDailyChannel(id, num, name, rows, opts={}){
+  const days = opts.days || [0,1,2,3,4,5,6];
+  return {
+    id, num, name,
+    blocks: rows.map(([start, end, title, count, epMin])=>({
+      days, start, end,
+      show:{
+        title, epMin: epMin || 30,
+        episodes: mkEpisodesFromLink(PLACEHOLDER, count, {field:"url"})
+      }
+    }))
+  };
+}
+
+// ─────────────────────────────────────────────────────────────
+// DATOS — cargados desde la base de Notion "NGTV"
+// Los conteos de episodios son estimaciones mías; convendría que los verifiques.
+// ─────────────────────────────────────────────────────────────
+
+const FOXKIDS_ROWS = [
+  ["06:00","06:30","El Pájaro Loco",26],
+  ["06:30","07:00","Incredible Hulk (Serie Animada 90s)",21],
+  ["07:00","07:30","Iron Man (Serie Animada 90s)",26],
+  ["07:30","08:00","X-Men (Serie Animada 1992)",76],
+  ["08:00","08:30","Tres Espías sin Límite (Totally Spies!)",130],
+  ["08:30","09:00","Kirby",100],
+  ["09:00","09:30","Monster Rancher",73],
+  ["09:30","10:00","Digimon Adventure",54],
+  ["10:00","10:30","Digimon Tamers",51],
+  ["10:30","11:00","Shaman King",64],
+  ["11:00","11:30","Power Rangers Mighty Morphin",60],
+  ["11:30","12:00","Super Escuadrón Mono Fuerza A Go-Go!",52],
+  ["12:00","12:30","Tres Espías sin Límite",130],
+  ["12:30","13:00","Shaman King",64],
+  ["13:00","13:30","Digimon",54],
+  ["13:30","14:00","Power Rangers Time Force / Dino Thunder",40],
+  ["14:00","14:30","X-Men",76],
+  ["14:30","15:00","Incredible Hulk",21],
+  ["15:00","15:30","Super Escuadrón Mono Fuerza A Go-Go!",52],
+  ["15:30","16:00","Mortal Kombat: Defenders of the Realm",13],
+  ["16:00","16:30","Get Ed",26],
+  ["16:30","17:00","Digimon Tamers",51],
+  ["17:00","17:30","Tres Espías sin Límite",130],
+  ["17:30","18:00","Shaman King",64],
+  ["18:00","18:30","Power Rangers",60],
+  ["18:30","19:00","X-Men",76],
+  ["19:00","19:30","Spider-Man (Serie Animada 1994)",65],
+  ["19:30","20:00","BeyBlade",51],
+  ["20:00","20:30","Medabots",52],
+  ["20:30","21:00","Shaman King",64],
+  ["21:00","21:30","INSOMNIO: Spider-Man (Serie Animada 1994)",65],
+  ["21:30","22:00","INSOMNIO: Shin-chan",26],
+  ["22:00","22:30","INSOMNIO: Medabots",52],
+  ["22:30","23:00","INSOMNIO: Escaflowne",26],
+  ["23:00","23:30","INSOMNIO: Autopista",13],
+  ["23:30","00:00","INSOMNIO: BeyBlade",51],
+];
+
+const MAGICMOTION_ROWS = [
+  ["06:00","06:30","Las Aventuras de Pippi Longstocking",21],
+  ["06:30","07:00","Daniel el Travieso",60],
+  ["07:00","07:30","El Capitán Planeta",113],
+  ["07:30","08:00","Las Aventuras de Tintín",39],
+  ["08:00","08:30","Space Goofs (Los extraterrestres chiflados)",78],
+  ["08:30","09:00","Las Aventuras de Sonic el Erizo",65],
+  ["09:00","09:30","Street Sharks (Tiburones del Asfalto)",40],
+  ["09:30","10:00","Los Motorratones de Marte",65],
+  ["10:00","10:30","Las Tortugas Ninja",60],
+  ["10:30","11:00","Cadillacs y Dinosaurios",13],
+  ["11:00","11:30","¿Dónde está Wally?",13],
+  ["11:30","12:00","Dr. Slump",74],
+  ["12:00","12:30","Koni Chan",26],
+  ["12:30","13:00","Beast Wars: Transformers",52],
+  ["13:00","13:30","Sailor Moon",46],
+  ["13:30","14:00","Ranma ½",161],
+  ["14:00","14:30","Slam Dunk",101],
+  ["14:30","15:00","Gatchaman",105],
+  ["15:00","15:30","Supercampeones",128],
+  ["15:30","16:00","Dragon Ball",153],
+  ["16:00","16:30","Dragon Ball Z",291],
+  ["16:30","17:00","Los Caballeros del Zodiaco",114],
+  ["17:00","17:30","B't X",13],
+  ["17:30","18:00","Orphen",24],
+  ["18:00","18:30","Detective Conan",130],
+  ["18:30","19:00","Supercampeones (Repetición)",128],
+  ["19:00","19:30","Dragon Ball Z (Episodio Central)",291],
+  ["19:30","20:00","Masked Rider",40],
+  ["20:00","20:30","Los Halcones Galácticos",85],
+  ["20:30","21:00","Thundercats",130],
+  ["21:00","21:30","Cuentos de la Cripta",26],
+  ["21:30","22:00","Los Verdaderos Cazafantasmas",65],
+  ["22:00","22:30","Slayers",26],
+  ["22:30","23:00","B't X (Repetición nocturna)",13],
+  ["23:00","23:30","Koni Chan (Trasnochados)",26],
+  ["23:30","00:00","Mikami La Cazafantasmas",43],
+];
+
+const NICK_ROWS = [
+  ["06:00","06:30","Rugrats: Aventuras en Pañales",172],
+  ["06:30","07:00","Las Aventuras de Jimmy Neutrón",61],
+  ["07:00","07:30","Oye Arnold!",100],
+  ["07:30","08:00","Los Castores Cascarrabias",61],
+  ["08:00","08:30","CatDog",68],
+  ["08:30","09:00","La Vida Moderna de Rocko",52],
+  ["09:00","09:30","Aahhh! Monstruos de Verdad",52],
+  ["09:30","10:00","Doug",52],
+  ["10:00","10:30","Invasor Zim",27],
+  ["10:30","11:00","Ginger",61],
+  ["11:00","11:30","Rugrats: Aventuras en Pañales",172],
+  ["11:30","12:00","Bob Esponja",300],
+  ["12:00","12:30","Los Padrinos Mágicos",172],
+  ["12:30","13:00","Las Aventuras de Jimmy Neutrón",61],
+  ["13:00","13:30","Oye Arnold!",100],
+  ["13:30","14:00","CatDog",68],
+  ["14:00","14:30","Bob Esponja",300],
+  ["14:30","15:00","Los Padrinos Mágicos",172],
+  ["15:00","15:30","Danny Phantom",53],
+  ["15:30","16:00","Avatar: El Último Maestro del Aire",61],
+  ["16:00","16:30","Rugrats Crecidos (All Grown Up!)",55],
+  ["16:30","17:00","Oye Arnold!",100],
+  ["17:00","17:30","Los Padrinos Mágicos",172],
+  ["17:30","18:00","Bob Esponja",300],
+  ["18:00","18:30","Kenan & Kel",62],
+  ["18:30","19:00","Drake & Josh",57],
+  ["19:30","20:00","Clarissa lo explica todo",65],
+  ["20:00","20:30","Sabrina, la bruja adolescente",163],
+  ["21:00","21:30","NICK AT NITE: Alf",102],
+  ["22:30","23:00","NICK AT NITE: Batman '66",120],
+  ["23:00","00:00","¿Le temes a la oscuridad?",91,60],
+];
+
+const DISNEY_ROWS = [
+  ["06:00","06:30","Recreo (Recess)",65],
+  ["06:30","07:00","Pepper Ann",65],
+  ["07:00","07:30","Doug de Disney",65],
+  ["07:30","08:00","Las Aventuras de Timón y Pumba",85],
+  ["08:00","08:30","Aladdín (Serie Animada)",86],
+  ["08:30","09:00","Hércules (Serie Animada)",64],
+  ["09:00","09:30","Tarzán (Serie)",39],
+  ["09:30","10:00","101 Dálmatas (Serie)",65],
+  ["10:00","10:30","Dave, el bárbaro",21],
+  ["10:30","11:00","Las Aventuras de Brandy y El Señor Bigotes",26],
+  ["11:00","11:30","Lilo & Stitch: La Serie",65],
+  ["11:30","12:00","Kim Possible",87],
+  ["12:00","12:30","Recreo",65],
+  ["12:30","13:00","La Familia Proud",52],
+  ["13:00","13:30","Jake Long: El Dragón Occidental",52],
+  ["13:30","14:00","Super Escuadrón Ciber Monos Hiperfuerza ¡Ya!",52],
+  ["14:00","14:30","Gargoyles: Héroes Góticos",78],
+  ["14:30","15:00","Dave, el bárbaro",21],
+  ["15:00","15:30","Kim Possible",87],
+  ["15:30","16:00","Lilo & Stitch: La Serie",65],
+  ["16:00","16:30","Brandy y El Señor Bigotes",26],
+  ["16:30","17:00","Recreo",65],
+  ["17:00","17:30","Jake Long: El Dragón Occidental",52],
+  ["17:30","18:00","Kim Possible",87],
+  ["18:00","18:30","Phineas y Ferb",100],
+  ["18:30","19:00","Las Nuevas Locuras Del Emperador",52],
+  ["19:00","19:30","Dave, el bárbaro",21],
+  ["19:30","20:00","Recreo",65],
+  ["20:00","20:30","Darkwing Duck",91],
+  ["20:30","21:00","Gargoyles: Héroes Góticos",78],
+  ["21:00","21:30","Kim Possible",87],
+  ["21:30","22:00","Phineas y Ferb",100],
+  ["22:00","22:30","Aladdín",86],
+  ["22:30","23:00","Hércules",64],
+  ["23:00","23:30","Las Aventuras de Timón y Pumba",85],
+  ["23:30","00:00","Recreo",65],
+];
+
+const WB_ROWS = [
+  ["06:00","06:30","Don Gato y su Pandilla",30],
+  ["06:30","07:00","Los Picapiedra",166],
+  ["07:00","07:30","Los Supersónicos",75],
+  ["07:30","08:00","El Fantasma del Espacio",20],
+  ["08:00","08:30","Animaniacs",99],
+  ["08:30","09:00","Pinky y Cerebro",65],
+  ["09:00","09:30","Tiny Toons",98],
+  ["09:30","10:00","Fenomenoide",24],
+  ["10:00","10:30","Las Aventuras de Batman y Robin (1992)",24],
+  ["10:30","11:00","Superman: La Serie Animada",54],
+  ["11:00","11:30","Batman del Futuro (Batman Beyond)",52],
+  ["11:30","12:00","Don Gato y su Pandilla",30],
+  ["12:00","12:30","Animaniacs",99],
+  ["12:30","13:00","Pinky y Cerebro",65],
+  ["13:00","13:30","Tiny Toons",98],
+  ["13:30","14:00","Fenomenoide",24],
+  ["14:00","14:30","Batman: La Serie Animada",85],
+  ["14:30","15:00","Superman: La Serie Animada",54],
+  ["15:00","15:30","Batman del Futuro",52],
+  ["15:30","16:00","Mucha Lucha!",52],
+  ["16:00","16:30","Animaniacs",99],
+  ["16:30","17:00","Pinky y Cerebro",65],
+  ["17:00","17:30","Tiny Toons",98],
+  ["17:30","18:00","Fenomenoide",24],
+  ["18:00","18:30","Batman: La Serie Animada",85],
+  ["18:30","19:00","Superman: La Serie Animada",54],
+  ["19:00","19:30","Batman del Futuro",52],
+  ["19:30","20:00","Don Gato y su Pandilla",30],
+  ["20:00","20:30","Animaniacs",99],
+  ["20:30","21:00","Pinky y Cerebro",65],
+  ["21:00","21:30","Batman: La Serie Animada",85],
+  ["21:30","22:00","Batman del Futuro",52],
+  ["22:00","22:30","El Fantasma del Espacio de Noche a Noche",111],
+  ["22:30","23:00","El Fantasma del Espacio de Noche a Noche",111],
+  ["23:00","23:30","Fenomenoide",24],
+  ["23:30","00:00","Los Picapiedra",166],
+];
+
+const CN_ROWS = [
+  ["06:00","06:30","La Vaca y el Pollito",52],
+  ["06:30","07:00","Soy La Comadreja",52],
+  ["07:00","07:30","El Show de Scooby-Doo",40],
+  ["07:30","08:00","El laboratorio de Dexter",78],
+  ["08:00","08:30","Las Chicas Superpoderosas",78],
+  ["08:30","09:00","Johnny Bravo",67],
+  ["09:00","09:30","Ed, Edd y Eddy",69],
+  ["09:30","10:00","El Campamento de Lazlo",65],
+  ["10:00","10:30","Vida y obra de Juniper Lee",26],
+  ["10:30","11:00","Coraje, el perro cobarde",52],
+  ["11:00","11:30","Looney Tunes",100],
+  ["11:30","12:00","Tom y Jerry",100],
+  ["12:00","12:30","El laboratorio de Dexter",78],
+  ["12:30","13:00","Las Chicas Superpoderosas",78],
+  ["13:00","13:30","El Campamento de Lazlo",65],
+  ["13:30","14:00","Ed, Edd y Eddy",69],
+  ["14:00","14:30","KND: Los chicos del barrio",78],
+  ["14:30","15:00","Vida y obra de Juniper Lee",26],
+  ["15:00","15:30","Winx Club",26],
+  ["15:30","16:00","Hi Hi Puffy AmiYumi",39],
+  ["16:00","16:30","Ben 10 (Serie Clásica)",49],
+  // Teen Titans se arma aparte con mkEpisodesFromSeasons (ver más abajo)
+  ["17:00","17:30","Duelo Xiaolin",52],
+  ["17:30","18:00","Las sombrías aventuras de Billy y Mandy",78],
+  ["18:00","18:30","Mansión Foster para amigos imaginarios",79],
+  ["18:30","19:00","Coraje, el perro cobarde",52],
+  ["19:00","19:30","KND: Los chicos del barrio",78],
+  ["19:30","20:00","Megas XLR",26],
+  ["20:00","20:30","Ben 10: Alien Force",26],
+  ["20:30","21:00","Justice League Unlimited / Samurai Jack",39],
+  ["21:00","21:30","TOONAMI: Pokémon",80],
+  ["21:30","22:00","TOONAMI: Dragon Ball Z / GT",291],
+  ["22:00","22:30","TOONAMI: One Piece",130],
+  ["22:30","23:00","TOONAMI: Naruto",220],
+  ["23:00","23:30","ADULT SWIM: Aqua Teen Hunger Force",65],
+  ["23:30","00:00","ADULT SWIM: Harvey Birdman / Sealab 2021",52],
+];
+
+const CHANNELS = [
+  buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS),
+  buildDailyChannel("magickids", 3, "Magic Kids", MAGICMOTION_ROWS),
+  buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS),
+  buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS),
+  buildDailyChannel("wb", 13, "WB", WB_ROWS),
+  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS),
+];
+
+// Insertamos el bloque de Teen Titans (16:30-17:00 en Cartoon Network) a mano,
+// porque usa mkEpisodesFromSeasons en vez de mkEpisodesFromLink:
+CHANNELS.find(c=>c.id==="cn").blocks.push({
+  days:[0,1,2,3,4,5,6], start:"16:30", end:"17:00",
+  show:{
+    title:"Teen Titans (Jóvenes Titanes)", epMin:30,
+    episodes: mkEpisodesFromSeasons([
+      {baseUrl:"https://tusitio.com/serie/teen-titans-t1/capitulo/1", count:13, label:"T1 Cap."},
+      {baseUrl:"https://tusitio.com/serie/teen-titans-t2/capitulo/1", count:13, label:"T2 Cap."},
+      {baseUrl:"https://tusitio.com/serie/teen-titans-t3/capitulo/1", count:13, label:"T3 Cap."},
+      {baseUrl:"https://tusitio.com/serie/teen-titans-t4/capitulo/1", count:13, label:"T4 Cap."},
+      {baseUrl:"https://tusitio.com/serie/teen-titans-t5/capitulo/1", count:10, label:"T5 Cap."},
+    ], {field:"url"})
+  }
+});
+
+// ─────────────────────────────────────────────────────────────
+// MOTOR
+// ─────────────────────────────────────────────────────────────
+
+function parseHM(str){
+  const [h,m] = str.split(":").map(Number);
+  return h*60+m;
+}
+
+function daysBetween(a,b){
+  const ms = new Date(b.getFullYear(),b.getMonth(),b.getDate()) - new Date(a.getFullYear(),a.getMonth(),a.getDate());
+  return Math.round(ms/86400000);
+}
+
+function computeNowPlaying(channel, now){
+  if(now < EPOCH) return null;
+
+  const weekday = now.getDay();
+  const minutesNow = now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
+
+  const block = channel.blocks.find(b => b.days.includes(weekday) &&
+    minutesNow >= parseHM(b.start) && minutesNow < parseHM(b.end));
+  if(!block) return null;
+
+  const blockDur = parseHM(block.end)-parseHM(block.start);
+  const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  let fullOccurrences = 0;
+  const totalDays = daysBetween(EPOCH, todayMid);
+  for(let d=0; d<totalDays; d++){
+    const day = new Date(EPOCH); day.setDate(day.getDate()+d);
+    if(block.days.includes(day.getDay())) fullOccurrences++;
+  }
+
+  const minutesIntoBlockToday = minutesNow - parseHM(block.start);
+  const totalElapsed = fullOccurrences*blockDur + minutesIntoBlockToday;
+
+  const epMin = block.show.epMin;
+  const epCount = block.show.episodes.length;
+  const globalIdx = Math.floor(totalElapsed/epMin);
+  const epIndex = ((globalIdx % epCount)+epCount) % epCount;
+  const offset = totalElapsed % epMin;
+
+  const nextEpIndex = (epIndex+1) % epCount;
+
+  return {
+    show: block.show.title,
+    episode: block.show.episodes[epIndex],
+    nextEpisode: block.show.episodes[nextEpIndex],
+    offsetMin: Math.floor(offset),
+    offsetSec: Math.floor((offset%1)*60),
+    epMin,
+    embedTimeParam: block.show.embedTimeParam || "fromTime",
+    blockEnd: block.end,
+  };
+}
+
+function fmt(m,s){
+  return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+
+let activeChannel = CHANNELS[0].id;
+let overrideDate = null;
+let lastEmbedKey = null;
+
+function currentSimTime(){
+  return overrideDate ? new Date(overrideDate) : new Date();
+}
+
+function updateEmbed(ch, info){
+  const container = document.getElementById("embedContainer");
+  if(!info || !info.episode.embedUrl){
+    if(lastEmbedKey !== null){ container.innerHTML = ""; lastEmbedKey = null; }
+    return;
+  }
+  const key = ch.id + "|" + info.episode.title;
+  if(key === lastEmbedKey) return; // ya está reproduciéndose, no reiniciar el iframe
+  lastEmbedKey = key;
+
+  const offsetSeconds = Math.floor(info.offsetMin*60 + info.offsetSec);
+  const sep = info.episode.embedUrl.includes("?") ? "&" : "?";
+  const src = `${info.episode.embedUrl}${sep}${info.embedTimeParam}=${offsetSeconds}`;
+  container.innerHTML = `<div class="cover"><iframe src="${src}" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>`;
+}
+
+function render(){
+  const now = currentSimTime();
+
+  document.getElementById("liveDate").textContent =
+    now.toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) +
+    ' · ' + now.toLocaleTimeString('es-AR');
+
+  const list = document.getElementById("channelList");
+  list.innerHTML = CHANNELS.map(ch => `
+    <div class="ch-row ${ch.id===activeChannel?'active':''}" onclick="selectChannel('${ch.id}')">
+      <div class="ch-num">${ch.num}</div>
+      <div class="ch-name">${ch.name}</div>
+    </div>
+  `).join("");
+
+  const ch = CHANNELS.find(c=>c.id===activeChannel);
+  const info = computeNowPlaying(ch, now);
+  const main = document.getElementById("mainPanel");
+
+  updateEmbed(ch, info);
+
+  if(!info){
+    const notStarted = now < EPOCH;
+    main.innerHTML = `
+      <p class="eyebrow">Canal ${ch.num} · ${ch.name}</p>
+      <div class="off-air">${notStarted ? 'La programación todavía no arrancó' : 'Fuera de programación en este horario'}<br><span style="font-size:15px;">${notStarted ? `Arranca el ${EPOCH.toLocaleDateString('es-AR')}` : ''}</span></div>
+    `;
+  }else{
+    const pct = Math.min(100, (info.offsetMin*60+info.offsetSec)/(info.epMin*60)*100);
+    let linkHtml = "";
+    if(info.episode.url){
+      linkHtml += `<a class="watch-link" href="${info.episode.url}" target="_blank" rel="noopener">▶ Ver este capítulo</a>`;
+    }
+    if(!info.episode.url && !info.episode.embedUrl){
+      linkHtml = `<div class="no-link">Sin link cargado para este capítulo</div>`;
+    }
+    main.innerHTML = `
+      <p class="eyebrow">Canal ${ch.num} · ${ch.name} · ahora</p>
+      <h2 class="show-title">${info.show}</h2>
+      <p class="ep-title">${info.episode.title}</p>
+      ${linkHtml}
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-labels">
+          <span>${fmt(info.offsetMin, info.offsetSec)}</span>
+          <span>${String(info.epMin).padStart(2,"0")}:00</span>
+        </div>
+      </div>
+      <div class="up-next">
+        <p class="eyebrow">A continuación</p>
+        <p class="up-next-item">${info.nextEpisode.title} · ${info.show}</p>
+      </div>
+    `;
+  }
+
+  const ticker = CHANNELS.map(c=>{
+    const i = computeNowPlaying(c, now);
+    return `CANAL ${c.num} ${c.name}: ${i ? i.show+' — '+i.episode.title : 'fuera de aire'}`;
+  }).join("     •     ");
+  document.getElementById("tickerText").textContent = ticker + "     •     ";
+}
+
+function selectChannel(id){
+  if(id===activeChannel) return;
+  activeChannel = id;
+  const flash = document.getElementById("flash");
+  flash.classList.add("on");
+  setTimeout(()=>flash.classList.remove("on"), 80);
+  render();
+}
+
+function sintonizar(){
+  const val = document.getElementById("dtInput").value;
+  if(!val) return;
+  overrideDate = new Date(val);
+  render();
+}
+
+function volverEnVivo(){
+  overrideDate = null;
+  document.getElementById("dtInput").value = "";
+  render();
+}
+
+function prefillDtInput(){
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+  document.getElementById("dtInput").value = d.toISOString().slice(0,16);
+}
+
+setInterval(render, 1000);
+prefillDtInput();
+render();
+</script>
+
+</body>
+</html>
