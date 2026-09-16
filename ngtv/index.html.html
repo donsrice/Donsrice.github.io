@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>NGTV — Simulador de grilla</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&family=Archivo+Narrow:wght@400;600&display=swap');
+
+  :root{
+    --bg: #0a0e18;
+    --panel: #0f1b2e;
+    --guide: #142a4d;
+    --cyan: #4be0e8;
+    --yellow: #ffcf3f;
+    --ink: #e8ecf4;
+    --muted: #6f85ab;
+    --line: #23385c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; padding:24px; background:var(--bg); color:var(--ink);
+    font-family:'Archivo Narrow', sans-serif;
+    display:flex; justify-content:center;
+  }
+  .tv{
+    width:100%; max-width:920px; background:var(--panel);
+    border:2px solid var(--line); border-radius:10px; overflow:hidden;
+    position:relative;
+  }
+  .scanlines{
+    position:absolute; inset:0; pointer-events:none; z-index:5;
+    background:repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
+    opacity:.35;
+  }
+  .static-flash{
+    position:absolute; inset:0; background:var(--ink); opacity:0; pointer-events:none; z-index:6;
+    transition:opacity .08s;
+  }
+  .static-flash.on{opacity:.9;}
+
+  .topbar{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:14px 20px; border-bottom:2px solid var(--line); background:var(--guide);
+  }
+  .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
+  .clockbox{display:flex; align-items:center; gap:10px; font-family:'VT323', monospace; font-size:20px; color:var(--cyan);}
+  .clockbox input[type="datetime-local"]{
+    background:#0a1830; color:var(--ink); border:1px solid var(--line); border-radius:4px;
+    font-family:'VT323', monospace; font-size:16px; padding:3px 6px;
+  }
+  .clockbox button{
+    background:var(--cyan); color:#04222a; border:none; border-radius:4px; padding:5px 10px;
+    font-family:'Archivo Narrow', sans-serif; font-weight:600; font-size:12px; cursor:pointer;
+  }
+  .clockbox button:hover{background:#7dedf3;}
+  .clockbox .live{
+    background:transparent; color:var(--muted); border:1px solid var(--line); font-weight:400;
+  }
+  .live-date{color:var(--ink); font-size:16px; padding-right:4px;}
+
+  .body{display:flex; min-height:420px;}
+  .channels{
+    width:190px; border-right:2px solid var(--line); background:#0b1524;
+  }
+  .ch-row{
+    display:flex; align-items:center; gap:10px; padding:12px 14px;
+    border-bottom:1px solid var(--line); cursor:pointer;
+  }
+  .ch-row:hover{background:#122543;}
+  .ch-row.active{background:var(--guide); box-shadow:inset 3px 0 0 var(--yellow);}
+  .ch-num{
+    font-family:'VT323', monospace; font-size:22px; color:var(--muted); width:26px; text-align:right;
+  }
+  .ch-row.active .ch-num{color:var(--yellow);}
+  .ch-name{font-size:14px; font-weight:600;}
+  .ch-row.active .ch-name{color:var(--yellow);}
+
+  .main{flex:1; padding:22px 26px;}
+
+  .eyebrow{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:0 0 4px;}
+  .show-title{font-family:'VT323', monospace; font-size:34px; color:var(--ink); margin:0 0 2px; line-height:1;}
+  .ep-title{font-size:15px; color:var(--cyan); margin:0 0 14px;}
+
+  .watch-link{
+    display:inline-flex; align-items:center; gap:8px; background:var(--yellow); color:#2a1e00;
+    text-decoration:none; font-weight:600; font-size:13px; padding:8px 14px; border-radius:5px;
+    margin-bottom:18px;
+  }
+  .watch-link:hover{background:#ffe08a;}
+  .no-link{
+    font-size:12px; color:var(--muted); margin-bottom:18px;
+  }
+
+  .progress-wrap{margin-bottom:6px;}
+  .progress-bar{
+    height:10px; background:#0a1830; border:1px solid var(--line); border-radius:5px; overflow:hidden;
+  }
+  .progress-fill{height:100%; background:var(--yellow);}
+  .progress-labels{
+    display:flex; justify-content:space-between; font-family:'VT323', monospace; font-size:15px; color:var(--muted); margin-top:4px;
+  }
+
+  .up-next{
+    margin-top:26px; padding-top:14px; border-top:1px dashed var(--line);
+  }
+  .up-next .eyebrow{margin-bottom:8px;}
+  .up-next-item{font-size:13px; color:var(--ink); opacity:.8; margin:3px 0;}
+
+  .off-air{font-family:'VT323', monospace; font-size:22px; color:var(--muted); padding:40px 0;}
+
+  .ticker{
+    border-top:2px solid var(--line); background:#0b1524; padding:8px 0; overflow:hidden; white-space:nowrap;
+  }
+  .ticker span{
+    display:inline-block; padding-left:100%; font-family:'VT323', monospace; font-size:16px; color:var(--muted);
+    animation:scroll 28s linear infinite;
+  }
+  @keyframes scroll{ from{transform:translateX(0);} to{transform:translateX(-100%);} }
+</style>
+</head>
+<body>
+
+<div class="tv">
+  <div class="scanlines"></div>
+  <div class="static-flash" id="flash"></div>
+
+  <div class="topbar">
+    <div class="brand">◉ ZAPPING 90s</div>
+    <div class="clockbox">
+      <span id="liveDate" class="live-date"></span>
+      <input type="datetime-local" id="dtInput">
+      <button onclick="sintonizar()">Sintonizar</button>
+      <button class="live" onclick="volverEnVivo()">En vivo</button>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="channels" id="channelList"></div>
+    <div class="main" id="mainPanel"></div>
+  </div>
+
+  <div class="ticker"><span id="tickerText"></span></div>
+</div>
+
+<script>
+// ── FECHA DE INICIO DE LA PROGRAMACIÓN ──
+// A partir de esta fecha (y hora) el sistema empieza a contar los capítulos.
+// Ej: si Digimon arranca acá y tiene 100 capítulos, en el capítulo 101 vuelve a empezar desde el 1.
+const EPOCH = new Date("2026-05-27T00:00:00");
+
+function mkEpisodes(n){
+  // Fallback genérico sin link (por si armás un show sin URLs todavía)
+  return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`, url:""}));
+}
+
+// Genera automáticamente los links de todos los episodios a partir del link
+// del CAPÍTULO 1. baseUrl tiene que terminar en el número de ese primer capítulo.
+// Ej: mkEpisodesFromLink("https://sitio.com/serie/capitulo/721", 60)
+//     te arma capítulo 1 = .../721, capítulo 2 = .../722, ..., capítulo 60 = .../780
+function mkEpisodesFromLink(baseUrl, n, opts={}){
+  const match = baseUrl.match(/^(.*?)(\d+)([^\d]*)$/); // separa: prefijo, número final, sufijo
+  if(!match){
+    console.warn("mkEpisodesFromLink: no encontré un número al final de", baseUrl);
+    return mkEpisodes(n);
+  }
+  const [, prefix, numStr, suffix] = match;
+  const startNum = parseInt(numStr, 10);
+  const pad = numStr.length; // mantiene ceros a la izquierda si el sitio los usa (ej. 007)
+  const titlePrefix = opts.titlePrefix || "Capítulo";
+
+  return Array.from({length:n}, (_,i)=>{
+    const num = startNum + i;
+    const numFormatted = opts.zeroPad ? String(num).padStart(pad,"0") : String(num);
+    return {
+      title:`${titlePrefix} ${i+1}`,
+      url:`${prefix}${numFormatted}${suffix}`
+    };
+  });
+}
+
+const CHANNELS = [
+  {
+    id:"magickids", num:3, name:"Magic Kids",
+    blocks:[
+      // ── LUNES A VIERNES ──
+      {days:[1,2,3,4,5], start:"06:00", end:"06:30", show:{title:"Las Aventuras de Pippi Longstocking", epMin:30, episodes:mkEpisodesFromLink("https://www.lacartoons.com/serie/capitulo/19327", 26)}},
+      {days:[1,2,3,4,5], start:"06:30", end:"07:00", show:{title:"Daniel el Travieso", epMin:30, episodes:mkEpisodesFromLink("https://www.lacartoons.com/serie/capitulo/16901", 78)}},
+      {days:[1,2,3,4,5], start:"07:00", end:"07:30", show:{title:"El Capitán Planeta", epMin:30, episodes:mkEpisodesFromLink("https://www.lacartoons.com/serie/capitulo/158", 65)}},
+      {days:[1,2,3,4,5], start:"07:30", end:"08:00", show:{title:"Las Aventuras de Tintín", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 39)}},
+      {days:[1,2,3,4,5], start:"08:00", end:"08:30", show:{title:"Space Goofs (Los extraterrestres chiflados)", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 78)}},
+      {days:[1,2,3,4,5], start:"08:30", end:"09:00", show:{title:"Las Aventuras de Sonic el Erizo", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 65)}},
+      {days:[1,2,3,4,5], start:"09:00", end:"09:30", show:{title:"Street Sharks (Tiburones del Asfalto)", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 40)}},
+      {days:[1,2,3,4,5], start:"09:30", end:"10:00", show:{title:"Los Motorratones de Marte", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 65)}},
+      {days:[1,2,3,4,5], start:"10:00", end:"10:30", show:{title:"Las Tortugas Ninja", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 60)}},
+      {days:[1,2,3,4,5], start:"10:30", end:"11:00", show:{title:"Cadillacs y Dinosaurios", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 13)}},
+      {days:[1,2,3,4,5], start:"11:00", end:"11:30", show:{title:"¿Dónde está Wally?", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 13)}},
+      {days:[1,2,3,4,5], start:"11:30", end:"12:00", show:{title:"Dr. Slump", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 74)}},
+      {days:[1,2,3,4,5], start:"12:00", end:"12:30", show:{title:"Koni Chan", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 26)}},
+      {days:[1,2,3,4,5], start:"12:30", end:"13:00", show:{title:"Beast Wars: Transformers", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 52)}},
+      {days:[1,2,3,4,5], start:"13:00", end:"13:30", show:{title:"Sailor Moon", epMin:30, episodes:mkEpisodesFromLink("https://www.lacartoons.com/serie/capitulo/4972", 46)}},
+      {days:[1,2,3,4,5], start:"13:30", end:"14:00", show:{title:"Ranma ½", epMin:30, episodes:mkEpisodesFromLink("https://www.lacartoons.com/serie/capitulo/12455", 165)}},
+      {days:[1,2,3,4,5], start:"14:00", end:"14:30", show:{title:"Slam Dunk", epMin:30, episodes:mkEpisodesFromLink("https://www.lacartoons.com/serie/325", 101)}},
+      {days:[1,2,3,4,5], start:"14:30", end:"15:00", show:{title:"Gatchaman", epMin:30, episodes:mkEpisodesFromLink("https://www.lacartoons.com/serie/capitulo/15110", 105)}},
+      {days:[1,2,3,4,5], start:"15:00", end:"15:30", show:{title:"Supercampeones", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 128)}},
+      {days:[1,2,3,4,5], start:"15:30", end:"16:00", show:{title:"Dragon Ball", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 153)}},
+      {days:[1,2,3,4,5], start:"16:00", end:"16:30", show:{title:"Dragon Ball Z", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 291)}},
+      {days:[1,2,3,4,5], start:"16:30", end:"17:00", show:{title:"Los Caballeros del Zodiaco", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 114)}},
+      {days:[1,2,3,4,5], start:"17:00", end:"17:30", show:{title:"B't X", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 13)}},
+      {days:[1,2,3,4,5], start:"17:30", end:"18:00", show:{title:"Orphen", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 24)}},
+      {days:[1,2,3,4,5], start:"18:00", end:"18:30", show:{title:"Detective Conan", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 130)}},
+      {days:[1,2,3,4,5], start:"18:30", end:"19:00", show:{title:"Supercampeones (repetición)", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 128)}},
+      {days:[1,2,3,4,5], start:"19:00", end:"19:30", show:{title:"Dragon Ball Z (Episodio Central)", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 291)}},
+      {days:[1,2,3,4,5], start:"19:30", end:"20:00", show:{title:"Masked Rider", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 40)}},
+      {days:[1,2,3,4,5], start:"20:00", end:"20:30", show:{title:"Los Halcones Galácticos", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 105)}},
+      {days:[1,2,3,4,5], start:"20:30", end:"21:00", show:{title:"Thundercats", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 130)}},
+      {days:[1,2,3,4,5], start:"21:00", end:"21:30", show:{title:"Cuentos de la Cripta", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 26)}},
+      {days:[1,2,3,4,5], start:"21:30", end:"22:00", show:{title:"Los Verdaderos Cazafantasmas", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 29)}},
+      {days:[1,2,3,4,5], start:"22:00", end:"22:30", show:{title:"Slayers", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 26)}},
+      {days:[1,2,3,4,5], start:"22:30", end:"23:00", show:{title:"B't X (repetición nocturna)", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 13)}},
+      {days:[1,2,3,4,5], start:"23:00", end:"23:30", show:{title:"Koni Chan (Trasnochados)", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 26)}},
+      {days:[1,2,3,4,5], start:"23:30", end:"00:00", show:{title:"Ranma ½ (Bloque adulto)", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 161)}},
+
+      // ── SÁBADOS Y DOMINGOS ──
+      {days:[0,6], start:"08:00", end:"08:30", show:{title:"Bananas en Pijamas", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 60)}},
+      {days:[0,6], start:"08:30", end:"09:00", show:{title:"Daniel el Travieso", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 60)}},
+      {days:[0,6], start:"09:00", end:"09:30", show:{title:"Space Goofs", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 78)}},
+      {days:[0,6], start:"09:30", end:"10:00", show:{title:"Las Aventuras de Sonic", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 65)}},
+      {days:[0,6], start:"10:00", end:"10:30", show:{title:"Los Motorratones de Marte", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 65)}},
+      {days:[0,6], start:"10:30", end:"11:00", show:{title:"Street Sharks", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 40)}},
+      {days:[0,6], start:"11:00", end:"11:30", show:{title:"El Club del Anime: Presentación e Info Geek", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 30)}},
+      {days:[0,6], start:"11:30", end:"12:00", show:{title:"El Club del Anime: B't X", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 13)}},
+      {days:[0,6], start:"12:00", end:"12:30", show:{title:"El Club del Anime: Dr. Slump", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 74)}},
+      {days:[0,6], start:"12:30", end:"13:00", show:{title:"El Club del Anime: Koni Chan", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 26)}},
+      {days:[0,6], start:"13:00", end:"13:30", show:{title:"Maratón: Dragon Ball Z (parte 1)", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 291)}},
+      {days:[0,6], start:"13:30", end:"14:00", show:{title:"Maratón: Dragon Ball Z (parte 2)", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 291)}},
+      {days:[0,6], start:"14:00", end:"14:30", show:{title:"Maratón: Los Caballeros del Zodiaco (parte 1)", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 114)}},
+      {days:[0,6], start:"14:30", end:"15:00", show:{title:"Maratón: Los Caballeros del Zodiaco (parte 2)", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 114)}},
+      {days:[0,6], start:"15:00", end:"15:30", show:{title:"Beast Wars: Transformers", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 52)}},
+      {days:[0,6], start:"15:30", end:"16:00", show:{title:"Cadillacs y Dinosaurios", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 13)}},
+      {days:[0,6], start:"16:00", end:"16:30", show:{title:"Las Tortugas Ninja", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 60)}},
+      {days:[0,6], start:"16:30", end:"17:00", show:{title:"Masked Rider", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 40)}},
+      {days:[0,6], start:"17:00", end:"19:00", show:{title:"CineMagic (Película/OVA de Dragon Ball o Sailor Moon)", epMin:60, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 10)}},
+      {days:[0,6], start:"19:00", end:"19:30", show:{title:"Los Verdaderos Cazafantasmas", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 65)}},
+      {days:[0,6], start:"19:30", end:"20:00", show:{title:"Mikami, la Cazafantasmas", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 43)}},
+      {days:[0,6], start:"20:00", end:"20:30", show:{title:"Cuentos de la Cripta", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 26)}},
+      {days:[0,6], start:"20:30", end:"21:00", show:{title:"Detective Conan", epMin:30, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 130)}},
+      {days:[0,6], start:"21:00", end:"22:00", show:{title:"El Club del Anime (Especial semanal)", epMin:60, episodes:mkEpisodesFromLink("https://tusitio.com/serie/capitulo/1001", 20)}},
+    ]
+  },
+  {
+    id:"cn", num:5, name:"Cartoon Network",
+    blocks:[
+      {days:[1,2,3,4,5], start:"15:00", end:"18:00", show:{title:"El laboratorio de Dexter", epMin:30, episodes:mkEpisodes(26)}},
+      {days:[6], start:"09:00", end:"12:00", show:{title:"Tom y Jerry", epMin:15, episodes:mkEpisodes(40)}},
+    ]
+  },
+  {
+    id:"nick", num:7, name:"Nickelodeon",
+    blocks:[
+      {days:[1,2,3,4,5], start:"15:00", end:"18:00", show:{title:"Rugrats", epMin:30, episodes:mkEpisodes(22)}},
+      {days:[6], start:"09:00", end:"12:00", show:{title:"Hey Arnold!", epMin:30, episodes:mkEpisodes(18)}},
+    ]
+  },
+  {
+    id:"foxkids", num:9, name:"Fox Kids / Jetix",
+    blocks:[
+      {days:[1,2,3,4,5], start:"15:00", end:"18:00", show:{title:"X-Men", epMin:30, episodes:mkEpisodes(20)}},
+      {days:[6], start:"09:00", end:"12:00", show:{title:"Power Rangers", epMin:30, episodes:mkEpisodes(30)}},
+    ]
+  },
+  {
+    id:"disney", num:11, name:"Disney Channel",
+    blocks:[
+      {days:[1,2,3,4,5], start:"15:00", end:"18:00", show:{title:"DuckTales", epMin:30, episodes:mkEpisodes(26)}},
+      {days:[6], start:"09:00", end:"12:00", show:{title:"Chip y Dale al rescate", epMin:30, episodes:mkEpisodes(24)}},
+    ]
+  },
+];
+
+function parseHM(str){
+  const [h,m] = str.split(":").map(Number);
+  return h*60+m;
+}
+
+function daysBetween(a,b){
+  // días completos (fecha) desde a (inclusive) hasta b (exclusive), comparando por medianoche
+  const ms = new Date(b.getFullYear(),b.getMonth(),b.getDate()) - new Date(a.getFullYear(),a.getMonth(),a.getDate());
+  return Math.round(ms/86400000);
+}
+
+function computeNowPlaying(channel, now){
+  if(now < EPOCH) return null; // todavía no arrancó la programación
+
+  const weekday = now.getDay(); // 0=domingo..6=sabado
+  const minutesNow = now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
+
+  const block = channel.blocks.find(b => b.days.includes(weekday) &&
+    minutesNow >= parseHM(b.start) && minutesNow < parseHM(b.end));
+  if(!block) return null;
+
+  const blockDur = parseHM(block.end)-parseHM(block.start);
+  const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  // contar ocurrencias completas de este bloque entre EPOCH y hoy (sin incluir hoy)
+  let fullOccurrences = 0;
+  const totalDays = daysBetween(EPOCH, todayMid);
+  for(let d=0; d<totalDays; d++){
+    const day = new Date(EPOCH); day.setDate(day.getDate()+d);
+    if(block.days.includes(day.getDay())) fullOccurrences++;
+  }
+
+  const minutesIntoBlockToday = minutesNow - parseHM(block.start);
+  const totalElapsed = fullOccurrences*blockDur + minutesIntoBlockToday;
+
+  const epMin = block.show.epMin;
+  const epCount = block.show.episodes.length;
+  const globalIdx = Math.floor(totalElapsed/epMin);
+  const epIndex = ((globalIdx % epCount)+epCount) % epCount;
+  const offset = totalElapsed % epMin;
+
+  const nextEpIndex = (epIndex+1) % epCount;
+
+  return {
+    show: block.show.title,
+    episode: block.show.episodes[epIndex],       // {title, url}
+    nextEpisode: block.show.episodes[nextEpIndex], // {title, url}
+    offsetMin: Math.floor(offset),
+    offsetSec: Math.floor((offset%1)*60),
+    epMin,
+    blockEnd: block.end,
+  };
+}
+
+function fmt(m,s){
+  return String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+}
+
+let activeChannel = CHANNELS[0].id;
+let overrideDate = null;
+
+function currentSimTime(){
+  return overrideDate ? new Date(overrideDate) : new Date();
+}
+
+function render(){
+  const now = currentSimTime();
+
+  document.getElementById("liveDate").textContent =
+    now.toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) +
+    ' · ' + now.toLocaleTimeString('es-AR');
+
+  const list = document.getElementById("channelList");
+  list.innerHTML = CHANNELS.map(ch => `
+    <div class="ch-row ${ch.id===activeChannel?'active':''}" onclick="selectChannel('${ch.id}')">
+      <div class="ch-num">${ch.num}</div>
+      <div class="ch-name">${ch.name}</div>
+    </div>
+  `).join("");
+
+  const ch = CHANNELS.find(c=>c.id===activeChannel);
+  const info = computeNowPlaying(ch, now);
+  const main = document.getElementById("mainPanel");
+
+  if(!info){
+    const notStarted = now < EPOCH;
+    main.innerHTML = `
+      <p class="eyebrow">Canal ${ch.num} · ${ch.name}</p>
+      <div class="off-air">${notStarted ? 'La programación todavía no arrancó' : 'Fuera de programación en este horario'}<br><span style="font-size:15px;">${notStarted ? `Arranca el ${EPOCH.toLocaleDateString('es-AR')}` : '(el prototipo solo tiene cargados bloques de tarde y sábado por la mañana)'}</span></div>
+    `;
+  }else{
+    const pct = Math.min(100, (info.offsetMin*60+info.offsetSec)/(info.epMin*60)*100);
+    const linkHtml = info.episode.url
+      ? `<a class="watch-link" href="${info.episode.url}" target="_blank" rel="noopener">▶ Ver este capítulo</a>`
+      : `<div class="no-link">Sin link cargado para este capítulo</div>`;
+    main.innerHTML = `
+      <p class="eyebrow">Canal ${ch.num} · ${ch.name} · ahora</p>
+      <h2 class="show-title">${info.show}</h2>
+      <p class="ep-title">${info.episode.title}</p>
+      ${linkHtml}
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-labels">
+          <span>${fmt(info.offsetMin, info.offsetSec)}</span>
+          <span>${String(info.epMin).padStart(2,"0")}:00</span>
+        </div>
+      </div>
+      <div class="up-next">
+        <p class="eyebrow">A continuación</p>
+        <p class="up-next-item">${info.nextEpisode.title} · ${info.show}</p>
+      </div>
+    `;
+  }
+
+  const ticker = CHANNELS.map(c=>{
+    const i = computeNowPlaying(c, now);
+    return `CANAL ${c.num} ${c.name}: ${i ? i.show+' — '+i.episode.title : 'fuera de aire'}`;
+  }).join("     •     ");
+  document.getElementById("tickerText").textContent = ticker + "     •     ";
+}
+
+function selectChannel(id){
+  if(id===activeChannel) return;
+  activeChannel = id;
+  loadCover();
+  const flash = document.getElementById("flash");
+  flash.classList.add("on");
+  setTimeout(()=>flash.classList.remove("on"), 80);
+  render();
+}
+
+function sintonizar(){
+  const val = document.getElementById("dtInput").value;
+  if(!val) return;
+  overrideDate = new Date(val);
+  render();
+}
+
+function volverEnVivo(){
+  overrideDate = null;
+  document.getElementById("dtInput").value = "";
+  render();
+}
+
+function prefillDtInput(){
+  const d = new Date();
+  d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); // ajustar a hora local para el input
+  document.getElementById("dtInput").value = d.toISOString().slice(0,16);
+}
+
+setInterval(render, 1000);
+prefillDtInput();
+render();
+</script>
+
+</body>
+</html>
