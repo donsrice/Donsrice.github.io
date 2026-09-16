@@ -320,8 +320,8 @@ const CHANNELS = [
   {
     id:"nick", num:7, name:"Nickelodeon",
     blocks:[
-      {days:[1,2,3,4,5], start:"15:00", end:"18:00", show:{title:"Rugrats", epMin:30, episodes:mkEpisodes(22)}},
-      {days:[6], start:"09:00", end:"12:00", show:{title:"Hey Arnold!", epMin:30, episodes:mkEpisodes(18)}},
+      {days:[1,2,3,4,5], start:"15:00", end:"18:00", show:{title:"Rugrats", epMin:30, episodes:mkEpisodesFromLink("https://www.lacartoons.com/?Categoria_id=3", 20)}},
+      {days:[6], start:"09:00", end:"12:00", show:{title:"Hey Arnold!", epMin:30, episodes:mkEpisodesFromLink("https://www.lacartoons.com/?Categoria_id=3", 20)}},
     ]
   },
   {
@@ -334,8 +334,8 @@ const CHANNELS = [
   {
     id:"disney", num:11, name:"Disney Channel",
     blocks:[
-      {days:[1,2,3,4,5], start:"15:00", end:"18:00", show:{title:"DuckTales", epMin:30, episodes:mkEpisodes(26)}},
-      {days:[6], start:"09:00", end:"12:00", show:{title:"Chip y Dale al rescate", epMin:30, episodes:mkEpisodes(24)}},
+      {days:[1,2,3,4,5], start:"15:00", end:"18:00", show:{title:"DuckTales", epMin:30, episodes:mkEpisodesFromLink("https://www.lacartoons.com/?Categoria_id=3", 20)}},
+      {days:[6], start:"09:00", end:"12:00", show:{title:"Chip y Dale al rescate", epMin:30, episodes:mkEpisodesFromLink("https://www.lacartoons.com/?Categoria_id=3", 20)}},
     ]
   },
 ];
