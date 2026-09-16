@@ -194,6 +194,21 @@ function mkEpisodesFromLink(baseUrl, n, opts={}){
   });
 }
 
+// Para links que NO siguen un patrón numérico (típico en embeds: cada video tiene
+// un código único sin relación con el anterior). Pasás la lista completa, uno por uno,
+// en el orden de los capítulos. Más manual, pero es lo que corresponde cuando no hay
+// ningún correlativo que seguir.
+// Ej: mkEpisodesFromList(["abc123", "xk9z2p", "q7w1mm"], {field:"embedUrl", baseEmbedUrl:"https://player.tusitio.com/e/"})
+function mkEpisodesFromList(codes, opts={}){
+  const field = opts.field || "url";
+  const titlePrefix = opts.titlePrefix || "Capítulo";
+  const prefix = opts.baseEmbedUrl || ""; // opcional: pegado antes de cada código
+  return codes.map((code,i)=>({
+    title:`${titlePrefix} ${i+1}`,
+    [field]: `${prefix}${code}`
+  }));
+}
+
 // Para series con temporadas que NO numeran corrido: un tramo por temporada.
 function mkEpisodesFromSeasons(seasons, opts={}){
   let out = [];
@@ -443,7 +458,7 @@ const CN_ROWS = [
   ["15:00","15:30","Winx Club",26],
   ["15:30","16:00","Hi Hi Puffy AmiYumi",39],
   ["16:00","16:30","Ben 10 (Serie Clásica)",49],
-  // Teen Titans se arma aparte con mkEpisodesFromSeasons (ver más abajo)
+  ["16:30","17:00","Teen Titans (Jóvenes Titanes)",62],
   ["17:00","17:30","Duelo Xiaolin",52],
   ["17:30","18:00","Las sombrías aventuras de Billy y Mandy",78],
   ["18:00","18:30","Mansión Foster para amigos imaginarios",79],
@@ -468,22 +483,6 @@ const CHANNELS = [
   buildDailyChannel("wb", 13, "WB", WB_ROWS),
   buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS),
 ];
-
-// Insertamos el bloque de Teen Titans (16:30-17:00 en Cartoon Network) a mano,
-// porque usa mkEpisodesFromSeasons en vez de mkEpisodesFromLink:
-CHANNELS.find(c=>c.id==="cn").blocks.push({
-  days:[0,1,2,3,4,5,6], start:"16:30", end:"17:00",
-  show:{
-    title:"Teen Titans (Jóvenes Titanes)", epMin:30,
-    episodes: mkEpisodesFromSeasons([
-      {baseUrl:"https://tusitio.com/serie/teen-titans-t1/capitulo/1", count:13, label:"T1 Cap."},
-      {baseUrl:"https://tusitio.com/serie/teen-titans-t2/capitulo/1", count:13, label:"T2 Cap."},
-      {baseUrl:"https://tusitio.com/serie/teen-titans-t3/capitulo/1", count:13, label:"T3 Cap."},
-      {baseUrl:"https://tusitio.com/serie/teen-titans-t4/capitulo/1", count:13, label:"T4 Cap."},
-      {baseUrl:"https://tusitio.com/serie/teen-titans-t5/capitulo/1", count:10, label:"T5 Cap."},
-    ], {field:"url"})
-  }
-});
 
 // ─────────────────────────────────────────────────────────────
 // MOTOR
@@ -530,8 +529,24 @@ function computeNowPlaying(channel, now){
 
   const nextEpIndex = (epIndex+1) % epCount;
 
+  // ── Próximo PROGRAMA (no próximo capítulo) ──
+  // Arma todas las ocurrencias semanales de todos los bloques del canal y busca
+  // la primera que empieza después de que termina el bloque actual.
+  const entries = [];
+  channel.blocks.forEach(b=>{
+    b.days.forEach(d=>{
+      entries.push({weekMin: d*1440 + parseHM(b.start), title: b.show.title});
+    });
+  });
+  entries.sort((a,b)=>a.weekMin-b.weekMin);
+  const pivot = weekday*1440 + parseHM(block.end);
+  let nextEntry = entries.find(e=>e.weekMin > pivot);
+  if(!nextEntry) nextEntry = entries[0]; // no hay más esta semana, vuelve al primero
+  const nextShow = nextEntry ? nextEntry.title : null;
+
   return {
     show: block.show.title,
+    nextShow,
     episode: block.show.episodes[epIndex],
     nextEpisode: block.show.episodes[nextEpIndex],
     offsetMin: Math.floor(offset),
@@ -609,7 +624,6 @@ function render(){
     main.innerHTML = `
       <p class="eyebrow">Canal ${ch.num} · ${ch.name} · ahora</p>
       <h2 class="show-title">${info.show}</h2>
-      <p class="ep-title">${info.episode.title}</p>
       ${linkHtml}
       <div class="progress-wrap">
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -618,16 +632,17 @@ function render(){
           <span>${String(info.epMin).padStart(2,"0")}:00</span>
         </div>
       </div>
+      ${info.nextShow ? `
       <div class="up-next">
         <p class="eyebrow">A continuación</p>
-        <p class="up-next-item">${info.nextEpisode.title} · ${info.show}</p>
-      </div>
+        <p class="up-next-item">${info.nextShow}</p>
+      </div>` : ''}
     `;
   }
 
   const ticker = CHANNELS.map(c=>{
     const i = computeNowPlaying(c, now);
-    return `CANAL ${c.num} ${c.name}: ${i ? i.show+' — '+i.episode.title : 'fuera de aire'}`;
+    return `CANAL ${c.num} ${c.name}: ${i ? i.show : 'fuera de aire'}`;
   }).join("     •     ");
   document.getElementById("tickerText").textContent = ticker + "     •     ";
 }
