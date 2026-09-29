@@ -103,6 +103,34 @@
     display: block;
   }
 
+  /* ── REGULACIÓN Y OCULTAMIENTO DE INTERFAZ EXTRA CARTOON NETWORK / JETIX ── */
+  #video_contenedor {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    background: #000 !important;
+    position: absolute !important;
+    inset: 0 !important;
+  }
+
+  /* Oculta los menús, logos, botones de ayuda, donaciones y barras que agrega el script */
+  .video-container > *:not(video),
+  #video_contenedor > *:not(video),
+  .reloj, #form_reloj, #resultado, center, p, a {
+    display: none !important;
+  }
+
+  /* Fuerza al video a llenar el marco retro exactamente como Magic Kids */
+  #peerVideo, #localVideo {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    position: static !important;
+  }
+
   /* Barra de controles personalizada */
   .custom-controls{
     position:absolute; bottom:0; left:0; right:0; height:48px;
