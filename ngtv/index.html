@@ -79,14 +79,32 @@
 
   .main{flex:1; padding:22px 26px;}
 
-  /* ── REPRODUCTOR PERSONALIZADO SIN BARRA DE ADELANTAR/ATRASAR ── */
+  /* ── REPRODUCTOR Y RECORTE DE IFRAME ── */
   .cover{
-    width:100%; height:600px; background:#050a14; border:1px solid var(--line);
+    width:100%; height:450px; background:#000; border:1px solid var(--line);
     border-radius:6px; overflow:hidden; margin-bottom:18px; position:relative;
   }
   .cover iframe{
-    width:100%; height:100%; border:none;
+    width:100%; height:100%; border:none; display:block;
   }
+
+  /* Estilo para recortar cabeceras/logos de la web externa y enfocar solo el video */
+  .iframe-crop-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+    background: #000;
+  }
+  .iframe-crop-wrapper iframe {
+    position: absolute;
+    top: -210px; /* Ajuste para ocultar la barra superior del sitio web */
+    left: 0;
+    width: 100%;
+    height: calc(100% + 230px);
+    border: none;
+  }
+
   .player-wrapper{
     width:100%; height:100%; position:relative; background:#000;
     display:flex; flex-direction:column; justify-content:center;
@@ -130,7 +148,6 @@
 
   .eyebrow{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:0 0 4px;}
   .show-title{font-family:'VT323', monospace; font-size:34px; color:var(--ink); margin:0 0 2px; line-height:1;}
-  .ep-title{font-size:15px; color:var(--cyan); margin:0 0 14px;}
 
   .watch-link{
     display:inline-flex; align-items:center; gap:8px; background:var(--yellow); color:#2a1e00;
@@ -196,12 +213,12 @@
 <script>
 const EPOCH = new Date("2026-05-27T00:00:00");
 
-// ── INGRESA AQUÍ TUS LINKS (Pueden ser .m3u8 o URLs web tipo https://cn2021.jahh19channel.xyz/) ──
+// ── ENLACES DE LOS CANALES ──
 const MAGIC_KIDS_STREAM_URL = "https://kali.vdopanel.com:3007/stream/play.m3u8";
-const CN_STREAM_URL = "https://cn2021.jahh19channel.xyz/"; // <--- INGRESA AQUÍ EL LINK DE CARTOON NETWORK
-const FOXKIDS_STREAM_URL = null;                          // <--- INGRESA AQUÍ EL LINK DE FOX KIDS
-const JETIX_STREAM_URL = null;                             // <--- INGRESA AQUÍ EL LINK DE JETIX
-const LOCOMOTION_STREAM_URL = null;                        // Ej: "https://tu-servidor.com/locomotion.m3u8"
+const CN_STREAM_URL = "https://cn2021.jahh19channel.xyz/";
+const FOXKIDS_STREAM_URL = null;
+const JETIX_STREAM_URL = null;
+const LOCOMOTION_STREAM_URL = null;
 
 function mkEpisodes(n){
   return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`}));
@@ -250,10 +267,7 @@ const MAGICMOTION_ROWS = [
   {start:"00:30", end:"01:00", title:"Daniel el Travieso", count:60, link:PLACEHOLDER},
 ];
 
-const FOXKIDS_ROWS = [
-  {start:"00:00", end:"00:30", title:"INSOMNIA: Los Misterios de Moville", count:26, link:"https://www.lacartoons.com/serie/capitulo/9138"},
-];
-
+const FOXKIDS_ROWS = [];
 const NICK_ROWS = [];
 const DISNEY_ROWS = [];
 const JETIX_ROWS = [];
@@ -351,7 +365,7 @@ function currentSimTime(){
   return overrideDate ? new Date(overrideDate) : new Date();
 }
 
-// ── CONTROLADORES DE VIDEO PERSONALIZADOS ──
+// ── CONTROLADORES DE VIDEO ──
 function togglePlay(){
   const video = document.getElementById("hlsPlayer");
   const playBtn = document.getElementById("playBtn");
@@ -433,7 +447,7 @@ function updateEmbed(ch, info){
     if(key === lastEmbedKey) return;
     lastEmbedKey = key;
 
-    // Si el link termina en .m3u8 usa el reproductor HLS nativo
+    // Reproductor HLS nativo (.m3u8)
     if(ch.streamUrl.endsWith(".m3u8")){
       container.innerHTML = `
         <div class="cover">
@@ -454,9 +468,14 @@ function updateEmbed(ch, info){
         </div>`;
       loadHlsStream(ch.streamUrl);
     } else {
-      // Si es una página web normal o embebida, la carga en un iframe
+      // Recorte de sitio web externo con iframe para centrar exclusivamente el reproductor de video
       if (currentHls) { currentHls.destroy(); currentHls = null; }
-      container.innerHTML = `<div class="cover"><iframe src="${ch.streamUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>`;
+      container.innerHTML = `
+        <div class="cover">
+          <div class="iframe-crop-wrapper">
+            <iframe src="${ch.streamUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          </div>
+        </div>`;
     }
     return;
   }
@@ -578,5 +597,4 @@ render();
 </script>
 
 </body>
-</html>
 </html>
