@@ -84,6 +84,13 @@
     width:100%; height:520px; background:#000; border:1px solid var(--line);
     border-radius:6px; overflow:hidden; margin-bottom:18px; position:relative;
   }
+
+  .cover iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
   
   .video-container, .player-wrapper {
     width: 100%;
@@ -101,27 +108,6 @@
     object-fit: contain;
     background: #000;
     display: block;
-  }
-
-  /* ── ENCUADRE DE VIDEO DE CARTOON NETWORK / JETIX ── */
-  #video_contenedor {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    background: #000;
-    overflow: hidden;
-  }
-
-  /* Posicionamos el reproductor por encima de la interfaz generada por el JS */
-  #peerVideo, #localVideo {
-    position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: contain !important;
-    z-index: 10 !important;
-    background: #000 !important;
   }
 
   /* Barra de controles personalizada */
@@ -226,7 +212,8 @@ const EPOCH = new Date("2026-05-27T00:00:00");
 
 // ── ENLACES DE LOS CANALES ──
 const MAGIC_KIDS_STREAM_URL = "https://kali.vdopanel.com:3007/stream/play.m3u8";
-const JETIX_JS_SCRIPT = "https://cn2021.jahh19channel.xyz/js/ProgramacionJetix.js?v=232"; // Script de Cartoon Network / Jetix
+const CN_STREAM_URL = "https://cn2021.jahh19channel.xyz/";
+const LOCOMOTION_EMBED_URL = "https://serenotv.com/?cdm_embed=canal&pid=25664";
 
 function mkEpisodes(n){
   return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`}));
@@ -260,8 +247,7 @@ function buildDailyChannel(id, num, name, rows, opts={}){
   return {
     id, num, name,
     streamUrl: opts.streamUrl || null,
-    useExternalScript: opts.useExternalScript || false,
-    scriptUrl: opts.scriptUrl || null,
+    embedUrl: opts.embedUrl || null,
     blocks: rows.map(r=>({
       days, start:r.start, end:r.end,
       show:{
@@ -287,13 +273,13 @@ const CN_ROWS = [];
 
 const CHANNELS = [
   buildDailyChannel("magickids", 3, "Magic Kids", MAGICMOTION_ROWS, { streamUrl: MAGIC_KIDS_STREAM_URL }),
-  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { useExternalScript: true, scriptUrl: JETIX_JS_SCRIPT }),
+  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { embedUrl: CN_STREAM_URL }),
   buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS),
   buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS),
   buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS),
-  buildDailyChannel("jetix", 12, "Jetix", JETIX_ROWS, { useExternalScript: true, scriptUrl: JETIX_JS_SCRIPT }),
+  buildDailyChannel("jetix", 12, "Jetix", JETIX_ROWS),
   buildDailyChannel("wb", 13, "WB", WB_ROWS),
-  buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS),
+  buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS, { embedUrl: LOCOMOTION_EMBED_URL }),
 ];
 
 function parseHM(str){
@@ -452,31 +438,18 @@ function loadHlsStream(streamUrl) {
 function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
 
-  // A) MODO SCRIPT EXTERNO (Cartoon Network / Jetix)
-  if(ch.useExternalScript && ch.scriptUrl){
-    const key = ch.id + "|script";
+  // A) MODO IFRAME (Locomotion / Cartoon Network)
+  if(ch.embedUrl){
+    const key = ch.id + "|embed";
     if(key === lastEmbedKey) return;
     lastEmbedKey = key;
 
     if (currentHls) { currentHls.destroy(); currentHls = null; }
 
-    // Genera la estructura HTML limpia que necesita el script
     container.innerHTML = `
       <div class="cover">
-        <div id="video_contenedor" class="video-container">
-          <p id="resultado" style="display:none;"></p>
-          <video id="peerVideo" class="peerVideo" autoplay controls src=""></video>
-        </div>
+        <iframe src="${ch.embedUrl}" referrerpolicy="unsafe-url" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen" allowfullscreen></iframe>
       </div>`;
-
-    // Carga dinámicamente el JS en la página
-    const oldScript = document.getElementById("externalChannelScript");
-    if (oldScript) oldScript.remove();
-
-    const script = document.createElement("script");
-    script.id = "externalChannelScript";
-    script.src = ch.scriptUrl;
-    document.body.appendChild(script);
     return;
   }
 
@@ -548,13 +521,13 @@ function render(){
 
   updateEmbed(ch, info);
 
-  if(!info && !ch.streamUrl && !ch.useExternalScript){
+  if(!info && !ch.streamUrl && !ch.embedUrl){
     const notStarted = now < EPOCH;
     main.innerHTML = `
       <p class="eyebrow">Canal ${ch.num} · ${ch.name}</p>
       <div class="off-air">${notStarted ? 'La programación todavía no arrancó' : 'Fuera de programación en este horario'}<br><span style="font-size:15px;">${notStarted ? `Arranca el ${EPOCH.toLocaleDateString('es-AR')}` : ''}</span></div>
     `;
-  } else if(ch.streamUrl || ch.useExternalScript) {
+  } else if(ch.streamUrl || ch.embedUrl) {
     main.innerHTML = `<p class="eyebrow">Canal ${ch.num} · ${ch.name} · Transmisión en vivo</p>`;
   } else {
     const pct = Math.min(100, (info.offsetMin*60+info.offsetSec)/(info.epMin*60)*100);
@@ -585,7 +558,7 @@ function render(){
 
   const ticker = CHANNELS.map(c=>{
     const i = computeNowPlaying(c, now);
-    return `CANAL ${c.num} ${c.name}: ${(c.streamUrl || c.useExternalScript) ? 'transmisión en vivo' : (i ? i.show : 'fuera de aire')}`;
+    return `CANAL ${c.num} ${c.name}: ${(c.streamUrl || c.embedUrl) ? 'transmisión en vivo' : (i ? i.show : 'fuera de aire')}`;
   }).join("     •     ");
   document.getElementById("tickerText").textContent = ticker + "     •     ";
 }
