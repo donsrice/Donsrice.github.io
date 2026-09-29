@@ -79,7 +79,7 @@
 
   .main{flex:1; padding:22px 26px;}
 
-  /* ── REPRODUCTOR DE VIDEO LIMPIO ── */
+  /* ── REPRODUCTOR DE VIDEO Y MARCO ── */
   .cover{
     width:100%; height:520px; background:#000; border:1px solid var(--line);
     border-radius:6px; overflow:hidden; margin-bottom:18px; position:relative;
@@ -103,32 +103,25 @@
     display: block;
   }
 
-  /* ── REGULACIÓN Y OCULTAMIENTO DE INTERFAZ EXTRA CARTOON NETWORK / JETIX ── */
+  /* ── ENCUADRE DE VIDEO DE CARTOON NETWORK / JETIX ── */
   #video_contenedor {
-    width: 100% !important;
-    height: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    align-items: center !important;
-    background: #000 !important;
-    position: absolute !important;
-    inset: 0 !important;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
   }
 
-  /* Oculta los menús, logos, botones de ayuda, donaciones y barras que agrega el script */
-  .video-container > *:not(video),
-  #video_contenedor > *:not(video),
-  .reloj, #form_reloj, #resultado, center, p, a {
-    display: none !important;
-  }
-
-  /* Fuerza al video a llenar el marco retro exactamente como Magic Kids */
+  /* Posicionamos el reproductor por encima de la interfaz generada por el JS */
   #peerVideo, #localVideo {
-    display: block !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
     width: 100% !important;
     height: 100% !important;
     object-fit: contain !important;
-    position: static !important;
+    z-index: 10 !important;
+    background: #000 !important;
   }
 
   /* Barra de controles personalizada */
@@ -136,7 +129,7 @@
     position:absolute; bottom:0; left:0; right:0; height:48px;
     background:linear-gradient(transparent, rgba(0,0,0,0.85));
     display:flex; align-items:center; justify-content:space-between;
-    padding:0 16px; opacity:0; transition:opacity 0.3s ease; z-index:10;
+    padding:0 16px; opacity:0; transition:opacity 0.3s ease; z-index:20;
   }
   .player-wrapper:hover .custom-controls{ opacity:1; }
 
@@ -467,11 +460,12 @@ function updateEmbed(ch, info){
 
     if (currentHls) { currentHls.destroy(); currentHls = null; }
 
-    // Genera las etiquetas HTML nativas que espera el JS original
+    // Genera la estructura HTML limpia que necesita el script
     container.innerHTML = `
       <div class="cover">
         <div id="video_contenedor" class="video-container">
-          <video id="peerVideo" class="peerVideo" autoplay controls style="display: inline;" src=""></video>
+          <p id="resultado" style="display:none;"></p>
+          <video id="peerVideo" class="peerVideo" autoplay controls src=""></video>
         </div>
       </div>`;
 
