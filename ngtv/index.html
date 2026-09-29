@@ -25,7 +25,7 @@
     display:flex; justify-content:center;
   }
   .tv{
-    width:100%; max-width:960px; background:var(--panel);
+    width:100%; max-width:920px; background:var(--panel);
     border:2px solid var(--line); border-radius:10px; overflow:hidden;
     position:relative;
   }
@@ -79,36 +79,28 @@
 
   .main{flex:1; padding:22px 26px;}
 
-  /* ── REPRODUCTOR Y RECORTE DE IFRAME SIN SCROLLBARS ── */
+  /* ── REPRODUCTOR DE VIDEO LIMPIO ── */
   .cover{
     width:100%; height:520px; background:#000; border:1px solid var(--line);
     border-radius:6px; overflow:hidden; margin-bottom:18px; position:relative;
   }
-
-  /* Ajuste de escala e inclinación para ocultar menús y centrar el reproductor */
-  .iframe-crop-wrapper {
+  
+  .video-container, .player-wrapper {
     width: 100%;
     height: 100%;
-    overflow: hidden !important;
     position: relative;
     background: #000;
-  }
-  .iframe-crop-wrapper iframe {
-    position: absolute;
-    top: -180px; /* Desplaza el menú superior hacia arriba fuera de la vista */
-    left: -5%;
-    width: 110%;
-    height: 780px;
-    border: none !important;
-    overflow: hidden !important;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
-  .player-wrapper{
-    width:100%; height:100%; position:relative; background:#000;
-    display:flex; flex-direction:column; justify-content:center;
-  }
-  .player-wrapper video{
-    width:100%; height:100%; object-fit:contain; background:#000; display:block;
+  .video-container video, .player-wrapper video {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #000;
+    display: block;
   }
 
   /* Barra de controles personalizada */
@@ -213,10 +205,7 @@ const EPOCH = new Date("2026-05-27T00:00:00");
 
 // ── ENLACES DE LOS CANALES ──
 const MAGIC_KIDS_STREAM_URL = "https://kali.vdopanel.com:3007/stream/play.m3u8";
-const CN_STREAM_URL = "https://cn2021.jahh19channel.xyz/";
-const FOXKIDS_STREAM_URL = null;
-const JETIX_STREAM_URL = null;
-const LOCOMOTION_STREAM_URL = null;
+const JETIX_JS_SCRIPT = "https://cn2021.jahh19channel.xyz/js/ProgramacionJetix.js?v=232"; // Script de Cartoon Network / Jetix
 
 function mkEpisodes(n){
   return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`}));
@@ -250,6 +239,8 @@ function buildDailyChannel(id, num, name, rows, opts={}){
   return {
     id, num, name,
     streamUrl: opts.streamUrl || null,
+    useExternalScript: opts.useExternalScript || false,
+    scriptUrl: opts.scriptUrl || null,
     blocks: rows.map(r=>({
       days, start:r.start, end:r.end,
       show:{
@@ -275,13 +266,13 @@ const CN_ROWS = [];
 
 const CHANNELS = [
   buildDailyChannel("magickids", 3, "Magic Kids", MAGICMOTION_ROWS, { streamUrl: MAGIC_KIDS_STREAM_URL }),
-  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { streamUrl: CN_STREAM_URL }),
+  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { useExternalScript: true, scriptUrl: JETIX_JS_SCRIPT }),
   buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS),
-  buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS, { streamUrl: FOXKIDS_STREAM_URL }),
+  buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS),
   buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS),
-  buildDailyChannel("jetix", 12, "Jetix", JETIX_ROWS, { streamUrl: JETIX_STREAM_URL }),
+  buildDailyChannel("jetix", 12, "Jetix", JETIX_ROWS, { useExternalScript: true, scriptUrl: JETIX_JS_SCRIPT }),
   buildDailyChannel("wb", 13, "WB", WB_ROWS),
-  buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS, { streamUrl: LOCOMOTION_STREAM_URL }),
+  buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS),
 ];
 
 function parseHM(str){
@@ -440,41 +431,57 @@ function loadHlsStream(streamUrl) {
 function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
 
+  // A) MODO SCRIPT EXTERNO (Cartoon Network / Jetix)
+  if(ch.useExternalScript && ch.scriptUrl){
+    const key = ch.id + "|script";
+    if(key === lastEmbedKey) return;
+    lastEmbedKey = key;
+
+    if (currentHls) { currentHls.destroy(); currentHls = null; }
+
+    // Genera las etiquetas HTML nativas que espera el JS original
+    container.innerHTML = `
+      <div class="cover">
+        <div id="video_contenedor" class="video-container">
+          <video id="peerVideo" class="peerVideo" autoplay controls style="display: inline;" src=""></video>
+        </div>
+      </div>`;
+
+    // Carga dinámicamente el JS en la página
+    const oldScript = document.getElementById("externalChannelScript");
+    if (oldScript) oldScript.remove();
+
+    const script = document.createElement("script");
+    script.id = "externalChannelScript";
+    script.src = ch.scriptUrl;
+    document.body.appendChild(script);
+    return;
+  }
+
+  // B) MODO STREAMING DIRECTO (.m3u8 - Magic Kids)
   if(ch.streamUrl){
     const key = ch.id + "|" + ch.streamUrl;
     if(key === lastEmbedKey) return;
     lastEmbedKey = key;
 
-    // Reproductor HLS nativo (.m3u8)
-    if(ch.streamUrl.endsWith(".m3u8")){
-      container.innerHTML = `
-        <div class="cover">
-          <div class="player-wrapper" id="playerWrapper">
-            <video id="hlsPlayer" playsinline></video>
-            <div class="custom-controls">
-              <div class="ctrl-group">
-                <button class="ctrl-btn" id="playBtn" onclick="togglePlay()">❚❚</button>
-                <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
-                <input type="range" class="volume-slider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
-              </div>
-              <div class="ctrl-group">
-                <div class="live-tag"><span class="live-dot"></span> EN VIVO</div>
-                <button class="ctrl-btn" onclick="toggleFullscreen()">⛶</button>
-              </div>
+    container.innerHTML = `
+      <div class="cover">
+        <div class="player-wrapper" id="playerWrapper">
+          <video id="hlsPlayer" playsinline></video>
+          <div class="custom-controls">
+            <div class="ctrl-group">
+              <button class="ctrl-btn" id="playBtn" onclick="togglePlay()">❚❚</button>
+              <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
+              <input type="range" class="volume-slider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
+            </div>
+            <div class="ctrl-group">
+              <div class="live-tag"><span class="live-dot"></span> EN VIVO</div>
+              <button class="ctrl-btn" onclick="toggleFullscreen()">⛶</button>
             </div>
           </div>
-        </div>`;
-      loadHlsStream(ch.streamUrl);
-    } else {
-      // Inserción limpia sin barras de desplazamiento (scrolling="no")
-      if (currentHls) { currentHls.destroy(); currentHls = null; }
-      container.innerHTML = `
-        <div class="cover">
-          <div class="iframe-crop-wrapper">
-            <iframe src="${ch.streamUrl}" scrolling="no" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-          </div>
-        </div>`;
-    }
+        </div>
+      </div>`;
+    loadHlsStream(ch.streamUrl);
     return;
   }
 
@@ -495,7 +502,7 @@ function updateEmbed(ch, info){
   const offsetSeconds = Math.floor(info.offsetMin*60 + info.offsetSec);
   const sep = info.episode.embedUrl.includes("?") ? "&" : "?";
   const src = `${info.episode.embedUrl}${sep}${info.embedTimeParam}=${offsetSeconds}`;
-  container.innerHTML = `<div class="cover"><iframe src="${src}" scrolling="no" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>`;
+  container.innerHTML = `<div class="cover"><iframe src="${src}" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>`;
 }
 
 function render(){
@@ -519,13 +526,13 @@ function render(){
 
   updateEmbed(ch, info);
 
-  if(!info && !ch.streamUrl){
+  if(!info && !ch.streamUrl && !ch.useExternalScript){
     const notStarted = now < EPOCH;
     main.innerHTML = `
       <p class="eyebrow">Canal ${ch.num} · ${ch.name}</p>
       <div class="off-air">${notStarted ? 'La programación todavía no arrancó' : 'Fuera de programación en este horario'}<br><span style="font-size:15px;">${notStarted ? `Arranca el ${EPOCH.toLocaleDateString('es-AR')}` : ''}</span></div>
     `;
-  } else if(ch.streamUrl) {
+  } else if(ch.streamUrl || ch.useExternalScript) {
     main.innerHTML = `<p class="eyebrow">Canal ${ch.num} · ${ch.name} · Transmisión en vivo</p>`;
   } else {
     const pct = Math.min(100, (info.offsetMin*60+info.offsetSec)/(info.epMin*60)*100);
@@ -556,7 +563,7 @@ function render(){
 
   const ticker = CHANNELS.map(c=>{
     const i = computeNowPlaying(c, now);
-    return `CANAL ${c.num} ${c.name}: ${c.streamUrl ? 'transmisión en vivo' : (i ? i.show : 'fuera de aire')}`;
+    return `CANAL ${c.num} ${c.name}: ${(c.streamUrl || c.useExternalScript) ? 'transmisión en vivo' : (i ? i.show : 'fuera de aire')}`;
   }).join("     •     ");
   document.getElementById("tickerText").textContent = ticker + "     •     ";
 }
