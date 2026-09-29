@@ -79,13 +79,50 @@
 
   .main{flex:1; padding:22px 26px;}
 
-  /* Estilos del reproductor de video a 600px de altura */
+  /* ── REPRODUCTOR PERSONALIZADO SIN BARRA DE ADELANTAR/ATRASAR ── */
   .cover{
     width:100%; height:600px; background:#050a14; border:1px solid var(--line);
-    border-radius:6px; overflow:hidden; margin-bottom:18px;
+    border-radius:6px; overflow:hidden; margin-bottom:18px; position:relative;
   }
-  .cover video{
+  .player-wrapper{
+    width:100%; height:100%; position:relative; background:#000;
+    display:flex; flex-direction:column; justify-content:center;
+  }
+  .player-wrapper video{
     width:100%; height:100%; object-fit:contain; background:#000; display:block;
+  }
+
+  /* Barra de controles personalizada */
+  .custom-controls{
+    position:absolute; bottom:0; left:0; right:0; height:48px;
+    background:linear-gradient(transparent, rgba(0,0,0,0.85));
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 16px; opacity:0; transition:opacity 0.3s ease; z-index:10;
+  }
+  .player-wrapper:hover .custom-controls{ opacity:1; }
+
+  .ctrl-group{ display:flex; align-items:center; gap:12px; }
+
+  .ctrl-btn{
+    background:transparent; border:none; color:var(--ink);
+    font-size:18px; cursor:pointer; padding:4px 8px; border-radius:4px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ctrl-btn:hover{ color:var(--yellow); background:rgba(255,255,255,0.1); }
+
+  .live-tag{
+    display:flex; align-items:center; gap:6px;
+    font-family:'VT323', monospace; font-size:18px; color:#ff4757;
+    background:rgba(255,71,87,0.15); padding:2px 8px; border-radius:4px; border:1px solid rgba(255,71,87,0.3);
+  }
+  .live-dot{
+    width:8px; height:8px; background:#ff4757; border-radius:50%;
+    animation:blink 1.2s infinite ease-in-out;
+  }
+  @keyframes blink{ 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  .volume-slider{
+    width:70px; accent-color:var(--yellow); cursor:pointer;
   }
 
   .eyebrow{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:0 0 4px;}
@@ -159,8 +196,10 @@
 <script>
 const EPOCH = new Date("2026-05-27T00:00:00");
 
-// ── REEMPLAZA ESTA URL CON TU LINK .M3U8 REAL DE MAGIC KIDS ──
+// ── REEMPLAZA ESTAS URLS CON TUS LINKS .M3U8 REALES ──
 const MAGIC_KIDS_STREAM_URL = "https://kali.vdopanel.com:3007/stream/play.m3u8";
+const JETIX_STREAM_URL = null; // Ej: "https://tu-servidor.com/jetix.m3u8"
+const LOCOMOTION_STREAM_URL = null; // Ej: "https://tu-servidor.com/locomotion.m3u8"
 
 function mkEpisodes(n){
   return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`}));
@@ -193,7 +232,7 @@ function buildDailyChannel(id, num, name, rows, opts={}){
   const days = opts.days || [0,1,2,3,4,5,6];
   return {
     id, num, name,
-    streamUrl: opts.streamUrl || null, // URL m3u8 opcional del canal
+    streamUrl: opts.streamUrl || null,
     blocks: rows.map(r=>({
       days, start:r.start, end:r.end,
       show:{
@@ -258,7 +297,9 @@ const MAGICMOTION_ROWS = [
 const FOXKIDS_ROWS = [];
 const NICK_ROWS = [];
 const DISNEY_ROWS = [];
+const JETIX_ROWS = [];
 const WB_ROWS = [];
+const LOCOMOTION_ROWS = [];
 const CN_ROWS = [];
 
 const CHANNELS = [
@@ -267,7 +308,9 @@ const CHANNELS = [
   buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS),
   buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS),
   buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS),
+  buildDailyChannel("jetix", 12, "Jetix", JETIX_ROWS, { streamUrl: JETIX_STREAM_URL }),
   buildDailyChannel("wb", 13, "WB", WB_ROWS),
+  buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS, { streamUrl: LOCOMOTION_STREAM_URL }),
 ];
 
 function parseHM(str){
@@ -349,7 +392,47 @@ function currentSimTime(){
   return overrideDate ? new Date(overrideDate) : new Date();
 }
 
-// ── FUNCIÓN PARA CARGAR EL REPRODUCTOR .M3U8 EN VIVO ──
+// ── CONTROLADORES DE VIDEO PERSONALIZADOS ──
+function togglePlay(){
+  const video = document.getElementById("hlsPlayer");
+  const playBtn = document.getElementById("playBtn");
+  if(!video) return;
+  if(video.paused){
+    video.play();
+    if(playBtn) playBtn.textContent = "❚❚";
+  }else{
+    video.pause();
+    if(playBtn) playBtn.textContent = "▶";
+  }
+}
+
+function toggleMute(){
+  const video = document.getElementById("hlsPlayer");
+  const muteBtn = document.getElementById("muteBtn");
+  if(!video) return;
+  video.muted = !video.muted;
+  if(muteBtn) muteBtn.textContent = video.muted ? "🔇" : "🔊";
+}
+
+function setVolume(val){
+  const video = document.getElementById("hlsPlayer");
+  if(!video) return;
+  video.volume = val;
+  video.muted = val == 0;
+  const muteBtn = document.getElementById("muteBtn");
+  if(muteBtn) muteBtn.textContent = video.muted ? "🔇" : "🔊";
+}
+
+function toggleFullscreen(){
+  const wrapper = document.getElementById("playerWrapper");
+  if(!wrapper) return;
+  if(!document.fullscreenElement){
+    wrapper.requestFullscreen().catch(err=>{});
+  }else{
+    document.exitFullscreen();
+  }
+}
+
 function loadHlsStream(streamUrl) {
   const video = document.getElementById("hlsPlayer");
   if (!video) return;
@@ -364,6 +447,8 @@ function loadHlsStream(streamUrl) {
       promise.catch(() => {
         video.muted = true;
         video.play();
+        const muteBtn = document.getElementById("muteBtn");
+        if(muteBtn) muteBtn.textContent = "🔇";
       });
     }
   }
@@ -384,7 +469,6 @@ function loadHlsStream(streamUrl) {
 function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
 
-  // Si el canal tiene configurada una URL .m3u8
   if(ch.streamUrl){
     const key = ch.id + "|hls";
     if(key === lastEmbedKey) return;
@@ -392,13 +476,25 @@ function updateEmbed(ch, info){
 
     container.innerHTML = `
       <div class="cover">
-        <video id="hlsPlayer" controls autoplay></video>
+        <div class="player-wrapper" id="playerWrapper">
+          <video id="hlsPlayer" playsinline></video>
+          <div class="custom-controls">
+            <div class="ctrl-group">
+              <button class="ctrl-btn" id="playBtn" onclick="togglePlay()">❚❚</button>
+              <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
+              <input type="range" class="volume-slider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
+            </div>
+            <div class="ctrl-group">
+              <div class="live-tag"><span class="live-dot"></span> EN VIVO</div>
+              <button class="ctrl-btn" onclick="toggleFullscreen()">⛶</button>
+            </div>
+          </div>
+        </div>
       </div>`;
     loadHlsStream(ch.streamUrl);
     return;
   }
 
-  // Comportamiento normal para embeds iframe
   if(!info || !info.episode.embedUrl){
     if(lastEmbedKey !== null){
       container.innerHTML = "";
