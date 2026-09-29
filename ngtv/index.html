@@ -542,31 +542,38 @@ function render(){
       <p class="eyebrow">Canal ${ch.num} · ${ch.name}</p>
       <div class="off-air">${notStarted ? 'La programación todavía no arrancó' : 'Fuera de programación en este horario'}<br><span style="font-size:15px;">${notStarted ? `Arranca el ${EPOCH.toLocaleDateString('es-AR')}` : ''}</span></div>
     `;
-  }else{
+ }else{
     const pct = Math.min(100, (info.offsetMin*60+info.offsetSec)/(info.epMin*60)*100);
+    
+    // 1. Detectar si el canal tiene un video/embed activo
+    const tieneEmbedOStream = Boolean(ch.streamUrl || info.episode.embedUrl);
+
+    // 2. Generar el HTML del link (si existe)
     let linkHtml = "";
     if(info.episode.url){
-      linkHtml += `<a class="watch-link" href="${info.episode.url}" target="_blank" rel="noopener">▶ Ver este capítulo</a>`;
+      linkHtml = `<a class="watch-link" href="${info.episode.url}" target="_blank" rel="noopener">▶ Ver este capítulo</a>`;
     }
-    if(!info.episode.url && !info.episode.embedUrl){
-      linkHtml = `<div class="no-link">Sin link cargado para este capítulo</div>`;
-    }
+
+    // 3. Si NO tiene video/embed, mostramos la info detallada (link, progreso, a continuación)
     main.innerHTML = `
       <p class="eyebrow">Canal ${ch.num} · ${ch.name} · ahora</p>
       <h2 class="show-title">${info.show}</h2>
-      ${linkHtml}
-      <div class="progress-wrap">
-        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-        <div class="progress-labels">
-          <span>${fmt(info.offsetMin, info.offsetSec)}</span>
-          <span>${String(info.epMin).padStart(2,"0")}:00</span>
+      
+      ${!tieneEmbedOStream ? `
+        ${linkHtml}
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <div class="progress-labels">
+            <span>${fmt(info.offsetMin, info.offsetSec)}</span>
+            <span>${String(info.epMin).padStart(2,"0")}:00</span>
+          </div>
         </div>
-      </div>
-      ${info.nextShow ? `
-      <div class="up-next">
-        <p class="eyebrow">A continuación</p>
-        <p class="up-next-item">${info.nextShow}</p>
-      </div>` : ''}
+        ${info.nextShow ? `
+        <div class="up-next">
+          <p class="eyebrow">A continuación</p>
+          <p class="up-next-item">${info.nextShow}</p>
+        </div>` : ''}
+      ` : ''}
     `;
   }
 
