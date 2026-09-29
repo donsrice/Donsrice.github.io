@@ -84,6 +84,9 @@
     width:100%; height:600px; background:#050a14; border:1px solid var(--line);
     border-radius:6px; overflow:hidden; margin-bottom:18px; position:relative;
   }
+  .cover iframe{
+    width:100%; height:100%; border:none;
+  }
   .player-wrapper{
     width:100%; height:100%; position:relative; background:#000;
     display:flex; flex-direction:column; justify-content:center;
@@ -135,9 +138,6 @@
     margin-bottom:18px;
   }
   .watch-link:hover{background:#ffe08a;}
-  .no-link{
-    font-size:12px; color:var(--muted); margin-bottom:18px;
-  }
 
   .progress-wrap{margin-bottom:6px;}
   .progress-bar{
@@ -196,10 +196,12 @@
 <script>
 const EPOCH = new Date("2026-05-27T00:00:00");
 
-// ── REEMPLAZA ESTAS URLS CON TUS LINKS .M3U8 REALES ──
+// ── INGRESA AQUÍ TUS LINKS (Pueden ser .m3u8 o URLs web tipo https://cn2021.jahh19channel.xyz/) ──
 const MAGIC_KIDS_STREAM_URL = "https://kali.vdopanel.com:3007/stream/play.m3u8";
-const JETIX_STREAM_URL = null; // Ej: "https://tu-servidor.com/jetix.m3u8"
-const LOCOMOTION_STREAM_URL = null; // Ej: "https://tu-servidor.com/locomotion.m3u8"
+const CN_STREAM_URL = "https://cn2021.jahh19channel.xyz/"; // <--- INGRESA AQUÍ EL LINK DE CARTOON NETWORK
+const FOXKIDS_STREAM_URL = null;                          // <--- INGRESA AQUÍ EL LINK DE FOX KIDS
+const JETIX_STREAM_URL = null;                             // <--- INGRESA AQUÍ EL LINK DE JETIX
+const LOCOMOTION_STREAM_URL = null;                        // Ej: "https://tu-servidor.com/locomotion.m3u8"
 
 function mkEpisodes(n){
   return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`}));
@@ -246,103 +248,12 @@ function buildDailyChannel(id, num, name, rows, opts={}){
 const MAGICMOTION_ROWS = [
   {start:"00:00", end:"00:30", title:"Las Aventuras de Pippi Longstocking", count:21, link:PLACEHOLDER},
   {start:"00:30", end:"01:00", title:"Daniel el Travieso", count:60, link:PLACEHOLDER},
-  {start:"01:00", end:"01:30", title:"GI Joe", count:113, link:"https://www.lacartoons.com/serie/capitulo/14198"},
-  {start:"01:30", end:"02:00", title:"Las Aventuras de Tintín", count:39, link:PLACEHOLDER},
-  {start:"02:00", end:"02:30", title:"Space Goofs (Los extraterrestres chiflados)", count:78, link:PLACEHOLDER},
-  {start:"02:30", end:"03:00", title:"Las Aventuras de Sonic el Erizo", count:65, link:PLACEHOLDER},
-  {start:"03:00", end:"03:30", title:"Street Sharks (Tiburones del Asfalto)", count:40, link:PLACEHOLDER},
-  {start:"03:30", end:"04:00", title:"Los Motorratones de Marte", count:65, link:PLACEHOLDER},
-  {start:"04:00", end:"04:30", title:"Las Tortugas Ninja", count:60, link:PLACEHOLDER},
-  {start:"04:30", end:"05:00", title:"Cadillacs y Dinosaurios", count:13, link:PLACEHOLDER},
-  {start:"05:00", end:"05:30", title:"¿Dónde está Wally?", count:13, link:PLACEHOLDER},
-  {start:"05:30", end:"06:00", title:"Dr. Slump", count:74, link:PLACEHOLDER},
-  {start:"06:00", end:"06:30", title:"Las Aventuras de Pippi Longstocking", count:21, link:PLACEHOLDER},
-  {start:"06:30", end:"07:00", title:"Daniel el Travieso", count:60, link:PLACEHOLDER},
-  {start:"07:00", end:"07:30", title:"El Capitán Planeta", count:113, link:PLACEHOLDER},
-  {start:"07:30", end:"08:00", title:"Las Aventuras de Tintín", count:39, link:PLACEHOLDER},
-  {start:"08:00", end:"08:30", title:"Space Goofs (Los extraterrestres chiflados)", count:78, link:PLACEHOLDER},
-  {start:"08:30", end:"09:00", title:"Las Aventuras de Sonic el Erizo", count:65, link:PLACEHOLDER},
-  {start:"09:00", end:"09:30", title:"Street Sharks (Tiburones del Asfalto)", count:40, link:PLACEHOLDER},
-  {start:"09:30", end:"10:00", title:"Los Motorratones de Marte", count:65, link:PLACEHOLDER},
-  {start:"10:00", end:"10:30", title:"Las Tortugas Ninja", count:60, link:PLACEHOLDER},
-  {start:"10:30", end:"11:00", title:"Cadillacs y Dinosaurios", count:13, link:PLACEHOLDER},
-  {start:"11:00", end:"11:30", title:"¿Dónde está Wally?", count:13, link:PLACEHOLDER},
-  {start:"11:30", end:"12:00", title:"Dr. Slump", count:74, link:PLACEHOLDER},
-  {start:"12:00", end:"12:30", title:"Koni Chan", count:26, link:PLACEHOLDER},
-  {start:"12:30", end:"13:00", title:"Beast Wars: Transformers", count:52, link:PLACEHOLDER},
-  {start:"13:00", end:"13:30", title:"Sailor Moon", count:46, link:PLACEHOLDER},
-  {start:"13:30", end:"14:00", title:"Ranma ½", count:161, link:PLACEHOLDER},
-  {start:"14:00", end:"14:30", title:"Slam Dunk", count:101, link:PLACEHOLDER},
-  {start:"14:30", end:"15:00", title:"Gatchaman", count:105, link:PLACEHOLDER},
-  {start:"15:00", end:"15:30", title:"Supercampeones", count:128, link:PLACEHOLDER},
-  {start:"15:30", end:"16:00", title:"Dragon Ball", count:153, link:PLACEHOLDER},
-  {start:"16:00", end:"16:30", title:"Dragon Ball Z", count:291, link:PLACEHOLDER},
-  {start:"16:30", end:"17:00", title:"Los Caballeros del Zodiaco", count:114, link:PLACEHOLDER},
-  {start:"17:00", end:"17:30", title:"B't X", count:13, link:PLACEHOLDER},
-  {start:"17:30", end:"18:00", title:"Orphen", count:24, link:PLACEHOLDER},
-  {start:"18:00", end:"18:30", title:"Detective Conan", count:130, link:PLACEHOLDER},
-  {start:"18:30", end:"19:00", title:"Supercampeones (Repetición)", count:128, link:PLACEHOLDER},
-  {start:"19:00", end:"19:30", title:"Dragon Ball Z (Episodio Central)", count:291, link:PLACEHOLDER},
-  {start:"19:30", end:"20:00", title:"Masked Rider", count:40, link:PLACEHOLDER},
-  {start:"20:00", end:"20:30", title:"Los Halcones Galácticos", count:85, link:PLACEHOLDER},
-  {start:"20:30", end:"21:00", title:"Thundercats", count:130, link:PLACEHOLDER},
-  {start:"21:00", end:"21:30", title:"Cuentos de la Cripta", count:26, link:PLACEHOLDER},
-  {start:"21:30", end:"22:00", title:"Los Verdaderos Cazafantasmas", count:65, link:PLACEHOLDER},
-  {start:"22:00", end:"22:30", title:"Slayers", count:26, link:PLACEHOLDER},
-  {start:"22:30", end:"23:00", title:"B't X (Repetición nocturna)", count:13, link:PLACEHOLDER},
-  {start:"23:00", end:"23:30", title:"Koni Chan (Trasnochados)", count:26, link:PLACEHOLDER},
-  {start:"23:30", end:"00:00", title:"Mikami La Cazafantasmas", count:43, link:PLACEHOLDER},
 ];
 
 const FOXKIDS_ROWS = [
   {start:"00:00", end:"00:30", title:"INSOMNIA: Los Misterios de Moville", count:26, link:"https://www.lacartoons.com/serie/capitulo/9138"},
-  {start:"00:30", end:"01:00", title:"INSOMNIA: Escalofrios", count:65, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"01:00", end:"01:30", title:"INSOMNIA: Spider-Man", count:63, link:"https://www.lacartoons.com/serie/capitulo/5300"},
-  {start:"01:30", end:"02:00", title:"INSOMNIA: X-Men", count:76, link:"https://www.lacartoons.com/serie/capitulo/10484"},
-  {start:"02:00", end:"02:30", title:"Kirby", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"02:30", end:"03:00", title:"W.I.T.C.H.", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"03:00", end:"03:30", title:"W.I.T.C.H.", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"03:30", end:"04:00", title:"Shaman King", count:64, link:"https://www.lacartoons.com/serie/capitulo/5172"},
-  {start:"04:00", end:"04:30", title:"Las Tortugas Ninja", count:60, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"04:30", end:"05:00", title:"Monster Rancher", count:73, link:"https://www.lacartoons.com/serie/capitulo/4472"},
-  {start:"05:00", end:"05:30", title:"Megaman", count:56, link:"https://www.lacartoons.com/serie/capitulo/12103"},
-  {start:"05:30", end:"06:00", title:"Kid Musculo", count:77, link:"https://www.lacartoons.com/serie/capitulo/11913"},
-  {start:"06:00", end:"06:30", title:"Dave El barbaro", count:21, link:"https://www.lacartoons.com/serie/capitulo/8358"},
-  {start:"06:30", end:"07:00", title:"Super Escuadrón Mono Fuerza A Go-Go!", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"07:00", end:"07:30", title:"Tres Espias sin Límite", count:130, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"07:30", end:"08:00", title:"El Mundo de Bobby", count:40, link:"https://www.lacartoons.com/serie/capitulo/20738"},
-  {start:"08:00", end:"08:30", title:"El pajaro Loco", count:26, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"08:30", end:"09:00", title:"Dave El barbaro", count:21, link:"https://www.lacartoons.com/serie/capitulo/8358"},
-  {start:"09:00", end:"09:30", title:"Shin Chan", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"09:30", end:"10:00", title:"Digimon 1", count:54, link:"https://www.lacartoons.com/serie/capitulo/3395"},
-  {start:"10:00", end:"10:30", title:"Super Escuadrón Mono Fuerza A Go-Go!", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"10:30", end:"11:00", title:"Mighty Morphin Power Rangers", count:155, link:"https://www.lacartoons.com/serie/capitulo/4622"},
-  {start:"11:00", end:"11:30", title:"Gargoyles", count:78, link:"https://www.lacartoons.com/serie/capitulo/3805"},
-  {start:"11:30", end:"12:00", title:"Spider-man Unlimited", count:13, link:"https://www.lacartoons.com/serie/capitulo/5365"},
-  {start:"12:00", end:"12:30", title:"Megaman", count:56, link:"https://www.lacartoons.com/serie/capitulo/12103"},
-  {start:"12:30", end:"13:00", title:"Kirby", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"13:00", end:"13:30", title:"Tres Espias sin Límite", count:130, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"13:30", end:"14:00", title:"W.I.T.C.H.", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"14:00", end:"14:30", title:"Kid Musculo", count:77, link:"https://www.lacartoons.com/serie/capitulo/11913"},
-  {start:"14:30", end:"15:00", title:"Las Tortugas Ninja", count:60, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"15:00", end:"15:30", title:"Digimon 2", count:50, link:"https://www.lacartoons.com/serie/capitulo/3449"},
-  {start:"15:30", end:"16:00", title:"Medabots", count:91, link:"https://www.lacartoons.com/serie/capitulo/4380"},
-  {start:"16:00", end:"16:30", title:"BeyBlade", count:51, link:"https://www.lacartoons.com/serie/capitulo/3332"},
-  {start:"16:30", end:"17:00", title:"Shaman King", count:64, link:"https://www.lacartoons.com/serie/capitulo/5173"},
-  {start:"17:00", end:"17:30", title:"Monster Rancher", count:73, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"17:30", end:"18:00", title:"Digimon 3", count:51, link:"https://www.lacartoons.com/serie/capitulo/3499"},
-  {start:"18:00", end:"18:30", title:"Power rangers Wild Force", count:40, link:"https://www.lacartoons.com/serie/capitulo/28139"},
-  {start:"18:30", end:"19:00", title:"Power Rangers Ninja Storm", count:38, link:"https://www.lacartoons.com/serie/capitulo/28179"},
-  {start:"19:00", end:"19:30", title:"Hulk", count:21, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"19:30", end:"20:00", title:"Iron-Man", count:26, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"20:00", end:"20:30", title:"W.I.T.C.H.", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"20:30", end:"21:00", title:"BeyBlade", count:51, link:"https://www.lacartoons.com/serie/capitulo/3333"},
-  {start:"21:00", end:"21:30", title:"Shin Chan", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"21:30", end:"22:00", title:"Medabots", count:91, link:"https://www.lacartoons.com/serie/capitulo/4381"},
-  {start:"22:00", end:"22:30", title:"Digimon 1", count:54, link:"https://www.lacartoons.com/serie/capitulo/3396"},
-  {start:"22:30", end:"23:00", title:"Code Lyoko", count:95, link:"https://www.lacartoons.com/serie/capitulo/223"},
-  {start:"23:00", end:"23:30", title:"INSOMNIA: The Tick", count:36, link:"https://www.lacartoons.com/serie/capitulo/23426"},
-  {start:"23:30", end:"00:00", title:"INSOMNIA: Los Cuentos de la Cripta", count:36, link:"https://www.lacartoons.com/serie/capitulo/20778"},];
+];
+
 const NICK_ROWS = [];
 const DISNEY_ROWS = [];
 const JETIX_ROWS = [];
@@ -352,9 +263,9 @@ const CN_ROWS = [];
 
 const CHANNELS = [
   buildDailyChannel("magickids", 3, "Magic Kids", MAGICMOTION_ROWS, { streamUrl: MAGIC_KIDS_STREAM_URL }),
-  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS),
+  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { streamUrl: CN_STREAM_URL }),
   buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS),
-  buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS),
+  buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS, { streamUrl: FOXKIDS_STREAM_URL }),
   buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS),
   buildDailyChannel("jetix", 12, "Jetix", JETIX_ROWS, { streamUrl: JETIX_STREAM_URL }),
   buildDailyChannel("wb", 13, "WB", WB_ROWS),
@@ -518,28 +429,35 @@ function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
 
   if(ch.streamUrl){
-    const key = ch.id + "|hls";
+    const key = ch.id + "|" + ch.streamUrl;
     if(key === lastEmbedKey) return;
     lastEmbedKey = key;
 
-    container.innerHTML = `
-      <div class="cover">
-        <div class="player-wrapper" id="playerWrapper">
-          <video id="hlsPlayer" playsinline></video>
-          <div class="custom-controls">
-            <div class="ctrl-group">
-              <button class="ctrl-btn" id="playBtn" onclick="togglePlay()">❚❚</button>
-              <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
-              <input type="range" class="volume-slider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
-            </div>
-            <div class="ctrl-group">
-              <div class="live-tag"><span class="live-dot"></span> EN VIVO</div>
-              <button class="ctrl-btn" onclick="toggleFullscreen()">⛶</button>
+    // Si el link termina en .m3u8 usa el reproductor HLS nativo
+    if(ch.streamUrl.endsWith(".m3u8")){
+      container.innerHTML = `
+        <div class="cover">
+          <div class="player-wrapper" id="playerWrapper">
+            <video id="hlsPlayer" playsinline></video>
+            <div class="custom-controls">
+              <div class="ctrl-group">
+                <button class="ctrl-btn" id="playBtn" onclick="togglePlay()">❚❚</button>
+                <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()">🔊</button>
+                <input type="range" class="volume-slider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
+              </div>
+              <div class="ctrl-group">
+                <div class="live-tag"><span class="live-dot"></span> EN VIVO</div>
+                <button class="ctrl-btn" onclick="toggleFullscreen()">⛶</button>
+              </div>
             </div>
           </div>
-        </div>
-      </div>`;
-    loadHlsStream(ch.streamUrl);
+        </div>`;
+      loadHlsStream(ch.streamUrl);
+    } else {
+      // Si es una página web normal o embebida, la carga en un iframe
+      if (currentHls) { currentHls.destroy(); currentHls = null; }
+      container.innerHTML = `<div class="cover"><iframe src="${ch.streamUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>`;
+    }
     return;
   }
 
@@ -584,49 +502,44 @@ function render(){
 
   updateEmbed(ch, info);
 
-  if(!info){
+  if(!info && !ch.streamUrl){
     const notStarted = now < EPOCH;
     main.innerHTML = `
       <p class="eyebrow">Canal ${ch.num} · ${ch.name}</p>
       <div class="off-air">${notStarted ? 'La programación todavía no arrancó' : 'Fuera de programación en este horario'}<br><span style="font-size:15px;">${notStarted ? `Arranca el ${EPOCH.toLocaleDateString('es-AR')}` : ''}</span></div>
     `;
- }else{
+  } else if(ch.streamUrl) {
+    main.innerHTML = `<p class="eyebrow">Canal ${ch.num} · ${ch.name} · Transmisión en vivo</p>`;
+  } else {
     const pct = Math.min(100, (info.offsetMin*60+info.offsetSec)/(info.epMin*60)*100);
-    const tieneEmbedOStream = Boolean(ch.streamUrl || info.episode.embedUrl);
 
     let linkHtml = "";
     if(info.episode.url){
       linkHtml = `<a class="watch-link" href="${info.episode.url}" target="_blank" rel="noopener">▶ Ver este capítulo</a>`;
     }
 
-    // Si tiene video/embed en vivo, solo dejamos la etiqueta del canal y nada de títulos/programación abajo
-    if(tieneEmbedOStream){
-      main.innerHTML = `<p class="eyebrow">Canal ${ch.num} · ${ch.name} · Transmisión en vivo</p>`;
-    } else {
-      // Si NO tiene video/embed, muestra el título, link, progreso y a continuación
-      main.innerHTML = `
-        <p class="eyebrow">Canal ${ch.num} · ${ch.name} · ahora</p>
-        <h2 class="show-title">${info.show}</h2>
-        ${linkHtml}
-        <div class="progress-wrap">
-          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-          <div class="progress-labels">
-            <span>${fmt(info.offsetMin, info.offsetSec)}</span>
-            <span>${String(info.epMin).padStart(2,"0")}:00</span>
-          </div>
+    main.innerHTML = `
+      <p class="eyebrow">Canal ${ch.num} · ${ch.name} · ahora</p>
+      <h2 class="show-title">${info.show}</h2>
+      ${linkHtml}
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-labels">
+          <span>${fmt(info.offsetMin, info.offsetSec)}</span>
+          <span>${String(info.epMin).padStart(2,"0")}:00</span>
         </div>
-        ${info.nextShow ? `
-        <div class="up-next">
-          <p class="eyebrow">A continuación</p>
-          <p class="up-next-item">${info.nextShow}</p>
-        </div>` : ''}
-      `;
-    }
+      </div>
+      ${info.nextShow ? `
+      <div class="up-next">
+        <p class="eyebrow">A continuación</p>
+        <p class="up-next-item">${info.nextShow}</p>
+      </div>` : ''}
+    `;
   }
 
   const ticker = CHANNELS.map(c=>{
     const i = computeNowPlaying(c, now);
-    return `CANAL ${c.num} ${c.name}: ${i ? i.show : 'fuera de aire'}`;
+    return `CANAL ${c.num} ${c.name}: ${c.streamUrl ? 'transmisión en vivo' : (i ? i.show : 'fuera de aire')}`;
   }).join("     •     ");
   document.getElementById("tickerText").textContent = ticker + "     •     ";
 }
@@ -666,6 +579,4 @@ render();
 
 </body>
 </html>
-
-</body>
 </html>
