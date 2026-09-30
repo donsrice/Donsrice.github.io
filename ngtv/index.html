@@ -41,7 +41,7 @@
   .static-flash.on{opacity:.9;}
 
   .topbar{
-    display:flex; justify-content:space-between; align-items:center;
+    display:flex; justify-space-between; align-items:center;
     padding:14px 20px; border-bottom:2px solid var(--line); background:var(--guide);
   }
   .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
@@ -217,16 +217,6 @@ const FOXKIDS_EMBED_URL = "https://foxkids2020.jahh19channel.xyz/";
 const JETIX_EMBED_URL = "https://jetix2021.jahh19channel.xyz/";
 const LOCOMOTION_EMBED_URL = "https://serenotv.com/?cdm_embed=canal&pid=25664";
 
-const CHANNELS = [
-  buildDailyChannel("magickids", 3, "Magic Kids", MAGICMOTION_ROWS, { streamUrl: MAGIC_KIDS_STREAM_URL }),
-  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { altStreamUrl: CN_STREAM_URL }),
-  buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS),
-  buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS, { embedUrl: FOXKIDS_EMBED_URL }),
-  buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS),
-  buildDailyChannel("jetix", 12, "Jetix", JETIX_ROWS, { embedUrl: JETIX_EMBED_URL }),
-  buildDailyChannel("wb", 13, "WB", WB_ROWS),
-  buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS, { embedUrl: LOCOMOTION_EMBED_URL }),
-];
 function mkEpisodes(n){
   return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`}));
 }
@@ -652,7 +642,7 @@ function loadHlsStream(streamUrl) {
 }
 
 // ── CONFIGURACIÓN DEL EXTRACTOR DE CLOUDFLARE ──
-const PROXY_WORKER_URL = "https://extractor-series.nah-d-ruiz.workers.dev/"; // Reemplaza con la URL de tu Worker
+const PROXY_WORKER_URL = "https://extractor-series.nah-d-ruiz.workers.dev/"; 
 
 async function getCleanEmbedUrl(pageUrl) {
   try {
@@ -718,10 +708,8 @@ async function updateEmbed(ch, info){
 
     if (currentHls) { currentHls.destroy(); currentHls = null; }
 
-    // Muestra un indicador de carga breve mientras la Worker extrae el video
     container.innerHTML = `<div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">Sintonizando episodio...</div>`;
 
-    // Obtiene el enlace limpio del reproductor mediante la Worker
     const realEmbedUrl = await getCleanEmbedUrl(info.episode.url);
 
     container.innerHTML = `
