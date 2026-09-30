@@ -217,6 +217,16 @@ const FOXKIDS_EMBED_URL = "https://foxkids2020.jahh19channel.xyz/";
 const JETIX_EMBED_URL = "https://jetix2021.jahh19channel.xyz/";
 const LOCOMOTION_EMBED_URL = "https://serenotv.com/?cdm_embed=canal&pid=25664";
 
+const CHANNELS = [
+  buildDailyChannel("magickids", 3, "Magic Kids", MAGICMOTION_ROWS, { streamUrl: MAGIC_KIDS_STREAM_URL }),
+  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { altStreamUrl: CN_STREAM_URL }),
+  buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS),
+  buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS, { embedUrl: FOXKIDS_EMBED_URL }),
+  buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS),
+  buildDailyChannel("jetix", 12, "Jetix", JETIX_ROWS, { embedUrl: JETIX_EMBED_URL }),
+  buildDailyChannel("wb", 13, "WB", WB_ROWS),
+  buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS, { embedUrl: LOCOMOTION_EMBED_URL }),
+];
 function mkEpisodes(n){
   return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`}));
 }
@@ -419,7 +429,63 @@ const WB_ROWS = [{start:"00:00", end:"00:30", title:"INSOMNIA: Los Misterios de 
   {start:"23:30", end:"00:00", title:"INSOMNIA: Los Cuentos de la Cripta", count:36, link:"https://www.lacartoons.com/serie/capitulo/20778"},
 ];
 const LOCOMOTION_ROWS = [];
-const CN_ROWS = [];
+const CN_ROWS = [
+  // ── BLOQUE MADRUGADA / MAÑANA TEMPRANA (01:00 - 08:00) ──
+  {start:"01:00", end:"01:30", title:"Hora de Aventura", count:283, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"01:30", end:"02:00", title:"Flapjack", count:46, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
+  {start:"02:00", end:"02:30", title:"Un cachorro llamado Scooby-Doo", count:30, link:"https://www.lacartoons.com/serie/capitulo/2325?t=3"},
+  {start:"02:30", end:"03:00", title:"La Vaca y el Pollito", count:52, link:"https://www.lacartoons.com/serie/capitulo/21174?t=1"},
+  {start:"03:00", end:"03:30", title:"Soy La Comadreja", count:79, link:"https://www.lacartoons.com/serie/capitulo/21174?t=1"},
+  {start:"03:30", end:"04:00", title:"El laboratorio de Dexter", count:78, link:"https://www.lacartoons.com/serie/capitulo/6185?t=1"},
+  {start:"04:00", end:"04:30", title:"Las Chicas Superpoderosas", count:78, link:"https://www.lacartoons.com/serie/capitulo/6185?t=1"},
+  {start:"04:30", end:"05:00", title:"Johnny Bravo", count:67, link:"https://www.lacartoons.com/serie/capitulo/6185?t=1"},
+  {start:"05:00", end:"05:30", title:"Ed, Edd y Eddy", count:69, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"05:30", end:"06:00", title:"El Campamento de Lazlo", count:61, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
+  {start:"06:00", end:"06:30", title:"KND: Los chicos del barrio", count:78, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"06:30", end:"07:00", title:"Coraje, el perro cobarde", count:52, link:"https://www.lacartoons.com/serie/capitulo/21174?t=1"},
+  {start:"07:00", end:"07:30", title:"Las sombrías aventuras de Billy y Mandy", count:84, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"07:30", end:"08:00", title:"Mansión Foster para amigos imaginarios", count:79, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
+
+  // ── BLOQUE PRINCIPAL DÍA Y NOCHE (08:00 - 01:00) ──
+  {start:"08:00", end:"08:30", title:"Hora de Aventura", count:283, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"08:30", end:"09:00", title:"Flapjack", count:46, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
+  {start:"09:00", end:"09:30", title:"Un cachorro llamado Scooby-Doo", count:30, link:"https://www.lacartoons.com/serie/capitulo/2325?t=3"},
+  {start:"09:30", end:"10:00", title:"Cartoon Cartoons", count:30, link:"https://www.lacartoons.com/serie/capitulo/21174?t=1"},
+  {start:"10:00", end:"10:30", title:"La Vaca y el Pollito", count:52, link:"https://www.lacartoons.com/serie/capitulo/21174?t=1"},
+  {start:"10:30", end:"11:00", title:"Soy La Comadreja", count:79, link:"https://www.lacartoons.com/serie/capitulo/21174?t=1"},
+  {start:"11:00", end:"11:30", title:"El Show de Scooby-Doo", count:40, link:"https://www.lacartoons.com/serie/capitulo/2325?t=3"},
+  {start:"11:30", end:"12:00", title:"El laboratorio de Dexter", count:78, link:"https://www.lacartoons.com/serie/capitulo/6185?t=1"},
+  {start:"12:00", end:"12:30", title:"Las Chicas Superpoderosas", count:78, link:"https://www.lacartoons.com/serie/capitulo/6185?t=1"},
+  {start:"12:30", end:"13:00", title:"Johnny Bravo", count:67, link:"https://www.lacartoons.com/serie/capitulo/6185?t=1"},
+  {start:"13:00", end:"13:30", title:"Ed, Edd y Eddy", count:69, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"13:30", end:"14:00", title:"El Campamento de Lazlo", count:61, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
+  {start:"14:00", end:"14:30", title:"KND: Los chicos del barrio", count:78, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"14:30", end:"15:00", title:"Vida y obra de Juniper Lee", count:31, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
+  {start:"15:00", end:"15:30", title:"Winx Club", count:52, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"15:30", end:"16:00", title:"Hi Hi Puffy AmiYumi", count:39, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
+  {start:"16:00", end:"16:30", title:"Teen Titans (Jóvenes Titanes)", count:65, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"16:30", end:"17:00", title:"Ben 10", count:52, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"17:00", end:"17:30", title:"Duelo Xiaolin", count:52, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
+  {start:"17:30", end:"18:00", title:"Las sombrías aventuras de Billy y Mandy", count:84, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"18:00", end:"18:30", title:"Mansión Foster para amigos imaginarios", count:79, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
+  {start:"18:30", end:"19:00", title:"Coraje, el perro cobarde", count:52, link:"https://www.lacartoons.com/serie/capitulo/21174?t=1"},
+  {start:"19:00", end:"19:30", title:"Batman El Valiente", count:65, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
+  {start:"19:30", end:"20:00", title:"Las Aventuras de Jackie Chan", count:95, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
+  {start:"20:00", end:"20:30", title:"Ben 10: Alien Force", count:46, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"20:30", end:"21:00", title:"Samurai Jack", count:62, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
+  
+  // BLOQUE TOONAMI
+  {start:"21:00", end:"21:30", title:"TOONAMI: Pokémon", count:276, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
+  {start:"21:30", end:"22:00", title:"TOONAMI: Dragon Ball Z", count:291, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
+  {start:"22:00", end:"22:30", title:"TOONAMI: One Piece", count:130, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
+  {start:"22:30", end:"23:00", title:"TOONAMI: Naruto", count:220, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
+  {start:"23:00", end:"23:30", title:"TOONAMI: Samurai Champloo", count:26, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
+  {start:"23:30", end:"00:00", title:"TOONAMI: COWBOY BEBOP", count:26, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
+  
+  // BLOQUE ADULT SWIM
+  {start:"00:00", end:"00:30", title:"ADULT SWIM: Harvey Birdman, Abogado", count:39, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
+  {start:"00:30", end:"01:00", title:"ADULT SWIM: Aqua Teen Hunger Force", count:139, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"}
+];
 
 const CHANNELS = [
   buildDailyChannel("magickids", 3, "Magic Kids", MAGICMOTION_ROWS, { streamUrl: MAGIC_KIDS_STREAM_URL }),
