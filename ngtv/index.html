@@ -213,6 +213,8 @@ const EPOCH = new Date("2026-05-27T00:00:00");
 // ── ENLACES DE LOS CANALES ──
 const MAGIC_KIDS_STREAM_URL = "https://kali.vdopanel.com:3007/stream/play.m3u8";
 const CN_STREAM_URL = "https://cn2021.jahh19channel.xyz/";
+const FOXKIDS_EMBED_URL = "https://foxkids2020.jahh19channel.xyz/";
+const JETIX_EMBED_URL = "https://jetix2021.jahh19channel.xyz/";
 const LOCOMOTION_EMBED_URL = "https://serenotv.com/?cdm_embed=canal&pid=25664";
 
 function mkEpisodes(n){
@@ -275,9 +277,9 @@ const CHANNELS = [
   buildDailyChannel("magickids", 3, "Magic Kids", MAGICMOTION_ROWS, { streamUrl: MAGIC_KIDS_STREAM_URL }),
   buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { embedUrl: CN_STREAM_URL }),
   buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS),
-  buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS),
+  buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS, { embedUrl: FOXKIDS_EMBED_URL }),
   buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS),
-  buildDailyChannel("jetix", 12, "Jetix", JETIX_ROWS),
+  buildDailyChannel("jetix", 12, "Jetix", JETIX_ROWS, { embedUrl: JETIX_EMBED_URL }),
   buildDailyChannel("wb", 13, "WB", WB_ROWS),
   buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS, { embedUrl: LOCOMOTION_EMBED_URL }),
 ];
@@ -438,7 +440,7 @@ function loadHlsStream(streamUrl) {
 function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
 
-  // A) MODO IFRAME (Locomotion / Cartoon Network)
+  // A) MODO IFRAME (Locomotion / Cartoon Network / Jetix / Fox Kids)
   if(ch.embedUrl){
     const key = ch.id + "|embed";
     if(key === lastEmbedKey) return;
