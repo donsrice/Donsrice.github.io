@@ -41,7 +41,7 @@
   .static-flash.on{opacity:.9;}
 
   .topbar{
-    display:flex; justify-space-between; align-items:center;
+    display:flex; justify-content:space-between; align-items:center;
     padding:14px 20px; border-bottom:2px solid var(--line); background:var(--guide);
   }
   .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
@@ -153,6 +153,15 @@
   }
   .watch-link:hover{background:#ffe08a;}
 
+  .stream-alt-btn{
+    display:inline-flex; align-items:center; gap:6px; background:transparent; color:var(--cyan);
+    border:1px solid var(--cyan); text-decoration:none; font-weight:600; font-size:13px;
+    padding:6px 12px; border-radius:4px; cursor:pointer; transition:all 0.2s ease;
+  }
+  .stream-alt-btn:hover{
+    background:var(--cyan); color:#04222a;
+  }
+
   .progress-wrap{margin-bottom:6px;}
   .progress-bar{
     height:10px; background:#0a1830; border:1px solid var(--line); border-radius:5px; overflow:hidden;
@@ -164,7 +173,9 @@
 
   .up-next{
     margin-top:26px; padding-top:14px; border-top:1px dashed var(--line);
+    display:flex; justify-content:space-between; align-items:flex-end;
   }
+  .up-next-info{ flex:1; }
   .up-next .eyebrow{margin-bottom:8px;}
   .up-next-item{font-size:13px; color:var(--ink); opacity:.8; margin:3px 0;}
 
@@ -212,7 +223,7 @@ const EPOCH = new Date("2026-05-27T00:00:00");
 
 // ── ENLACES DE LOS CANALES ──
 const MAGIC_KIDS_STREAM_URL = "https://kali.vdopanel.com:3007/stream/play.m3u8";
-const CN_STREAM_URL = "https://cn2021.jahh19channel.xyz/";
+const CN_ALT_STREAM_URL = "https://cn2021.jahh19channel.xyz/";
 const FOXKIDS_EMBED_URL = "https://foxkids2020.jahh19channel.xyz/";
 const JETIX_EMBED_URL = "https://jetix2021.jahh19channel.xyz/";
 const LOCOMOTION_EMBED_URL = "https://serenotv.com/?cdm_embed=canal&pid=25664";
@@ -250,6 +261,7 @@ function buildDailyChannel(id, num, name, rows, opts={}){
     id, num, name,
     streamUrl: opts.streamUrl || null,
     embedUrl: opts.embedUrl || null,
+    altStreamUrl: opts.altStreamUrl || null,
     blocks: rows.map(r=>({
       days, start:r.start, end:r.end,
       show:{
@@ -266,7 +278,7 @@ const MAGICMOTION_ROWS = [
 ];
 
 const FOXKIDS_ROWS = [];
-const NICK_ROWS = [// ── BLOQUE MADRUGADA Y MAÑANA TEMPRANA (00:00 - 09:00) ──
+const NICK_ROWS = [
   {start:"00:00", end:"00:30", title:"Los Castores Cascarrabias", count:62, link:"https://www.lacartoons.com/serie/capitulo/17060"},
   {start:"00:30", end:"01:00", title:"CatDog", count:68, link:"https://www.lacartoons.com/serie/capitulo/17070"},
   {start:"01:00", end:"01:30", title:"Oye Arnold!", count:100, link:"https://www.lacartoons.com/serie/capitulo/9612"},
@@ -285,8 +297,6 @@ const NICK_ROWS = [// ── BLOQUE MADRUGADA Y MAÑANA TEMPRANA (00:00 - 09:00)
   {start:"07:30", end:"08:00", title:"Rugrats Crecidos", count:55, link:"https://www.lacartoons.com/serie/capitulo/18760"},
   {start:"08:00", end:"08:30", title:"Oye Arnold!", count:100, link:"https://www.lacartoons.com/serie/capitulo/9612"},
   {start:"08:30", end:"09:00", title:"Rocket Power", count:71, link:"https://www.lacartoons.com/serie/capitulo/17080"},
-
-  // ── BLOQUE DÍA Y NOCHE PRINCIPAL (09:00 - 00:00) ──
   {start:"09:00", end:"09:30", title:"Franklin", count:78, link:"https://www.lacartoons.com/serie/capitulo/18750"},
   {start:"09:30", end:"10:00", title:"Zona Tiza", count:40, link:"https://www.lacartoons.com/serie/capitulo/18780"},
   {start:"10:00", end:"10:30", title:"Poochini", count:26, link:"https://www.lacartoons.com/serie/capitulo/18800"},
@@ -317,7 +327,8 @@ const NICK_ROWS = [// ── BLOQUE MADRUGADA Y MAÑANA TEMPRANA (00:00 - 09:00)
   {start:"22:30", end:"23:00", title:"Sabrina, la bruja adolescente", count:163, link:"https://www.lacartoons.com/serie/capitulo/18610"},
   {start:"23:00", end:"00:00", title:"Kenan & Kel", count:65, link:"https://www.lacartoons.com/serie/capitulo/18830"}
 ];
-const DISNEY_ROWS = [{start:"00:00", end:"00:30", title:"Gummy Bears", count:95, link:"https://www.lacartoons.com/serie/capitulo/18600"},
+const DISNEY_ROWS = [
+  {start:"00:00", end:"00:30", title:"Gummy Bears", count:95, link:"https://www.lacartoons.com/serie/capitulo/18600"},
   {start:"00:30", end:"01:00", title:"Winnie The Pooh", count:50, link:"https://www.lacartoons.com/serie/capitulo/18580"},
   {start:"01:00", end:"01:30", title:"Las Aventuras de Timon y Pumba", count:85, link:"https://www.lacartoons.com/serie/capitulo/17393"},
   {start:"01:30", end:"02:00", title:"101 Dalmatas", count:65, link:"https://www.lacartoons.com/serie/capitulo/18450"},
@@ -341,8 +352,6 @@ const DISNEY_ROWS = [{start:"00:00", end:"00:30", title:"Gummy Bears", count:95,
   {start:"10:30", end:"11:00", title:"Chip y Dale", count:65, link:"https://www.lacartoons.com/serie/capitulo/18560"},
   {start:"11:00", end:"11:30", title:"Dave el Barbaro", count:21, link:"https://www.lacartoons.com/serie/capitulo/18660"},
   {start:"11:30", end:"12:00", title:"Super Escuadrón Mono Fuerza A Go-Go!", count:52, link:"https://www.lacartoons.com/serie/capitulo/28888"},
-
-  // ── BLOQUE 2 (REPETICIÓN TARDE / NOCHE) ──
   {start:"12:00", end:"12:30", title:"Gummy Bears", count:95, link:"https://www.lacartoons.com/serie/capitulo/18600"},
   {start:"12:30", end:"13:00", title:"Winnie The Pooh", count:50, link:"https://www.lacartoons.com/serie/capitulo/18580"},
   {start:"13:00", end:"13:30", title:"Las Aventuras de Timon y Pumba", count:85, link:"https://www.lacartoons.com/serie/capitulo/17393"},
@@ -369,7 +378,8 @@ const DISNEY_ROWS = [{start:"00:00", end:"00:30", title:"Gummy Bears", count:95,
   {start:"23:30", end:"00:00", title:"Super Escuadrón Mono Fuerza A Go-Go!", count:52, link:"https://www.lacartoons.com/serie/capitulo/28888"}
 ];
 const JETIX_ROWS = [];
-const WB_ROWS = [{start:"00:00", end:"00:30", title:"INSOMNIA: Los Misterios de Moville", count:26, link:"https://www.lacartoons.com/serie/capitulo/9138"},
+const WB_ROWS = [
+  {start:"00:00", end:"00:30", title:"INSOMNIA: Los Misterios de Moville", count:26, link:"https://www.lacartoons.com/serie/capitulo/9138"},
   {start:"00:30", end:"01:00", title:"INSOMNIA: Escalofrios", count:65, link:"https://www.lacartoons.com/serie/capitulo/4471"},
   {start:"01:00", end:"01:30", title:"INSOMNIA: Spider-Man", count:63, link:"https://www.lacartoons.com/serie/capitulo/5300"},
   {start:"01:30", end:"02:00", title:"INSOMNIA: X-Men", count:76, link:"https://www.lacartoons.com/serie/capitulo/10484"},
@@ -420,7 +430,6 @@ const WB_ROWS = [{start:"00:00", end:"00:30", title:"INSOMNIA: Los Misterios de 
 ];
 const LOCOMOTION_ROWS = [];
 const CN_ROWS = [
-  // ── BLOQUE MADRUGADA / MAÑANA TEMPRANA (01:00 - 08:00) ──
   {start:"01:00", end:"01:30", title:"Hora de Aventura", count:283, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
   {start:"01:30", end:"02:00", title:"Flapjack", count:46, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
   {start:"02:00", end:"02:30", title:"Un cachorro llamado Scooby-Doo", count:30, link:"https://www.lacartoons.com/serie/capitulo/2325?t=3"},
@@ -435,8 +444,6 @@ const CN_ROWS = [
   {start:"06:30", end:"07:00", title:"Coraje, el perro cobarde", count:52, link:"https://www.lacartoons.com/serie/capitulo/21174?t=1"},
   {start:"07:00", end:"07:30", title:"Las sombrías aventuras de Billy y Mandy", count:84, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
   {start:"07:30", end:"08:00", title:"Mansión Foster para amigos imaginarios", count:79, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
-
-  // ── BLOQUE PRINCIPAL DÍA Y NOCHE (08:00 - 01:00) ──
   {start:"08:00", end:"08:30", title:"Hora de Aventura", count:283, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
   {start:"08:30", end:"09:00", title:"Flapjack", count:46, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
   {start:"09:00", end:"09:30", title:"Un cachorro llamado Scooby-Doo", count:30, link:"https://www.lacartoons.com/serie/capitulo/2325?t=3"},
@@ -463,23 +470,19 @@ const CN_ROWS = [
   {start:"19:30", end:"20:00", title:"Las Aventuras de Jackie Chan", count:95, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
   {start:"20:00", end:"20:30", title:"Ben 10: Alien Force", count:46, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
   {start:"20:30", end:"21:00", title:"Samurai Jack", count:62, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
-  
-  // BLOQUE TOONAMI
   {start:"21:00", end:"21:30", title:"TOONAMI: Pokémon", count:276, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
   {start:"21:30", end:"22:00", title:"TOONAMI: Dragon Ball Z", count:291, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
   {start:"22:00", end:"22:30", title:"TOONAMI: One Piece", count:130, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
   {start:"22:30", end:"23:00", title:"TOONAMI: Naruto", count:220, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
   {start:"23:00", end:"23:30", title:"TOONAMI: Samurai Champloo", count:26, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
   {start:"23:30", end:"00:00", title:"TOONAMI: COWBOY BEBOP", count:26, link:"https://www.lacartoons.com/serie/capitulo/2879?t=1"},
-  
-  // BLOQUE ADULT SWIM
   {start:"00:00", end:"00:30", title:"ADULT SWIM: Harvey Birdman, Abogado", count:39, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"},
   {start:"00:30", end:"01:00", title:"ADULT SWIM: Aqua Teen Hunger Force", count:139, link:"https://www.lacartoons.com/serie/capitulo/22721?t=1"}
 ];
 
 const CHANNELS = [
   buildDailyChannel("magickids", 3, "Magic Kids", MAGICMOTION_ROWS, { streamUrl: MAGIC_KIDS_STREAM_URL }),
-  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { embedUrl: CN_STREAM_URL }),
+  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { altStreamUrl: CN_ALT_STREAM_URL }),
   buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS),
   buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS, { embedUrl: FOXKIDS_EMBED_URL }),
   buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS),
@@ -658,7 +661,7 @@ async function getCleanEmbedUrl(pageUrl) {
 async function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
 
-  // A) MODO IFRAME DIRECTO (Locomotion / Cartoon Network / Jetix / Fox Kids)
+  // A) MODO IFRAME DIRECTO (Locomotion / Jetix / Fox Kids)
   if(ch.embedUrl){
     const key = ch.id + "|embed";
     if(key === lastEmbedKey) return;
@@ -700,7 +703,7 @@ async function updateEmbed(ch, info){
     return;
   }
 
-  // C) MODO EXTRACCIÓN AUTOMÁTICA DE SERIES (LaCartoons, etc.)
+  // C) MODO EXTRACCIÓN AUTOMÁTICA DE SERIES (LaCartoons / Cartoon Network / Nickelodeom / WB, etc.)
   if(info && info.episode && info.episode.url){
     const key = ch.id + "|" + info.episode.title;
     if(key === lastEmbedKey) return;
@@ -765,6 +768,11 @@ function render(){
       linkHtml = `<a class="watch-link" href="${info.episode.url}" target="_blank" rel="noopener">▶ Ver este capítulo</a>`;
     }
 
+    const altBtnHtml = ch.altStreamUrl ? `
+      <a class="stream-alt-btn" href="${ch.altStreamUrl}" target="_blank" rel="noopener">
+        📺 Stream Alterno
+      </a>` : '';
+
     main.innerHTML = `
       <p class="eyebrow">Canal ${ch.num} · ${ch.name} · ahora</p>
       <h2 class="show-title">${info.show}</h2>
@@ -776,11 +784,13 @@ function render(){
           <span>${String(info.epMin).padStart(2,"0")}:00</span>
         </div>
       </div>
-      ${info.nextShow ? `
       <div class="up-next">
-        <p class="eyebrow">A continuación</p>
-        <p class="up-next-item">${info.nextShow}</p>
-      </div>` : ''}
+        <div class="up-next-info">
+          <p class="eyebrow">A continuación</p>
+          <p class="up-next-item">${info.nextShow || 'Fin de transmisión'}</p>
+        </div>
+        ${altBtnHtml}
+      </div>
     `;
   }
 
