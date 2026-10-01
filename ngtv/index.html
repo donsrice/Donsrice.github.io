@@ -228,11 +228,25 @@ const FOXKIDS_EMBED_URL = "https://foxkids2020.jahh19channel.xyz/";
 const JETIX_EMBED_URL = "https://jetix2021.jahh19channel.xyz/";
 const LOCOMOTION_EMBED_URL = "https://serenotv.com/?cdm_embed=canal&pid=25664";
 
+// ── LÓGICA DE CAPÍTULOS DE WINX CLUB (YouTube Playlists T1 y T2) ──
+const WINX_EPISODES = [
+  ...Array.from({length: 26}, (_, i) => ({
+    title: `Temporada 1 - Capítulo ${i + 1}`,
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLJN-li1uNbvSi5K73npKg8iBTH6b8GK2F&index=${i}`
+  })),
+  ...Array.from({length: 26}, (_, i) => ({
+    title: `Temporada 2 - Capítulo ${i + 1}`,
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLJN-li1uNbvSyskxirfjCOVM3ocQ8pkBx&index=${i}`
+  }))
+];
+
 function mkEpisodes(n){
   return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`}));
 }
 
 function mkEpisodesFromLink(baseUrl, n, opts={}){
+  if (opts.customEpisodes) return opts.customEpisodes;
+
   const match = baseUrl.match(/^(.*?)(\d+)([^\d]*)$/);
   if(!match){
     return mkEpisodes(n);
@@ -266,7 +280,7 @@ function buildDailyChannel(id, num, name, rows, opts={}){
       days, start:r.start, end:r.end,
       show:{
         title:r.title, epMin:r.epMin || 30,
-        episodes: mkEpisodesFromLink(r.link || PLACEHOLDER, r.count, {field:r.field || "url"})
+        episodes: r.episodes || mkEpisodesFromLink(r.link || PLACEHOLDER, r.count, {field:r.field || "url"})
       }
     }))
   };
@@ -515,7 +529,7 @@ const CN_ROWS = [
   {start:"13:30", end:"14:00", title:"El Campamento de Lazlo (Falta)", count:61, link:"https://www.lacartoons.com/serie/capitulo/897?page=1"},
   {start:"14:00", end:"14:30", title:"KND: Los chicos del barrio", count:78, link:"https://www.lacartoons.com/serie/capitulo/30844?t=1"},
   {start:"14:30", end:"15:00", title:"Un Show Mas", count:245, link:"https://www.lacartoons.com/serie/capitulo/22984?page=1"},
-  {start:"15:00", end:"15:30", title:"Winx Club (Falta)", count:52, link:"https://www.lacartoons.com/serie/capitulo/1?t=1"},
+  {start:"15:00", end:"15:30", title:"Winx Club", episodes: WINX_EPISODES},
   {start:"15:30", end:"16:00", title:"Hi Hi Puffy AmiYumi", count:39, link:"https://www.lacartoons.com/serie/capitulo/30805?page=1"},
   {start:"16:00", end:"16:30", title:"Teen Titans (Jóvenes Titanes)", count:65, link:"https://www.lacartoons.com/serie/capitulo/2071?t=1"},
   {start:"16:30", end:"17:00", title:"Ben 10", count:52, link:"https://www.lacartoons.com/serie/capitulo/16654?t=1"},
@@ -785,14 +799,6 @@ async function updateEmbed(ch, info){
     return;
   }
 
-  if(!info || !info.episode){
-    if(lastEmbedKey !== null){
-      container.innerHTML = "";
-      lastEmbedKey = null;
-      if (currentHls) { currentHls.destroy(); currentHls = null; }
-    }
-  }
-}
   if(!info || !info.episode){
     if(lastEmbedKey !== null){
       container.innerHTML = "";
