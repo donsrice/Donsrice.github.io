@@ -721,17 +721,16 @@ async function getCleanEmbedUrl(pageUrl) {
 async function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
 
-  // A) MODO IFRAME DIRECTO (Solo para canales que no usen grilla como Locomotion)
+  // A) MODO IFRAME DIRECTO (Locomotion, etc.)
   if(ch.embedUrl){
     const key = ch.id + "|embed";
     if(key === lastEmbedKey) return;
     lastEmbedKey = key;
-
     if (currentHls) { currentHls.destroy(); currentHls = null; }
 
     container.innerHTML = `
       <div class="cover">
-        <iframe src="${ch.embedUrl}" referrerpolicy="unsafe-url" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture;fullscreen" allowfullscreen></iframe>
+        <iframe src="${ch.embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
       </div>`;
     return;
   }
@@ -763,7 +762,7 @@ async function updateEmbed(ch, info){
     return;
   }
 
-  // C) MODO EXTRACCIÓN AUTOMÁTICA DE SERIES (LaCartoons / Cartoon Network / Fox Kids / Jetix, etc.)
+  // C) MODO REPRODUCCIÓN DE CAPÍTULOS (YouTube / LaCartoons)
   if(info && info.episode && info.episode.url){
     const key = ch.id + "|" + info.episode.title;
     if(key === lastEmbedKey) return;
@@ -771,17 +770,29 @@ async function updateEmbed(ch, info){
 
     if (currentHls) { currentHls.destroy(); currentHls = null; }
 
-    container.innerHTML = `<div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">Sintonizando episodio...</div>`;
+    let finalEmbedUrl = info.episode.url;
 
-    const realEmbedUrl = await getCleanEmbedUrl(info.episode.url);
+    // Si NO es un enlace de YouTube, pasa por el extractor de LaCartoons
+    if (!finalEmbedUrl.includes("youtube.com") && !finalEmbedUrl.includes("youtu.be")) {
+      container.innerHTML = `<div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">Sintonizando episodio...</div>`;
+      finalEmbedUrl = await getCleanEmbedUrl(info.episode.url);
+    }
 
     container.innerHTML = `
       <div class="cover">
-        <iframe src="${realEmbedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <iframe src="${finalEmbedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>`;
     return;
   }
 
+  if(!info || !info.episode){
+    if(lastEmbedKey !== null){
+      container.innerHTML = "";
+      lastEmbedKey = null;
+      if (currentHls) { currentHls.destroy(); currentHls = null; }
+    }
+  }
+}
   if(!info || !info.episode){
     if(lastEmbedKey !== null){
       container.innerHTML = "";
