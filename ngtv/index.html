@@ -25,7 +25,7 @@
     display:flex; justify-content:center;
   }
   .tv{
-    width:100%; max-width:920px; background:var(--panel);
+    width:100%; max-width:920px; background:var(--panel);F
     border:2px solid var(--line); border-radius:10px; overflow:hidden;
     position:relative;
   }
@@ -445,7 +445,7 @@ const DISNEY_ROWS = [
 
 const JETIX_ROWS = [];
 
-const WB_ROWS = [
+const NAHU_ROWS = [
   {start:"00:00", end:"00:30", title:"INSOMNIA: Los Misterios de Moville", count:26, link:"https://www.lacartoons.com/serie/capitulo/9138"},
   {start:"00:30", end:"01:00", title:"INSOMNIA: Escalofrios", count:65, link:"https://www.lacartoons.com/serie/capitulo/4471"},
   {start:"01:00", end:"01:30", title:"INSOMNIA: Spider-Man", count:63, link:"https://www.lacartoons.com/serie/capitulo/5300"},
@@ -559,8 +559,8 @@ const CHANNELS = [
   buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS, { altStreamUrl: FOXKIDS_EMBED_URL }),
   buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS),
   buildDailyChannel("jetix", 12, "Jetix", JETIX_ROWS, { altStreamUrl: JETIX_EMBED_URL }),
-  buildDailyChannel("wb", 13, "WB", WB_ROWS),
   buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS, { embedUrl: LOCOMOTION_EMBED_URL }),
+  buildDailyChannel("nahu", 88, "Nahu", NAHU_ROWS),
 ];
 
 function parseHM(str){
