@@ -25,7 +25,7 @@
     display:flex; justify-content:center;
   }
   .tv{
-    width:100%; max-width:920px; background:var(--panel);F
+    width:100%; max-width:920px; background:var(--panel);
     border:2px solid var(--line); border-radius:10px; overflow:hidden;
     position:relative;
   }
@@ -240,6 +240,18 @@ const WINX_EPISODES = [
   }))
 ];
 
+// ── LÓGICA DE CAPÍTULOS DE W.I.T.C.H. (YouTube Playlists T1 y T2) ──
+const WITCH_EPISODES = [
+  ...Array.from({length: 26}, (_, i) => ({
+    title: `Temporada 1 - Capítulo ${i + 1}`,
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLyS_s38O343a41E7mD-c_7S6dKk_4X84W&index=${i}`
+  })),
+  ...Array.from({length: 26}, (_, i) => ({
+    title: `Temporada 2 - Capítulo ${i + 1}`,
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLyS_s38O343aE1JOn9L5u3wE61L_nF6Qe&index=${i}`
+  }))
+];
+
 function mkEpisodes(n){
   return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`}));
 }
@@ -297,8 +309,8 @@ const FOXKIDS_ROWS = [
   {start:"01:00", end:"01:30", title:"INSOMNIA: Spider-Man", count:63, link:"https://www.lacartoons.com/serie/capitulo/5300"},
   {start:"01:30", end:"02:00", title:"INSOMNIA: X-Men", count:76, link:"https://www.lacartoons.com/serie/capitulo/10484"},
   {start:"02:00", end:"02:30", title:"Kirby", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"02:30", end:"03:00", title:"W.I.T.C.H.", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"03:00", end:"03:30", title:"W.I.T.C.H.", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
+  {start:"02:30", end:"03:00", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
+  {start:"03:00", end:"03:30", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
   {start:"03:30", end:"04:00", title:"Shaman King", count:64, link:"https://www.lacartoons.com/serie/capitulo/5172"},
   {start:"04:00", end:"04:30", title:"Las Tortugas Ninja", count:60, link:"https://www.lacartoons.com/serie/capitulo/4471"},
   {start:"04:30", end:"05:00", title:"Monster Rancher", count:73, link:"https://www.lacartoons.com/serie/capitulo/4472"},
@@ -319,7 +331,7 @@ const FOXKIDS_ROWS = [
   {start:"12:00", end:"12:30", title:"Megaman", count:56, link:"https://www.lacartoons.com/serie/capitulo/12103"},
   {start:"12:30", end:"13:00", title:"Kirby", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
   {start:"13:00", end:"13:30", title:"Tres Espias sin Límite", count:130, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"13:30", end:"14:00", title:"W.I.T.C.H.", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
+  {start:"13:30", end:"14:00", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
   {start:"14:00", end:"14:30", title:"Kid Musculo", count:77, link:"https://www.lacartoons.com/serie/capitulo/11913"},
   {start:"14:30", end:"15:00", title:"Las Tortugas Ninja", count:60, link:"https://www.lacartoons.com/serie/capitulo/4471"},
   {start:"15:00", end:"15:30", title:"Digimon 2.0", count:50, link:"https://www.lacartoons.com/serie/capitulo/3449"},
@@ -332,7 +344,7 @@ const FOXKIDS_ROWS = [
   {start:"18:30", end:"19:00", title:"Power Rangers Ninja Storm", count:38, link:"https://www.lacartoons.com/serie/capitulo/28179"},
   {start:"19:00", end:"19:30", title:"Hulk", count:21, link:"https://www.lacartoons.com/serie/capitulo/4471"},
   {start:"19:30", end:"20:00", title:"Iron-Man", count:26, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"20:00", end:"20:30", title:"W.I.T.C.H.", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
+  {start:"20:00", end:"20:30", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
   {start:"20:30", end:"21:00", title:"BeyBlade", count:51, link:"https://www.lacartoons.com/serie/capitulo/3333"},
   {start:"21:00", end:"21:30", title:"Shin Chan", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
   {start:"21:30", end:"22:00", title:"Medabots", count:91, link:"https://www.lacartoons.com/serie/capitulo/4381"},
@@ -451,8 +463,8 @@ const NAHU_ROWS = [
   {start:"01:00", end:"01:30", title:"INSOMNIA: Spider-Man", count:63, link:"https://www.lacartoons.com/serie/capitulo/5300"},
   {start:"01:30", end:"02:00", title:"INSOMNIA: X-Men", count:76, link:"https://www.lacartoons.com/serie/capitulo/10484"},
   {start:"02:00", end:"02:30", title:"Kirby", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"02:30", end:"03:00", title:"W.I.T.C.H.", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"03:00", end:"03:30", title:"W.I.T.C.H.", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
+  {start:"02:30", end:"03:00", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
+  {start:"03:00", end:"03:30", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
   {start:"03:30", end:"04:00", title:"Shaman King", count:64, link:"https://www.lacartoons.com/serie/capitulo/5172"},
   {start:"04:00", end:"04:30", title:"Las Tortugas Ninja", count:60, link:"https://www.lacartoons.com/serie/capitulo/4471"},
   {start:"04:30", end:"05:00", title:"Monster Rancher", count:73, link:"https://www.lacartoons.com/serie/capitulo/4472"},
@@ -473,7 +485,7 @@ const NAHU_ROWS = [
   {start:"12:00", end:"12:30", title:"Megaman", count:56, link:"https://www.lacartoons.com/serie/capitulo/12103"},
   {start:"12:30", end:"13:00", title:"Kirby", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
   {start:"13:00", end:"13:30", title:"Tres Espias sin Límite", count:130, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"13:30", end:"14:00", title:"W.I.T.C.H.", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
+  {start:"13:30", end:"14:00", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
   {start:"14:00", end:"14:30", title:"Kid Musculo", count:77, link:"https://www.lacartoons.com/serie/capitulo/11913"},
   {start:"14:30", end:"15:00", title:"Las Tortugas Ninja", count:60, link:"https://www.lacartoons.com/serie/capitulo/4471"},
   {start:"15:00", end:"15:30", title:"Digimon 2.0", count:50, link:"https://www.lacartoons.com/serie/capitulo/3449"},
@@ -486,14 +498,14 @@ const NAHU_ROWS = [
   {start:"18:30", end:"19:00", title:"Power Rangers Ninja Storm", count:38, link:"https://www.lacartoons.com/serie/capitulo/28179"},
   {start:"19:00", end:"19:30", title:"Hulk", count:21, link:"https://www.lacartoons.com/serie/capitulo/4471"},
   {start:"19:30", end:"20:00", title:"Iron-Man", count:26, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"20:00", end:"20:30", title:"W.I.T.C.H.", count:52, link:"https://www.lacartoons.com/serie/capitulo/4471"},
+  {start:"20:00", end:"20:30", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
   {start:"20:30", end:"21:00", title:"BeyBlade", count:51, link:"https://www.lacartoons.com/serie/capitulo/3333"},
   {start:"21:00", end:"21:30", title:"Shin Chan", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
   {start:"21:30", end:"22:00", title:"Medabots", count:91, link:"https://www.lacartoons.com/serie/capitulo/4381"},
   {start:"22:00", end:"22:30", title:"Digimon Adventures", count:54, link:"https://www.lacartoons.com/serie/capitulo/3396"},
   {start:"22:30", end:"23:00", title:"Code Lyoko", count:95, link:"https://www.lacartoons.com/serie/capitulo/223"},
   {start:"23:00", end:"23:30", title:"INSOMNIA: The Tick", count:36, link:"https://www.lacartoons.com/serie/capitulo/23426"},
-  {start:"23:30", end:"00:00", title:"INSOMNIA: Los Cuentos de la Cripta", count:36, link:"https://www.lacartoons.com/serie/capitulo/20778"},
+  {start:"23:30", end:"00:00", title:"INSOMNIA: Los Cuentos de la Cripta", count:36, link:"https://www.lacartoons.com/serie/capitulo/20778"}
 ];
 
 const LOCOMOTION_ROWS = [];
