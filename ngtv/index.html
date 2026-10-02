@@ -41,7 +41,7 @@
   .static-flash.on{opacity:.9;}
 
   .topbar{
-    display:flex; justify-content:space-between; align-items:center;
+    display:flex; justify-space-between; align-items:center;
     padding:14px 20px; border-bottom:2px solid var(--line); background:var(--guide);
   }
   .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
@@ -402,7 +402,7 @@ const NICK_ROWS = [
   {start:"22:00", end:"22:30", title:"Clarissa lo explica todo", count:65, link:"https://www.lacartoons.com/serie/capitulo/25486"},
   {start:"22:30", end:"23:00", title:"Sabrina, la bruja adolescente", count:163, link:"https://www.lacartoons.com/serie/capitulo/9713"},
   {start:"23:00", end:"23:30", title:"Kenan & Kel", count:63, link:"https://www.lacartoons.com/serie/capitulo/9003"},
-  {start:"23:00", end:"23:30", title:"Kenan & Kel", count:62, link:"https://www.lacartoons.com/serie/capitulo/9002"}
+  {start:"23:30", end:"00:00", title:"Kenan & Kel", count:62, link:"https://www.lacartoons.com/serie/capitulo/9002", epMin: 30}
 ];
 
 const DISNEY_ROWS = [
@@ -587,6 +587,7 @@ function computeNowPlaying(channel, now){
     nextEpisode: block.show.episodes[nextEpIndex],
     offsetMin: Math.floor(offset),
     offsetSec: Math.floor((offset%1)*60),
+    totalOffsetSeconds: Math.floor(offset * 60),
     epMin,
     embedTimeParam: block.show.embedTimeParam || "fromTime",
     blockEnd: block.end,
@@ -683,11 +684,15 @@ function loadHlsStream(streamUrl) {
 // ── CONFIGURACIÓN DEL EXTRACTOR DE CLOUDFLARE ──
 const PROXY_WORKER_URL = "https://extractor-series.nah-d-ruiz.workers.dev/"; 
 
-async function getCleanEmbedUrl(pageUrl) {
+async function getCleanEmbedUrl(pageUrl, offsetSecs) {
   try {
-    const res = await fetch(`${PROXY_WORKER_URL}?url=${encodeURIComponent(pageUrl)}`);
+    const res = await fetch(`${PROXY_WORKER_URL}?url=${encodeURIComponent(pageUrl)}&start=${offsetSecs}`);
     const data = await res.json();
-    return data.embedUrl || pageUrl;
+    let url = data.embedUrl || pageUrl;
+    if (offsetSecs > 0) {
+      url += (url.includes('?') ? '&' : '?') + `t=${offsetSecs}s#t=${offsetSecs}`;
+    }
+    return url;
   } catch (e) {
     return pageUrl;
   }
@@ -720,7 +725,7 @@ async function updateEmbed(ch, info){
     container.innerHTML = `
       <div class="cover">
         <div class="player-wrapper" id="playerWrapper">
-          <video id="hlsPlayer" playsinline></video>
+          <video id="hlsPlayer" autoplay playsinline></video>
           <div class="custom-controls">
             <div class="ctrl-group">
               <button class="ctrl-btn" id="playBtn" onclick="togglePlay()">❚❚</button>
@@ -747,11 +752,16 @@ async function updateEmbed(ch, info){
     if (currentHls) { currentHls.destroy(); currentHls = null; }
 
     let finalEmbedUrl = info.episode.url;
+    const offsetSecs = info.totalOffsetSeconds || 0;
 
-    // Si NO es un enlace de YouTube, pasa por el extractor de LaCartoons
-    if (!finalEmbedUrl.includes("youtube.com") && !finalEmbedUrl.includes("youtu.be")) {
+    // Si es YouTube, adjuntar el parámetro &start=SEGUNDOS y &autoplay=1
+    if (finalEmbedUrl.includes("youtube.com") || finalEmbedUrl.includes("youtu.be")) {
+      const sep = finalEmbedUrl.includes('?') ? '&' : '?';
+      finalEmbedUrl = `${finalEmbedUrl}${sep}autoplay=1&start=${offsetSecs}`;
+    } else {
+      // Para LaCartoons u otros reproductores externos
       container.innerHTML = `<div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">Sintonizando episodio...</div>`;
-      finalEmbedUrl = await getCleanEmbedUrl(info.episode.url);
+      finalEmbedUrl = await getCleanEmbedUrl(info.episode.url, offsetSecs);
     }
 
     container.innerHTML = `
@@ -872,6 +882,9 @@ setInterval(render, 1000);
 prefillDtInput();
 render();
 </script>
+
+</body>
+</html>
 
 </body>
 </html>
