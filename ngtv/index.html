@@ -41,7 +41,7 @@
   .static-flash.on{opacity:.9;}
 
   .topbar{
-    display:flex; justify-content:space-between; align-items:center;
+    display:flex; justify-space-between; align-items:center;
     padding:14px 20px; border-bottom:2px solid var(--line); background:var(--guide);
   }
   .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
@@ -71,17 +71,11 @@
   .ch-row:hover{background:#122543;}
   .ch-row.active{background:var(--guide); box-shadow:inset 3px 0 0 var(--yellow);}
   .ch-num{
-    font-family:'VT323', monospace; font-size:22px; color:var(--muted); width:26px; text-align:right; flex-shrink:0;
+    font-family:'VT323', monospace; font-size:22px; color:var(--muted); width:26px; text-align:right;
   }
   .ch-row.active .ch-num{color:var(--yellow);}
-  .ch-name{font-size:14px; font-weight:600; display:flex; align-items:center; gap:8px;}
+  .ch-name{font-size:14px; font-weight:600;}
   .ch-row.active .ch-name{color:var(--yellow);}
-  .ch-logo{
-    width:24px; height:24px; object-fit:contain;
-  }
-  .panel-logo{
-    height:22px; width:auto; max-width:80px; object-fit:contain; vertical-align:middle; margin-left:6px;
-  }
 
   .main{flex:1; padding:22px 26px;}
 
@@ -149,7 +143,7 @@
     width:70px; accent-color:var(--yellow); cursor:pointer;
   }
 
-  .eyebrow{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:0 0 4px; display:flex; align-items:center;}
+  .eyebrow{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:0 0 4px;}
   .show-title{font-family:'VT323', monospace; font-size:34px; color:var(--ink); margin:0 0 2px; line-height:1;}
 
   .watch-link{
@@ -287,10 +281,10 @@ function mkEpisodesFromLink(baseUrl, n, opts={}){
 
 const PLACEHOLDER = "https://tusitio.com/serie/capitulo/1001";
 
-function buildDailyChannel(id, num, name, logo, rows, opts={}){
+function buildDailyChannel(id, num, name, rows, opts={}){
   const days = opts.days || [0,1,2,3,4,5,6];
   return {
-    id, num, name, logo,
+    id, num, name,
     streamUrl: opts.streamUrl || null,
     embedUrl: opts.embedUrl || null,
     altStreamUrl: opts.altStreamUrl || null,
@@ -521,14 +515,14 @@ const CN_ROWS = [
   {start:"00:30", end:"01:00", title:"ADULT SWIM: Dos Perros Tontos", count:139, link:"https://www.lacartoons.com/serie/capitulo/1"}
 ];
 
-// ── CONFIGURACIÓN DE CANALES ACTUALIZADA CON RUTA DE IMAGEN DE LOGO ──
+// ── CONFIGURACIÓN DE CANALES ACTUALIZADA (Fox Kids y Jetix ahora usan altStreamUrl) ──
 const CHANNELS = [
-  buildDailyChannel("magickids", 3, "Magic Kids", "logo-magickids.png", MAGICMOTION_ROWS, { streamUrl: MAGIC_KIDS_STREAM_URL }),
-  buildDailyChannel("cn", 5, "Cartoon Network", "logo-cn.png", CN_ROWS, { altStreamUrl: CN_ALT_STREAM_URL }),
-  buildDailyChannel("nick", 7, "Nickelodeon", "logo-nick.png", NICK_ROWS),
-  buildDailyChannel("foxkids", 9, "Fox Kids", "logo-foxkids.png", FOXKIDS_ROWS, { altStreamUrl: FOXKIDS_EMBED_URL }),
-  buildDailyChannel("disney", 11, "Disney Channel", "logo-disney.png", DISNEY_ROWS),
-  buildDailyChannel("locomotion", 21, "Locomotion", "logo-locomotion.png", LOCOMOTION_ROWS, { embedUrl: LOCOMOTION_EMBED_URL }),
+  buildDailyChannel("magickids", 3, "Magic Kids", MAGICMOTION_ROWS, { streamUrl: MAGIC_KIDS_STREAM_URL }),
+  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { altStreamUrl: CN_ALT_STREAM_URL }),
+  buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS),
+  buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS, { altStreamUrl: FOXKIDS_EMBED_URL }),
+  buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS),
+  buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS, { embedUrl: LOCOMOTION_EMBED_URL }),
 ];
 
 function parseHM(str){
@@ -581,6 +575,7 @@ function computeNowPlaying(channel, now){
   entries.sort((a,b)=>a.weekMin-b.weekMin);
   const pivot = weekday*1440 + parseHM(block.end);
   
+  // CORRECCIÓN "A CONTINUACIÓN": Se usa >= para incluir el programa que empieza exactamente al terminar el actual
   let nextEntry = entries.find(e=>e.weekMin >= pivot);
   if(!nextEntry) nextEntry = entries[0];
   const nextShow = nextEntry ? nextEntry.title : null;
@@ -686,6 +681,23 @@ function loadHlsStream(streamUrl) {
   }
 }
 
+// ── CONFIGURACIÓN DEL EXTRACTOR DE CLOUDFLARE ──
+const PROXY_WORKER_URL = "https://extractor-series.nah-d-ruiz.workers.dev/"; 
+
+async function getCleanEmbedUrl(pageUrl, offsetSecs) {
+  try {
+    const res = await fetch(`${PROXY_WORKER_URL}?url=${encodeURIComponent(pageUrl)}&start=${offsetSecs}`);
+    const data = await res.json();
+    let url = data.embedUrl || pageUrl;
+    if (offsetSecs > 0) {
+      url += (url.includes('?') ? '&' : '?') + `t=${offsetSecs}s#t=${offsetSecs}`;
+    }
+    return url;
+  } catch (e) {
+    return pageUrl;
+  }
+}
+
 // ── ACTUALIZACIÓN DEL REPRODUCTOR EN PANTALLA ──
 async function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
@@ -740,11 +752,16 @@ async function updateEmbed(ch, info){
     if (currentHls) { currentHls.destroy(); currentHls = null; }
 
     let finalEmbedUrl = info.episode.url;
+    const offsetSecs = info.totalOffsetSeconds || 0;
 
-    // Si es YouTube, se le adjunta autoplay sin forzar tiempo
+    // Si es YouTube, adjuntar el parámetro &start=SEGUNDOS y &autoplay=1
     if (finalEmbedUrl.includes("youtube.com") || finalEmbedUrl.includes("youtu.be")) {
       const sep = finalEmbedUrl.includes('?') ? '&' : '?';
-      finalEmbedUrl = `${finalEmbedUrl}${sep}autoplay=1`;
+      finalEmbedUrl = `${finalEmbedUrl}${sep}autoplay=1&start=${offsetSecs}`;
+    } else {
+      // Para LaCartoons u otros reproductores externos
+      container.innerHTML = `<div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">Sintonizando episodio...</div>`;
+      finalEmbedUrl = await getCleanEmbedUrl(info.episode.url, offsetSecs);
     }
 
     container.innerHTML = `
@@ -774,10 +791,7 @@ function render(){
   list.innerHTML = CHANNELS.map(ch => `
     <div class="ch-row ${ch.id===activeChannel?'active':''}" onclick="selectChannel('${ch.id}')">
       <div class="ch-num">${ch.num}</div>
-      <div class="ch-name">
-        <img class="ch-logo" src="${ch.logo}" alt="${ch.name}" onerror="this.style.display='none'">
-        <span>${ch.name}</span>
-      </div>
+      <div class="ch-name">${ch.name}</div>
     </div>
   `).join("");
 
@@ -790,22 +804,13 @@ function render(){
   if(!info && !ch.streamUrl && !ch.embedUrl){
     const notStarted = now < EPOCH;
     main.innerHTML = `
-      <p class="eyebrow">Canal ${ch.num} · ${ch.name} <img class="panel-logo" src="${ch.logo}" onerror="this.style.display='none'"></p>
+      <p class="eyebrow">Canal ${ch.num} · ${ch.name}</p>
       <div class="off-air">${notStarted ? 'La programación todavía no arrancó' : 'Fuera de programación en este horario'}<br><span style="font-size:15px;">${notStarted ? `Arranca el ${EPOCH.toLocaleDateString('es-AR')}` : ''}</span></div>
     `;
   } else if(ch.streamUrl || ch.embedUrl) {
-    main.innerHTML = `<p class="eyebrow">Canal ${ch.num} · ${ch.name} <img class="panel-logo" src="${ch.logo}" onerror="this.style.display='none'"> · Transmisión en vivo</p>`;
+    main.innerHTML = `<p class="eyebrow">Canal ${ch.num} · ${ch.name} · Transmisión en vivo</p>`;
   } else {
-    // Cálculo invertido para reflejar tiempo restante
-    const totalDurationSec = info.epMin * 60;
-    const elapsedSec = info.offsetMin * 60 + info.offsetSec;
-    const remainingSec = Math.max(0, totalDurationSec - elapsedSec);
-
-    const remMin = Math.floor(remainingSec / 60);
-    const remSec = Math.floor(remainingSec % 60);
-
-    // Porcentaje restante (de 100% a 0%)
-    const pctRemaining = (remainingSec / totalDurationSec) * 100;
+    const pct = Math.min(100, (info.offsetMin*60+info.offsetSec)/(info.epMin*60)*100);
 
     let linkHtml = "";
     if(info.episode.url){
@@ -818,14 +823,14 @@ function render(){
       </a>` : '';
 
     main.innerHTML = `
-      <p class="eyebrow">Canal ${ch.num} · ${ch.name} <img class="panel-logo" src="${ch.logo}" onerror="this.style.display='none'"> · ahora</p>
+      <p class="eyebrow">Canal ${ch.num} · ${ch.name} · ahora</p>
       <h2 class="show-title">${info.show}</h2>
       ${linkHtml}
       <div class="progress-wrap">
-        <div class="progress-bar"><div class="progress-fill" style="width:${pctRemaining}%"></div></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
         <div class="progress-labels">
-          <span>Tiempo restante: ${fmt(remMin, remSec)}</span>
-          <span>Bloque de ${String(info.epMin).padStart(2,"0")}:00 min</span>
+          <span>${fmt(info.offsetMin, info.offsetSec)}</span>
+          <span>${String(info.epMin).padStart(2,"0")}:00</span>
         </div>
       </div>
       <div class="up-next">
@@ -879,4 +884,8 @@ render();
 </script>
 
 </body>
+</html>
+
+</body>
+</html>
 </html>
