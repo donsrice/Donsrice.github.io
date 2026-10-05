@@ -241,6 +241,13 @@ const WINX_EPISODES = [
 ];
 
 // ── LÓGICA DE CAPÍTULOS DE W.I.T.C.H. (YouTube Playlists T1 y T2) ──
+const KONICHAN_EPISODES = [
+  ...Array.from({length: 26}, (_, i) => ({
+    title: `Temporada 1 - Capítulo ${i + 1}`,
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLDVEesdaOxkc&index=${i}`
+  }))];
+  
+// ── LÓGICA DE CAPÍTULOS DE W.I.T.C.H. (YouTube Playlists T1 y T2) ──
 const WITCH_EPISODES = [
   ...Array.from({length: 26}, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
@@ -317,7 +324,7 @@ const MAGICKIDS_ROWS = [
   {start:"14:00", end:"14:30", title:"Sailor Moon", count:200, link:"https://www.lacartoons.com/serie/74"},
   {start:"14:30", end:"15:00", title:"Los Caballeros del Zodiaco", count:114, link:"https://www.lacartoons.com/serie/capitulo/13?t=1"},
   {start:"15:00", end:"15:30", title:"Dragon Ball Z", count:291, link:"https://www.lacartoons.com/serie/capitulo/2864"},
-  {start:"15:30", end:"16:00", title:"Koni Chan", count:26, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
+  {start:"15:30", end:"16:00", title:"Koni Chan", episodes: KONICHAN_EPISODES},
   {start:"16:00", end:"16:30", title:"Las Guerreras Magicas", count:49, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
   {start:"16:30", end:"17:00", title:"Detective Conan", count:100, link:"https://www.lacartoons.com/serie/236"},
 
@@ -353,7 +360,7 @@ const MAGICKIDS_ROWS = [
   {start:"04:00", end:"04:30", title:"Sailor Moon", count:200, link:"https://www.lacartoons.com/serie/74"},
   {start:"04:30", end:"05:00", title:"Los Caballeros del Zodiaco", count:114, link:"https://www.lacartoons.com/serie/capitulo/13?t=1"},
   {start:"05:00", end:"05:30", title:"Dragon Ball Z", count:291, link:"https://www.lacartoons.com/serie/capitulo/2864"},
-  {start:"05:30", end:"06:00", title:"Koni Chan", count:26, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
+  {start:"05:30", end:"06:00", title:"Koni Chan", episodes: KONICHAN_EPISODES},
   {start:"06:00", end:"06:30", title:"Las Guerreras Magicas", count:49, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
   {start:"06:30", end:"07:00", title:"Detective Conan", count:100, link:"https://www.lacartoons.com/serie/236"},
   {start:"07:00", end:"07:30", title:"Street Sharks", count:40, link:"https://www.lacartoons.com/serie/235"},
