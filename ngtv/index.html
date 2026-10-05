@@ -198,7 +198,7 @@
   <div class="static-flash" id="flash"></div>
 
   <div class="topbar">
-    <div class="brand">◉ TELEs</div>
+    <div class="brand">◉ TELE</div>
     <div class="clockbox">
       <span id="liveDate" class="live-date"></span>
       <input type="datetime-local" id="dtInput">
@@ -574,7 +574,7 @@ const CN_ROWS = [
 
 // ── CONFIGURACIÓN DE CANALES ACTUALIZADA (Fox Kids y Jetix ahora usan altStreamUrl) ──
 const CHANNELS = [
-  buildDailyChannel("magickids", 3, "Magic Kids", MAGICKIDS_ROWS, { streamUrl: MAGIC_KIDS_STREAM_URL }),
+  buildDailyChannel("magickids", 3, "Magic Kids", MAGICKIDS_ROWS, { altStreamUrl: MAGIC_KIDS_STREAM_URL }),
   buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { altStreamUrl: CN_ALT_STREAM_URL }),
   buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS),
   buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS, { altStreamUrl: FOXKIDS_EMBED_URL }),
