@@ -230,39 +230,43 @@ const LOCOMOTION_EMBED_URL = "https://serenotv.com/?cdm_embed=canal&pid=25664";
 
 // ── LÓGICA DE CAPÍTULOS DE WINX CLUB (YouTube Playlists T1 y T2) ──
 const WINX_EPISODES = [
-  ...Array.from({length: 26}, (_, i) => ({
+  ...Array.from({ length: 26 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
-    url: `https://www.youtube.com/embed?listType=playlist&list=PLJN-li1uNbvSi5K73npKg8iBTH6b8GK2F&index=${i}`
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLJN-li1uNbvSi5K73npKg8iBTH6b8GK2F&index=${i + 1}`
   })),
-  ...Array.from({length: 26}, (_, i) => ({
+  ...Array.from({ length: 26 }, (_, i) => ({
     title: `Temporada 2 - Capítulo ${i + 1}`,
-    url: `https://www.youtube.com/embed?listType=playlist&list=PLJN-li1uNbvSyskxirfjCOVM3ocQ8pkBx&index=${i}`
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLJN-li1uNbvSyskxirfjCOVM3ocQ8pkBx&index=${i + 1}`
   }))
 ];
 
 // ── LÓGICA DE CAPÍTULOS DE KONI CHAN ──
 const KONICHAN_EPISODES = [
-  ...Array.from({length: 26}, (_, i) => ({
+  ...Array.from({ length: 26 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
-    url: `https://www.youtube.com/embed?listType=playlist&list=PLDVEesdaOxkc&index=${i}`
-  }))];
+    // Nota: Revisa en YouTube que el ID 'PLDVEesdaOxkc' esté completo en tu navegador
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLDVEesdaOxkc&index=${i + 1}`
+  }))
+];
 
- // ── LÓGICA DE CAPÍTULOS DE MIKAMI ──
+// ── LÓGICA DE CAPÍTULOS DE MIKAMI ──
 const MIKAMI_EPISODES = [
-  ...Array.from({length: 26}, (_, i) => ({
+  ...Array.from({ length: 26 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
-    url: `https://www.youtube.com/embed?listType=playlist&list=PLIVREdJC7gUc&index=${i}`
-  }))]; 
-  
+    // Nota: Revisa en YouTube que el ID 'PLIVREdJC7gUc' esté completo en tu navegador
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLIVREdJC7gUc&index=${i + 1}`
+  }))
+]; 
+
 // ── LÓGICA DE CAPÍTULOS DE W.I.T.C.H. (YouTube Playlists T1 y T2) ──
 const WITCH_EPISODES = [
-  ...Array.from({length: 26}, (_, i) => ({
+  ...Array.from({ length: 26 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
-    url: `https://www.youtube.com/embed?listType=playlist&list=PL06debXY-tNzgJOjY2jFUDFo6oyPlfFIL&index=${i}`
+    url: `https://www.youtube.com/embed?listType=playlist&list=PL06debXY-tNzgJOjY2jFUDFo6oyPlfFIL&index=${i + 1}`
   })),
-  ...Array.from({length: 26}, (_, i) => ({
+  ...Array.from({ length: 26 }, (_, i) => ({
     title: `Temporada 2 - Capítulo ${i + 1}`,
-    url: `https://www.youtube.com/embed?listType=playlist&list=PL06debXY-tNwaWywkY9aP63a9Pi4KloyA&index=${i}`
+    url: `https://www.youtube.com/embed?listType=playlist&list=PL06debXY-tNwaWywkY9aP63a9Pi4KloyA&index=${i + 1}`
   }))
 ];
 
