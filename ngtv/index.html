@@ -163,6 +163,8 @@
     cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
     transition: all 0.2s ease;
   }
+  .next-half-btn{ animation: pulse 1.6s infinite ease-in-out; }
+  @keyframes pulse{ 0%,100%{box-shadow:0 0 0 0 rgba(255,207,63,.5);} 50%{box-shadow:0 0 0 6px rgba(255,207,63,0);} }
   .next-half-btn:hover{
     background: var(--yellow); color: #0a0e18;
   }
@@ -235,10 +237,9 @@
 <script>
 const EPOCH = new Date("2026-05-27T00:00:00");
 
-// Guardamos el offset en minutos acumulado por clics manuales del usuario
-let userOffsetMap = {};
-// Guardamos cuántos bloques de 30 min se han "congelado" a la espera del clic
-let pendingBlocksMap = {};
+// Programa que el usuario está viendo en cada canal (se pierde al refrescar o cerrar la página).
+// Cuando el reloj pasa a otra franja, el programa "retenido" sigue en pantalla hasta que el usuario toque >>
+let held = {};
 
 // ── ENLACES DE LOS CANALES ──
 const MAGIC_KIDS_STREAM_URL = "https://magickidsok.online/";
@@ -614,60 +615,21 @@ function daysBetween(a,b){
   return Math.round(ms/86400000);
 }
 
+// "00:00" como fin de franja significa medianoche (1440), no 0
+function parseEnd(str){ const m = parseHM(str); return m === 0 ? 1440 : m; }
+
 function computeNowPlaying(channel, now){
   if(now < EPOCH) return null;
 
   const weekday = now.getDay();
-
-  // Offset manual que ha sumado el usuario con el botón >>
-  const userShift = userOffsetMap[channel.id] || 0;
-  
-  // Tiempo simulado incorporando los saltos manuales previos
-  const rawShiftedTime = new Date(now.getTime() + userShift * 60 * 1000);
-
-  // Verificamos si este tiempo en tiempo real sobrepasó la media hora actual
-  // Cálculo de tiempo acumulado sin pausar para ver cuántos bloques de 30m pasaron:
-  const epochMin = Math.floor(EPOCH.getTime() / 60000);
-  const nowMin = Math.floor(rawShiftedTime.getTime() / 60000);
-  const elapsedMin = nowMin - epochMin;
-
-  const rawOffsetMin = elapsedMin % 30;
-  const rawOffsetSec = Math.floor((rawShiftedTime.getTime() / 1000) % 60);
-
-  let pendingBlocks = pendingBlocksMap[channel.id] || 0;
-
-  // Si sobrepasamos los 30 min (offset volvió a 0) y no hemos hecho clic en >>, pausamos/congelamos el avance
-  if (rawOffsetMin === 0 && rawOffsetSec === 0 && elapsedMin > 0) {
-    // Se ha alcanzado exactamente una nueva media hora
-  }
-
-  // Ajuste de tiempo congelado: restamos el tiempo que haya pasado de más respecto a 30:00 si hay bloques pendientes
-  let effectiveMinToUse = elapsedMin;
-
-  // Calculamos en qué punto estamos dentro del bloque actual de 30 minutos
-  let currentOffsetMin = elapsedMin % 30;
-  let currentOffsetSec = Math.floor((now.getTime() / 1000) % 60);
-
-  // Si sobrepasamos los 30 minutos sin hacer clic en el botón, nos congelamos exactamente en 30:00
-  let isBlockFinished = false;
-
-  // Determinamos los bloques transcurridos reales
-  const currentBlockIndex = Math.floor(elapsedMin / 30);
-  if (pendingBlocksMap[channel.id] === undefined) {
-    pendingBlocksMap[channel.id] = 0;
-  }
-
-  // Evaluamos el tiempo efectivo para la programación
-  const effectiveTime = new Date(rawShiftedTime.getTime());
-
-  const minutesNow = effectiveTime.getHours()*60 + effectiveTime.getMinutes() + effectiveTime.getSeconds()/60;
+  const minutesNow = now.getHours()*60 + now.getMinutes() + now.getSeconds()/60;
 
   const block = channel.blocks.find(b => b.days.includes(weekday) &&
-    minutesNow >= parseHM(b.start) && minutesNow < parseHM(b.end));
+    minutesNow >= parseHM(b.start) && minutesNow < parseEnd(b.end));
   if(!block) return null;
 
-  const blockDur = parseHM(block.end)-parseHM(block.start);
-  const todayMid = new Date(effectiveTime.getFullYear(), effectiveTime.getMonth(), effectiveTime.getDate());
+  const blockDur = parseEnd(block.end) - parseHM(block.start);
+  const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   let fullOccurrences = 0;
   const totalDays = daysBetween(EPOCH, todayMid);
@@ -676,32 +638,13 @@ function computeNowPlaying(channel, now){
     if(block.days.includes(day.getDay())) fullOccurrences++;
   }
 
-  const minutesIntoBlockToday = minutesNow - parseHM(block.start);
-  const totalElapsed = fullOccurrences*blockDur + minutesIntoBlockToday;
+  const totalElapsed = fullOccurrences*blockDur + (minutesNow - parseHM(block.start));
 
   const epMin = block.show.epMin;
   const epCount = block.show.episodes.length;
   const globalIdx = Math.floor(totalElapsed/epMin);
   const epIndex = ((globalIdx % epCount)+epCount) % epCount;
-  
-  let offset = totalElapsed % epMin;
-  let offsetM = Math.floor(offset);
-  let offsetS = Math.floor((offset % 1) * 60);
-
-  // Control estricto: Si la media hora ya se cumplió, congelamos la barra en 30:00 y mostramos el botón >>
-  let showNextButton = false;
-
-  if (offsetM >= 29 && offsetS >= 59) {
-    offsetM = 30;
-    offsetS = 0;
-    showNextButton = true;
-  } else if (offsetM >= 30) {
-    offsetM = 30;
-    offsetS = 0;
-    showNextButton = true;
-  }
-
-  const nextEpIndex = (epIndex+1) % epCount;
+  const offset = totalElapsed % epMin;
 
   const entries = [];
   channel.blocks.forEach(b=>{
@@ -710,24 +653,29 @@ function computeNowPlaying(channel, now){
     });
   });
   entries.sort((a,b)=>a.weekMin-b.weekMin);
-  const pivot = weekday*1440 + parseHM(block.end);
-  
-  let nextEntry = entries.find(e=>e.weekMin >= pivot);
-  if(!nextEntry) nextEntry = entries[0];
-  const nextShow = nextEntry ? nextEntry.title : null;
+  const pivot = weekday*1440 + parseEnd(block.end);
+  const nextEntry = entries.find(e=>e.weekMin >= pivot) || entries[0];
 
   return {
+    slotId: channel.id + "|" + todayMid.toDateString() + "|" + block.start, // identifica esta franja puntual
     show: block.show.title,
-    nextShow,
+    nextShow: nextEntry ? nextEntry.title : null,
     episode: block.show.episodes[epIndex],
-    nextEpisode: block.show.episodes[nextEpIndex],
-    offsetMin: offsetM,
-    offsetSec: offsetS,
+    offsetMin: Math.floor(offset),
+    offsetSec: Math.floor((offset % 1) * 60),
     epMin,
-    embedTimeParam: block.show.embedTimeParam || "fromTime",
     blockEnd: block.end,
-    showNextButton
+    pending: false
   };
+}
+
+// Decide qué ve el usuario: lo que está en el aire, o el programa retenido si su franja ya terminó
+function resolveView(ch, live){
+  if(ch.streamUrl || ch.embedUrl) return live;
+  const h = held[ch.id];
+  if(!h){ if(live) held[ch.id] = live; return live; }
+  if(live && live.slotId === h.slotId){ held[ch.id] = live; return live; }
+  return {...h, offsetMin:h.epMin, offsetSec:0, pending:true, liveNow:live};
 }
 
 function fmt(m,s){
@@ -830,10 +778,10 @@ async function getCleanEmbedUrl(pageUrl) {
   }
 }
 
-// Función para avanzar a la siguiente media hora ÚNICAMENTE al hacer clic en el botón >>
-function advanceHalfHour(chId) {
-  userOffsetMap[chId] = (userOffsetMap[chId] || 0) + 30;
-  lastEmbedKey = null; // Fuerza actualizar el embed del nuevo programa
+// Único camino para pasar al programa que está en el aire: el clic en >>
+function advanceToLive(chId) {
+  delete held[chId];
+  lastEmbedKey = null;
   render();
 }
 
@@ -884,7 +832,7 @@ async function updateEmbed(ch, info){
 
   // C) MODO REPRODUCCIÓN DE CAPÍTULOS
   if(info && info.episode && info.episode.url){
-    const key = ch.id + "|" + info.episode.title;
+    const key = (info.slotId || ch.id) + "|" + info.episode.title;
     if(key === lastEmbedKey) return;
     lastEmbedKey = key;
 
@@ -895,6 +843,7 @@ async function updateEmbed(ch, info){
     if (!finalEmbedUrl.includes("youtube.com") && !finalEmbedUrl.includes("youtu.be")) {
       container.innerHTML = `<div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">Sintonizando episodio...</div>`;
       finalEmbedUrl = await getCleanEmbedUrl(info.episode.url);
+      if(lastEmbedKey !== key) return; // el usuario ya cambió de canal/programa mientras cargaba
     }
 
     container.innerHTML = `
@@ -929,7 +878,7 @@ function render(){
   `).join("");
 
   const ch = CHANNELS.find(c=>c.id===activeChannel);
-  const info = computeNowPlaying(ch, now);
+  const info = resolveView(ch, computeNowPlaying(ch, now));
   const main = document.getElementById("mainPanel");
 
   updateEmbed(ch, info);
@@ -950,11 +899,10 @@ function render(){
       linkHtml = `<a class="watch-link" href="${info.episode.url}" target="_blank" rel="noopener">▶ Ver este capítulo</a>`;
     }
 
-    // Botón de paso a la siguiente media hora:
-    // SOLO se renderiza cuando info.showNextButton es TRUE (cumplidos los 30 minutos)
-    const nextBtnHtml = info.showNextButton ? `
-      <button class="next-half-btn" onclick="advanceHalfHour('${ch.id}')" title="Avanzar al siguiente programa">
-        &gt;&gt;
+    // El botón aparece solo cuando la franja del programa que estás viendo ya terminó
+    const nextBtnHtml = info.pending ? `
+      <button class="next-half-btn" onclick="advanceToLive('${ch.id}')" title="Cambiar al programa que está en el aire">
+        ${info.liveNow ? info.liveNow.show : 'Fuera de aire'} &gt;&gt;
       </button>` : '';
 
     const altBtnHtml = ch.altStreamUrl ? `
@@ -963,7 +911,7 @@ function render(){
       </a>` : '';
 
     main.innerHTML = `
-      <p class="eyebrow">Canal ${ch.num} · ${ch.name} · ahora</p>
+      <p class="eyebrow">Canal ${ch.num} · ${ch.name} · ${info.pending ? 'terminó su franja' : 'ahora'}</p>
       <h2 class="show-title">${info.show}</h2>
       <div class="link-container">
         ${linkHtml}
@@ -978,8 +926,8 @@ function render(){
       </div>
       <div class="up-next">
         <div class="up-next-info">
-          <p class="eyebrow">A continuación</p>
-          <p class="up-next-item">${info.nextShow || 'Fin de transmisión'}</p>
+          <p class="eyebrow">${info.pending ? 'Ya en el aire' : 'A continuación'}</p>
+          <p class="up-next-item">${info.pending ? (info.liveNow ? info.liveNow.show : 'Fuera de aire') : (info.nextShow || 'Fin de transmisión')}</p>
         </div>
         ${altBtnHtml}
       </div>
@@ -996,6 +944,7 @@ function render(){
 function selectChannel(id){
   if(id===activeChannel) return;
   activeChannel = id;
+  delete held[id]; // al cambiar de canal se sintoniza lo que está en el aire
   const flash = document.getElementById("flash");
   flash.classList.add("on");
   setTimeout(()=>flash.classList.remove("on"), 80);
@@ -1006,16 +955,14 @@ function sintonizar(){
   const val = document.getElementById("dtInput").value;
   if(!val) return;
   overrideDate = new Date(val);
-  userOffsetMap = {};
-  pendingBlocksMap = {};
+  held = {};
   lastEmbedKey = null;
   render();
 }
 
 function volverEnVivo(){
   overrideDate = null;
-  userOffsetMap = {};
-  pendingBlocksMap = {};
+  held = {};
   document.getElementById("dtInput").value = "";
   lastEmbedKey = null;
   render();
