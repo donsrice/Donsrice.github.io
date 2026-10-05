@@ -41,7 +41,7 @@
   .static-flash.on{opacity:.9;}
 
   .topbar{
-    display:flex; justify-content:space-between; align-items:center;
+    display:flex; justify-space-between; align-items:center;
     padding:14px 20px; border-bottom:2px solid var(--line); background:var(--guide);
   }
   .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
@@ -146,12 +146,26 @@
   .eyebrow{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:0 0 4px;}
   .show-title{font-family:'VT323', monospace; font-size:34px; color:var(--ink); margin:0 0 2px; line-height:1;}
 
+  .link-container{
+    display:flex; align-items:center; gap:10px; margin-bottom:18px;
+  }
+
   .watch-link{
     display:inline-flex; align-items:center; gap:8px; background:var(--yellow); color:#2a1e00;
     text-decoration:none; font-weight:600; font-size:13px; padding:8px 14px; border-radius:5px;
-    margin-bottom:18px;
   }
   .watch-link:hover{background:#ffe08a;}
+
+  /* Botón de Siguiente Media Hora */
+  .next-half-btn{
+    background: transparent; color: var(--yellow); border: 2px solid var(--yellow);
+    font-size: 14px; font-weight: bold; padding: 6px 12px; border-radius: 5px;
+    cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+    transition: all 0.2s ease;
+  }
+  .next-half-btn:hover{
+    background: var(--yellow); color: #0a0e18;
+  }
 
   .stream-alt-btn{
     display:inline-flex; align-items:center; gap:6px; background:transparent; color:var(--cyan);
@@ -221,6 +235,9 @@
 <script>
 const EPOCH = new Date("2026-05-27T00:00:00");
 
+// Variable global para acumular los saltos de media hora manuales por canal
+let userOffsetMap = {};
+
 // ── ENLACES DE LOS CANALES ──
 const MAGIC_KIDS_STREAM_URL = "https://magickidsok.online/";
 const CN_ALT_STREAM_URL = "https://cn2021.jahh19channel.xyz/";
@@ -244,7 +261,6 @@ const WINX_EPISODES = [
 const KONICHAN_EPISODES = [
   ...Array.from({ length: 26 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
-    // Nota: Revisa en YouTube que el ID 'PLDVEesdaOxkc' esté completo en tu navegador
     url: `https://www.youtube.com/embed?listType=playlist&list=PLDVEesdaOxkc&index=${i + 1}`
   }))
 ];
@@ -253,7 +269,6 @@ const KONICHAN_EPISODES = [
 const MIKAMI_EPISODES = [
   ...Array.from({ length: 35 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
-    // Nota: Revisa en YouTube que el ID 'PLIVREdJC7gUc' esté completo en tu navegador
     url: `https://www.youtube.com/embed?listType=playlist&list=PLIVREdJC7gUc&index=${i + 1}`
   }))
 ]; 
@@ -317,7 +332,6 @@ function buildDailyChannel(id, num, name, rows, opts={}){
 }
 
 const MAGICKIDS_ROWS = [
-  // Franja 08:00 - 12:00
   {start:"08:00", end:"08:30", title:"Las Aventuras de Pippi Longstocking", count:26, link:"https://www.lacartoons.com/serie/326"},
   {start:"08:30", end:"09:00", title:"El Autobus Magico", count:26, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
   {start:"09:00", end:"09:30", title:"Sonic", count:26, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
@@ -326,8 +340,6 @@ const MAGICKIDS_ROWS = [
   {start:"10:30", end:"11:00", title:"Donde esta Wally", count:26, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
   {start:"11:00", end:"11:30", title:"Los cazafantasmas", count:26, link:"https://www.lacartoons.com/serie/402"},
   {start:"11:30", end:"12:00", title:"Las Tortugas Ninjas", count:26, link:"https://www.lacartoons.com/serie/capitulo/17775?t=1"},
-
-  // Franja 12:00 - 17:00
   {start:"12:00", end:"12:30", title:"Dragon Ball", count:153, link:"https://www.lacartoons.com/serie/40"},
   {start:"12:30", end:"13:00", title:"Doctor Slump", count:50, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
   {start:"13:00", end:"13:30", title:"Pokemon", count:100, link:"https://www.lacartoons.com/serie/39"},
@@ -338,8 +350,6 @@ const MAGICKIDS_ROWS = [
   {start:"15:30", end:"16:00", title:"Koni Chan", episodes: KONICHAN_EPISODES},
   {start:"16:00", end:"16:30", title:"Sakura Card Captor", count:69, link:"https://www.lacartoons.com/serie/capitulo/1753"},
   {start:"16:30", end:"17:00", title:"Detective Conan", count:122, link:"https://www.lacartoons.com/serie/capitulo/14324"},
-
-  // Franja 17:00 - 22:00
   {start:"17:00", end:"17:30", title:"Los Caballeros del Zodiaco", count:114, link:"https://www.lacartoons.com/serie/capitulo/13?t=1"},
   {start:"17:30", end:"18:00", title:"Dragon Ball Z", count:291, link:"https://www.lacartoons.com/serie/capitulo/2864"},
   {start:"18:00", end:"18:30", title:"Mikami", episodes: MIKAMI_EPISODES},
@@ -350,20 +360,14 @@ const MAGICKIDS_ROWS = [
   {start:"20:30", end:"21:00", title:"Sailor Moon", count:200, link:"https://www.lacartoons.com/serie/74"},
   {start:"21:00", end:"21:30", title:"Street Sharks", count:40, link:"https://www.lacartoons.com/serie/235"},
   {start:"21:30", end:"22:00", title:"Beast Wars", count:52, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
-
-  // Franja 22:00 - 00:00
   {start:"22:00", end:"22:30", title:"Detective Conan", count:100, link:"https://www.lacartoons.com/serie/236"},
   {start:"22:30", end:"23:00", title:"Beast Wars", count:52, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
   {start:"23:00", end:"23:30", title:"Cadillacs y Dinosaurios", count:13, link:"https://www.lacartoons.com/serie/413"},
   {start:"23:30", end:"00:00", title:"Cuentos de la Crypta", count:39, link:"https://www.lacartoons.com/serie/352"},
-
-  // Franja 00:00 - 02:00
   {start:"00:00", end:"00:30", title:"Los cazafantasmas", count:26, link:"https://www.lacartoons.com/serie/402"},
   {start:"00:30", end:"01:00", title:"Las Tortugas Ninjas", count:26, link:"https://www.lacartoons.com/serie/capitulo/17775?t=1"},
   {start:"01:00", end:"01:30", title:"Donde esta Wally", count:26, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
   {start:"01:30", end:"02:00", title:"Inspector Gadget", count:26, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
-
-  // Franja 02:00 - 08:00
   {start:"02:00", end:"02:30", title:"Dragon Ball", count:153, link:"https://www.lacartoons.com/serie/40"},
   {start:"02:30", end:"03:00", title:"Doctor Slump", count:50, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
   {start:"03:00", end:"03:30", title:"Pokemon", count:100, link:"https://www.lacartoons.com/serie/39"},
@@ -377,6 +381,7 @@ const MAGICKIDS_ROWS = [
   {start:"07:00", end:"07:30", title:"Street Sharks", count:40, link:"https://www.lacartoons.com/serie/235"},
   {start:"07:30", end:"08:00", title:"Beast Wars", count:52, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"}
 ];
+
 const FOXKIDS_ROWS = [
   {start:"00:00", end:"00:30", title:"INSOMNIA: Los Misterios de Moville", count:26, link:"https://www.lacartoons.com/serie/capitulo/9138"},
   {start:"00:30", end:"01:00", title:"INSOMNIA: La Momia", count:26, link:"https://www.lacartoons.com/serie/capitulo/26226"},
@@ -476,7 +481,7 @@ const NICK_ROWS = [
   {start:"22:00", end:"22:30", title:"Clarissa lo explica todo", count:65, link:"https://www.lacartoons.com/serie/capitulo/25486"},
   {start:"22:30", end:"23:00", title:"Sabrina, la bruja adolescente", count:163, link:"https://www.lacartoons.com/serie/capitulo/9713"},
   {start:"23:00", end:"23:30", title:"Kenan & Kel", count:63, link:"https://www.lacartoons.com/serie/capitulo/9003"},
-  {start:"23:00", end:"23:30", title:"Kenan & Kel", count:62, link:"https://www.lacartoons.com/serie/capitulo/9002"}
+  {start:"23:30", end:"00:00", title:"Kenan & Kel", count:62, link:"https://www.lacartoons.com/serie/capitulo/9002"}
 ];
 
 const DISNEY_ROWS = [
@@ -531,9 +536,7 @@ const DISNEY_ROWS = [
 ];
 
 const JETIX_ROWS = [];
-
 const NAHU_ROWS = [];
-
 const LOCOMOTION_ROWS = [];
 
 const CN_ROWS = [
@@ -589,7 +592,7 @@ const CN_ROWS = [
   {start:"00:30", end:"01:00", title:"ADULT SWIM: Dos Perros Tontos", count:139, link:"https://www.lacartoons.com/serie/capitulo/1"}
 ];
 
-// ── CONFIGURACIÓN DE CANALES ACTUALIZADA (Fox Kids y Jetix ahora usan altStreamUrl) ──
+// ── CONFIGURACIÓN DE CANALES ──
 const CHANNELS = [
   buildDailyChannel("magickids", 3, "Magic Kids", MAGICKIDS_ROWS, { altStreamUrl: MAGIC_KIDS_STREAM_URL }),
   buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { altStreamUrl: CN_ALT_STREAM_URL }),
@@ -613,14 +616,19 @@ function computeNowPlaying(channel, now){
   if(now < EPOCH) return null;
 
   const weekday = now.getDay();
-  const minutesNow = now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
+
+  // Sumamos los desfases acumulados por el usuario para este canal
+  const userShift = userOffsetMap[channel.id] || 0;
+  const effectiveNow = new Date(now.getTime() + userShift * 60 * 1000);
+
+  const minutesNow = effectiveNow.getHours()*60 + effectiveNow.getMinutes() + effectiveNow.getSeconds()/60;
 
   const block = channel.blocks.find(b => b.days.includes(weekday) &&
     minutesNow >= parseHM(b.start) && minutesNow < parseHM(b.end));
   if(!block) return null;
 
   const blockDur = parseHM(block.end)-parseHM(block.start);
-  const todayMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayMid = new Date(effectiveNow.getFullYear(), effectiveNow.getMonth(), effectiveNow.getDate());
 
   let fullOccurrences = 0;
   const totalDays = daysBetween(EPOCH, todayMid);
@@ -649,7 +657,6 @@ function computeNowPlaying(channel, now){
   entries.sort((a,b)=>a.weekMin-b.weekMin);
   const pivot = weekday*1440 + parseHM(block.end);
   
-  // CORRECCIÓN "A CONTINUACIÓN": Se usa >= para incluir el programa que empieza exactamente al terminar el actual
   let nextEntry = entries.find(e=>e.weekMin >= pivot);
   if(!nextEntry) nextEntry = entries[0];
   const nextShow = nextEntry ? nextEntry.title : null;
@@ -767,6 +774,13 @@ async function getCleanEmbedUrl(pageUrl) {
   }
 }
 
+// Función para avanzar a la siguiente media hora al presionar el botón
+function advanceHalfHour(chId) {
+  userOffsetMap[chId] = (userOffsetMap[chId] || 0) + 30;
+  lastEmbedKey = null; // Reiniciamos para forzar la recarga del embed en pantalla
+  render();
+}
+
 // ── ACTUALIZACIÓN DEL REPRODUCTOR EN PANTALLA ──
 async function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
@@ -874,12 +888,20 @@ function render(){
   } else if(ch.streamUrl || ch.embedUrl) {
     main.innerHTML = `<p class="eyebrow">Canal ${ch.num} · ${ch.name} · Transmisión en vivo</p>`;
   } else {
+    // Calculamos si la media hora del bloque ha finalizado para habilitar el botón
+    const isHalfHourEnded = (info.offsetMin >= 29 && info.offsetSec >= 59) || (info.offsetMin >= 30);
     const pct = Math.min(100, (info.offsetMin*60+info.offsetSec)/(info.epMin*60)*100);
 
     let linkHtml = "";
     if(info.episode.url){
       linkHtml = `<a class="watch-link" href="${info.episode.url}" target="_blank" rel="noopener">▶ Ver este capítulo</a>`;
     }
+
+    // Botón de paso a la siguiente media hora (solo visible al finalizar los 30 min)
+    const nextBtnHtml = isHalfHourEnded ? `
+      <button class="next-half-btn" onclick="advanceHalfHour('${ch.id}')" title="Pasar a la siguiente media hora">
+        ⏭
+      </button>` : '';
 
     const altBtnHtml = ch.altStreamUrl ? `
       <a class="stream-alt-btn" href="${ch.altStreamUrl}" target="_blank" rel="noopener">
@@ -889,7 +911,10 @@ function render(){
     main.innerHTML = `
       <p class="eyebrow">Canal ${ch.num} · ${ch.name} · ahora</p>
       <h2 class="show-title">${info.show}</h2>
-      ${linkHtml}
+      <div class="link-container">
+        ${linkHtml}
+        ${nextBtnHtml}
+      </div>
       <div class="progress-wrap">
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
         <div class="progress-labels">
@@ -927,12 +952,16 @@ function sintonizar(){
   const val = document.getElementById("dtInput").value;
   if(!val) return;
   overrideDate = new Date(val);
+  userOffsetMap = {}; // Reiniciamos los desfases al re-sintonizar fecha
+  lastEmbedKey = null;
   render();
 }
 
 function volverEnVivo(){
   overrideDate = null;
+  userOffsetMap = {}; // Reiniciamos los desfases al volver al tiempo real
   document.getElementById("dtInput").value = "";
+  lastEmbedKey = null;
   render();
 }
 
