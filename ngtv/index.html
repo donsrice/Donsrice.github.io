@@ -41,7 +41,7 @@
   .static-flash.on{opacity:.9;}
 
   .topbar{
-    display:flex; justify-space-between; align-items:center;
+    display:flex; justify-content:space-between; align-items:center;
     padding:14px 20px; border-bottom:2px solid var(--line); background:var(--guide);
   }
   .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
@@ -619,11 +619,11 @@ function computeNowPlaying(channel, now){
 
   // Sumamos los desfases acumulados por el usuario para este canal
   const userShift = userOffsetMap[channel.id] || 0;
-  const effectiveNow = new Date(now.getTime() + userShift * 60 * 1000);
+  let effectiveNow = new Date(now.getTime() + userShift * 60 * 1000);
 
-  const minutesNow = effectiveNow.getHours()*60 + effectiveNow.getMinutes() + effectiveNow.getSeconds()/60;
+  let minutesNow = effectiveNow.getHours()*60 + effectiveNow.getMinutes() + effectiveNow.getSeconds()/60;
 
-  const block = channel.blocks.find(b => b.days.includes(weekday) &&
+  let block = channel.blocks.find(b => b.days.includes(weekday) &&
     minutesNow >= parseHM(b.start) && minutesNow < parseHM(b.end));
   if(!block) return null;
 
@@ -644,7 +644,12 @@ function computeNowPlaying(channel, now){
   const epCount = block.show.episodes.length;
   const globalIdx = Math.floor(totalElapsed/epMin);
   const epIndex = ((globalIdx % epCount)+epCount) % epCount;
-  const offset = totalElapsed % epMin;
+
+  // Congela el reproductor en los 29:59 para impedir el salto automático de franja
+  let offset = totalElapsed % epMin;
+  if (offset >= epMin - 0.001) {
+    offset = epMin - 0.001;
+  }
 
   const nextEpIndex = (epIndex+1) % epCount;
 
@@ -888,8 +893,8 @@ function render(){
   } else if(ch.streamUrl || ch.embedUrl) {
     main.innerHTML = `<p class="eyebrow">Canal ${ch.num} · ${ch.name} · Transmisión en vivo</p>`;
   } else {
-    // Calculamos si la media hora del bloque ha finalizado para habilitar el botón
-    const isHalfHourEnded = (info.offsetMin >= 29 && info.offsetSec >= 59) || (info.offsetMin >= 30);
+    // El botón se habilita durante los últimos 30 segundos del bloque
+    const isHalfHourEnded = info.offsetMin >= 29 && info.offsetSec >= 30;
     const pct = Math.min(100, (info.offsetMin*60+info.offsetSec)/(info.epMin*60)*100);
 
     let linkHtml = "";
