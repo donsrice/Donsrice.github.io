@@ -246,6 +246,13 @@ const KONICHAN_EPISODES = [
     title: `Temporada 1 - Capítulo ${i + 1}`,
     url: `https://www.youtube.com/embed?listType=playlist&list=PLDVEesdaOxkc&index=${i}`
   }))];
+
+ // ── LÓGICA DE CAPÍTULOS DE W.I.T.C.H. (YouTube Playlists T1 y T2) ──
+const MIKAMI_EPISODES = [
+  ...Array.from({length: 26}, (_, i) => ({
+    title: `Temporada 1 - Capítulo ${i + 1}`,
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLIVREdJC7gUc&index=${i}`
+  }))]; 
   
 // ── LÓGICA DE CAPÍTULOS DE W.I.T.C.H. (YouTube Playlists T1 y T2) ──
 const WITCH_EPISODES = [
@@ -331,7 +338,7 @@ const MAGICKIDS_ROWS = [
   // Franja 17:00 - 22:00
   {start:"17:00", end:"17:30", title:"Los Caballeros del Zodiaco", count:114, link:"https://www.lacartoons.com/serie/capitulo/13?t=1"},
   {start:"17:30", end:"18:00", title:"Dragon Ball Z", count:291, link:"https://www.lacartoons.com/serie/capitulo/2864"},
-  {start:"18:00", end:"18:30", title:"Mikami", count:45, link:"https://www.youtube.com/watch?v=crPl0ITIkS0"},
+  {start:"18:00", end:"18:30", title:"Mikami", episodes: MIKAMI_EPISODES},
   {start:"18:30", end:"19:00", title:"Orphen", count:24, link:"https://www.lacartoons.com/serie/321"},
   {start:"19:00", end:"19:30", title:"Slam Dunk", count:101, link:"https://www.lacartoons.com/serie/325"},
   {start:"19:30", end:"20:00", title:"Super Campeones", count:128, link:"https://www.lacartoons.com/serie/224"},
