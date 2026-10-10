@@ -62,20 +62,44 @@
 
   .body{display:flex; min-height:420px;}
   .channels{
-    width:190px; border-right:2px solid var(--line); background:#0b1524;
+    width:210px; border-right:2px solid var(--line); background:#0b1524;
   }
+  
+  /* Filas de canales en el menú lateral */
   .ch-row{
-    display:flex; align-items:center; gap:10px; padding:12px 14px;
+    display:flex; flex-direction:column; padding:10px 14px;
     border-bottom:1px solid var(--line); cursor:pointer;
   }
   .ch-row:hover{background:#122543;}
   .ch-row.active{background:var(--guide); box-shadow:inset 3px 0 0 var(--yellow);}
+  
+  .ch-header{ display:flex; align-items:center; gap:10px; }
   .ch-num{
-    font-family:'VT323', monospace; font-size:22px; color:var(--muted); width:26px; text-align:right;
+    font-family:'VT323', monospace; font-size:22px; color:var(--muted); width:24px; text-align:right;
   }
   .ch-row.active .ch-num{color:var(--yellow);}
-  .ch-name{font-size:14px; font-weight:600;}
+  .ch-name{font-size:15px; font-weight:600;}
   .ch-row.active .ch-name{color:var(--yellow);}
+
+  /* Marquesina individual de cada canal */
+  .ch-ticker{
+    margin-top: 4px;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    padding: 2px 0;
+  }
+  .ch-ticker-text{
+    display: inline-block;
+    padding-left: 100%;
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    color: var(--cyan);
+    animation: chScroll 12s linear infinite;
+  }
+  @keyframes chScroll{ from{transform:translateX(0);} to{transform:translateX(-100%);} }
 
   .main{flex:1; padding:22px 26px;}
 
@@ -237,8 +261,7 @@
 <script>
 const EPOCH = new Date("2026-05-27T00:00:00");
 
-// Programa que el usuario está viendo en cada canal (se pierde al refrescar o cerrar la página).
-// Cuando el reloj pasa a otra franja, el programa "retenido" sigue en pantalla hasta que el usuario toque >>
+// Programa que el usuario está viendo en cada canal
 let held = {};
 
 // ── ENLACES DE LOS CANALES ──
@@ -248,7 +271,7 @@ const FOXKIDS_EMBED_URL = "https://foxkids2020.jahh19channel.xyz/";
 const JETIX_EMBED_URL = "https://jetix2021.jahh19channel.xyz/";
 const LOCOMOTION_EMBED_URL = "https://serenotv.com/?cdm_embed=canal&pid=25664";
 
-// ── LÓGICA DE CAPÍTULOS DE WINX CLUB ──
+// ── LÓGICA DE CAPÍTULOS ──
 const WINX_EPISODES = [
   ...Array.from({ length: 26 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
@@ -260,7 +283,6 @@ const WINX_EPISODES = [
   }))
 ];
 
-  // ── LÓGICA DE CAPÍTULOS DE WINX CLUB ──
 const ORPHEN_EPISODES = [
   ...Array.from({ length: 24 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
@@ -272,7 +294,6 @@ const ORPHEN_EPISODES = [
   }))
 ];
 
-// ── LÓGICA DE CAPÍTULOS DE KONI CHAN ──
 const KONICHAN_EPISODES = [
   ...Array.from({ length: 26 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
@@ -280,7 +301,6 @@ const KONICHAN_EPISODES = [
   }))
 ];
 
-// ── LÓGICA DE CAPÍTULOS DE MIKAMI ──
 const MIKAMI_EPISODES = [
   ...Array.from({ length: 35 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
@@ -288,7 +308,6 @@ const MIKAMI_EPISODES = [
   }))
 ]; 
 
-  // ── LÓGICA DE CAPÍTULOS DE WALLY ──
 const WALLY_EPISODES = [
   ...Array.from({ length: 13 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
@@ -296,7 +315,6 @@ const WALLY_EPISODES = [
   }))
 ]; 
 
-// ── LÓGICA DE CAPÍTULOS DE W.I.T.C.H. ──
 const WITCH_EPISODES = [
   ...Array.from({ length: 26 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
@@ -354,13 +372,10 @@ function buildDailyChannel(id, num, name, rows, opts={}){
   };
 }
 
+// ── GRILLA DE PROGRAMACIÓN ──
 const MAGICKIDS_ROWS = [
-  {start:"00:00", end:"00:30", title:"Los cazafantasmas", count:117, link:"https://www.lacartoons.com/serie/capitulo/25546"},
-  {start:"00:30", end:"01:00", title:"Las Tortugas Ninjas", count:26, link:"https://www.lacartoons.com/serie/capitulo/17775"},
-  {start:"01:00", end:"01:30", title:"Donde esta Wally", episodes: WALLY_EPISODES},
-  {start:"01:30", end:"02:00", title:"Inspector Gadget", count:86, link:"https://www.lacartoons.com/serie/capitulo/3600"},
   {start:"02:00", end:"02:30", title:"Dragon Ball", count:153, link:"https://www.lacartoons.com/serie/capitulo/2712"},
-  {start:"02:30", end:"03:00", title:"Doctor Slump", count:74, link:"https://www.lacartoons.com/serie/capitulo/2712"},
+  {start:"02:30", end:"03:00", title:"Doctor Slump", count:74, link:"https://www.lacartoons.com/serie/capitulo/16901"},
   {start:"03:00", end:"03:30", title:"Mikami", episodes: MIKAMI_EPISODES},
   {start:"03:30", end:"04:00", title:"Ranma", count:161, link:"https://www.lacartoons.com/serie/capitulo/12455"},
   {start:"04:00", end:"04:30", title:"Sailor Moon", count:200, link:"https://www.lacartoons.com/serie/capitulo/4972"},
@@ -388,7 +403,7 @@ const MAGICKIDS_ROWS = [
   {start:"15:00", end:"15:30", title:"Super Campeones", count:128, link:"https://www.lacartoons.com/serie/capitulo/13691"},
   {start:"15:30", end:"16:00", title:"Koni Chan", episodes: KONICHAN_EPISODES},
   {start:"16:00", end:"16:30", title:"Dragon Ball", count:153, link:"https://www.lacartoons.com/serie/capitulo/2712"},
-  {start:"16:30", end:"17:00", title:"Doctor Slump", count:74, link:"https://www.lacartoons.com/serie/capitulo/2712"},
+  {start:"16:30", end:"17:00", title:"Doctor Slump", count:74, link:"https://www.lacartoons.com/serie/capitulo/16901"},
   {start:"17:00", end:"17:30", title:"Detective Conan", count:122, link:"https://www.lacartoons.com/serie/capitulo/14324"},
   {start:"17:30", end:"18:00", title:"Magical Doremi", count:51, link:"https://www.lacartoons.com/serie/capitulo/14324"},
   {start:"18:00", end:"18:30", title:"Slam Dunk", count:101, link:"https://www.lacartoons.com/serie/capitulo/19226"},
@@ -406,215 +421,194 @@ const MAGICKIDS_ROWS = [
 ];
 
 const FOXKIDS_ROWS = [
-  {start:"00:00", end:"00:30", title:"INSOMNIA: The Tick", count:36, link:"https://www.lacartoons.com/serie/capitulo/23426"},
-  {start:"00:30", end:"01:00", title:"INSOMNIA: Spawn", count:18, link:"https://www.lacartoons.com/serie/capitulo/26226"},
-  {start:"01:00", end:"01:30", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
-  {start:"01:30", end:"02:00", title:"Shaman King", count:64, link:"https://www.lacartoons.com/serie/capitulo/5172"},
-  {start:"02:00", end:"02:30", title:"Las Tortugas Ninja", count:60, link:"https://www.lacartoons.com/serie/capitulo/4062"},
-  {start:"02:30", end:"03:00", title:"Monster Rancher", count:73, link:"https://www.lacartoons.com/serie/capitulo/4472"},
-  {start:"03:00", end:"03:30", title:"Oggy y Las Cucarachas", count:65, link:"https://www.lacartoons.com/serie/capitulo/27994"},
-  {start:"03:30", end:"04:00", title:"Kid Musculo", count:77, link:"https://www.lacartoons.com/serie/capitulo/11913"},
-  {start:"04:00", end:"04:30", title:"Angela Anaconda", count:65, link:"https://www.lacartoons.com/serie/capitulo/27994"},
-  {start:"04:30", end:"05:00", title:"Kirby", count:26, link:"https://www.lacartoons.com/serie/capitulo/13938"},
-  {start:"05:00", end:"05:30", title:"El pajaro Loco", count:79, link:"https://www.lacartoons.com/serie/capitulo/3686"},
-  {start:"05:30", end:"06:00", title:"El Mundo de Bobby", count:40, link:"https://www.lacartoons.com/serie/capitulo/20738"},
-  {start:"06:00", end:"06:30", title:"Sonic X", count:52, link:"https://www.lacartoons.com/serie/capitulo/13938"},
-  {start:"06:30", end:"07:00", title:"Angela Anaconda", count:65, link:"https://www.lacartoons.com/serie/capitulo/27994"},
-  {start:"07:00", end:"07:30", title:"Shuriken School", count:26, link:"https://www.lacartoons.com/serie/capitulo/3395"},
-  {start:"07:30", end:"08:00", title:"Digimon Adventures", count:54, link:"https://www.lacartoons.com/serie/capitulo/3395"},
-  {start:"08:00", end:"08:30", title:"Kirby", count:26, link:"https://www.lacartoons.com/serie/capitulo/13938"},
-  {start:"08:30", end:"09:00", title:"Sonic X", count:52, link:"https://www.lacartoons.com/serie/capitulo/13938"},
-  {start:"09:00", end:"09:30", title:"Mighty Morphin Power Rangers", count:155, link:"https://www.lacartoons.com/serie/capitulo/4622"},
-  {start:"09:30", end:"10:00", title:"X-Men", count:76, link:"https://www.lacartoons.com/serie/capitulo/10484"},
-  {start:"10:00", end:"10:30", title:"Spiderman", count:63, link:"https://www.lacartoons.com/serie/capitulo/5300"},
-  {start:"10:30", end:"11:00", title:"Tres Espias sin Límite", count:130, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"11:00", end:"11:30", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
-  {start:"11:30", end:"12:00", title:"Kid Musculo", count:77, link:"https://www.lacartoons.com/serie/capitulo/11913"},
-  {start:"12:00", end:"12:30", title:"Transformers Armada", count:52, link:"https://www.lacartoons.com/serie/capitulo/3449"},
-  {start:"12:30", end:"13:00", title:"Digimon 2.0", count:50, link:"https://www.lacartoons.com/serie/capitulo/3449"},
-  {start:"13:00", end:"13:30", title:"Medabots", count:91, link:"https://www.lacartoons.com/serie/capitulo/4380"},
-  {start:"13:30", end:"14:00", title:"BeyBlade", count:51, link:"https://www.lacartoons.com/serie/capitulo/3332"},
-  {start:"14:00", end:"14:30", title:"Shaman King", count:64, link:"https://www.lacartoons.com/serie/capitulo/5173"},
-  {start:"14:30", end:"15:00", title:"Monster Rancher", count:73, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"15:00", end:"15:30", title:"Digimon Tamers", count:51, link:"https://www.lacartoons.com/serie/capitulo/3499"},
-  {start:"15:30", end:"16:00", title:"Power rangers Wild Force", count:40, link:"https://www.lacartoons.com/serie/capitulo/28139"},
-  {start:"16:00", end:"16:30", title:"Power Rangers Ninja Storm", count:38, link:"https://www.lacartoons.com/serie/capitulo/28179"},
-  {start:"16:30", end:"17:00", title:"Las Tortugas Ninja", count:26, link:"https://www.frikiserie.com/ver-serie/tmnt-2003/capitulo/1"},
-  {start:"17:00", end:"17:30", title:"Tres Espias sin Límite", count:130, link:"https://www.lacartoons.com/serie/capitulo/4471"},
-  {start:"17:30", end:"18:00", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
-  {start:"18:00", end:"18:30", title:"BeyBlade", count:51, link:"https://www.lacartoons.com/serie/capitulo/3333"},
-  {start:"18:30", end:"19:00", title:"Street Sharks", count:40, link:"https://www.lacartoons.com/serie/capitulo/14283"},
-  {start:"19:00", end:"19:30", title:"Medabots", count:91, link:"https://www.lacartoons.com/serie/capitulo/4381"},
-  {start:"19:30", end:"20:00", title:"Digimon Adventures", count:54, link:"https://www.lacartoons.com/serie/capitulo/3396"},
+  {start:"02:00", end:"02:30", title:"INSOMNIA: The Tick", count:36, link:"https://www.lacartoons.com/serie/capitulo/23426"},
+  {start:"02:30", end:"03:00", title:"INSOMNIA: Spawn", count:18, link:"https://www.lacartoons.com/serie/capitulo/26226"},
+  {start:"03:00", end:"03:30", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
+  {start:"03:30", end:"04:00", title:"Shaman King", count:64, link:"https://www.lacartoons.com/serie/capitulo/5172"},
+  {start:"04:00", end:"04:30", title:"Las Tortugas Ninja", count:60, link:"https://www.lacartoons.com/serie/capitulo/4062"},
+  {start:"04:30", end:"05:00", title:"Monster Rancher", count:73, link:"https://www.lacartoons.com/serie/capitulo/4472"},
+  {start:"05:00", end:"05:30", title:"Oggy y Las Cucarachas", count:65, link:"https://www.lacartoons.com/serie/capitulo/27994"},
+  {start:"05:30", end:"06:00", title:"Kid Musculo", count:77, link:"https://www.lacartoons.com/serie/capitulo/11913"},
+  {start:"06:00", end:"06:30", title:"Angela Anaconda", count:65, link:"https://www.lacartoons.com/serie/capitulo/27994"},
+  {start:"06:30", end:"07:00", title:"Kirby", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
+  {start:"07:00", end:"07:30", title:"El pajaro Loco", count:79, link:"https://www.lacartoons.com/serie/capitulo/3686"},
+  {start:"07:30", end:"08:00", title:"El Mundo de Bobby", count:40, link:"https://www.lacartoons.com/serie/capitulo/20738"},
+  {start:"08:00", end:"08:30", title:"Sonic X", count:78, link:"https://www.lacartoons.com/serie/capitulo/13938"},
+  {start:"08:30", end:"09:00", title:"Angela Anaconda", count:65, link:"https://www.lacartoons.com/serie/capitulo/27994"},
+  {start:"09:00", end:"09:30", title:"Shuriken School", count:26, link:"https://www.lacartoons.com/serie/capitulo/14283"},
+  {start:"09:30", end:"10:00", title:"Digimon Adventures", count:54, link:"https://www.lacartoons.com/serie/capitulo/3395"},
+  {start:"10:00", end:"10:30", title:"Kirby", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
+  {start:"10:30", end:"11:00", title:"Sonic X", count:78, link:"https://www.lacartoons.com/serie/capitulo/13938"},
+  {start:"11:00", end:"11:30", title:"Mighty Morphin Power Rangers", count:155, link:"https://www.lacartoons.com/serie/capitulo/4622"},
+  {start:"11:30", end:"12:00", title:"Beetleborgs (Masked Rider)", count:53, link:"https://www.lacartoons.com/serie/capitulo/5365"},
+  {start:"12:00", end:"12:30", title:"X-Men", count:76, link:"https://www.lacartoons.com/serie/capitulo/12103"},
+  {start:"12:30", end:"13:00", title:"Spiderman", count:63, link:"https://www.lacartoons.com/serie/capitulo/5436"},
+  {start:"13:00", end:"13:30", title:"Tres Espias sin Límite", count:130, link:"https://www.lacartoons.com/serie/capitulo/4471"},
+  {start:"13:30", end:"14:00", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
+  {start:"14:00", end:"14:30", title:"Kid Musculo", count:77, link:"https://www.lacartoons.com/serie/capitulo/11913"},
+  {start:"14:30", end:"15:00", title:"Transformers Armada", count:52, link:"https://www.lacartoons.com/serie/capitulo/4622"},
+  {start:"15:00", end:"15:30", title:"Digimon 2.0", count:50, link:"https://www.lacartoons.com/serie/capitulo/3449"},
+  {start:"15:30", end:"16:00", title:"Medabots", count:91, link:"https://www.lacartoons.com/serie/capitulo/4380"},
+  {start:"16:00", end:"16:30", title:"BeyBlade", count:51, link:"https://www.lacartoons.com/serie/capitulo/3332"},
+  {start:"16:30", end:"17:00", title:"Shaman King", count:64, link:"https://www.lacartoons.com/serie/capitulo/5173"},
+  {start:"17:00", end:"17:30", title:"Monster Rancher", count:73, link:"https://www.lacartoons.com/serie/capitulo/4471"},
+  {start:"17:30", end:"18:00", title:"Digimon Tamers", count:51, link:"https://www.lacartoons.com/serie/capitulo/3499"},
+  {start:"18:00", end:"18:30", title:"Power rangers Wild Force", count:40, link:"https://www.lacartoons.com/serie/capitulo/28139"},
+  {start:"18:30", end:"19:00", title:"Power Rangers Ninja Storm", count:38, link:"https://www.lacartoons.com/serie/capitulo/28179"},
+  {start:"19:00", end:"19:30", title:"Las Tortugas Ninja", count:60, link:"https://www.lacartoons.com/serie/capitulo/13030"},
+  {start:"19:30", end:"20:00", title:"Tres Espias sin Límite", count:130, link:"https://www.lacartoons.com/serie/capitulo/17426"},
   {start:"20:00", end:"20:30", title:"W.I.T.C.H.", episodes: WITCH_EPISODES},
-  {start:"20:30", end:"21:00", title:"Code Lyoko", count:95, link:"https://www.lacartoons.com/serie/capitulo/223"},
-  {start:"21:00", end:"21:30", title:"Medabots", count:91, link:"https://www.lacartoons.com/serie/capitulo/4380"},
-  {start:"21:30", end:"22:00", title:"BeyBlade", count:51, link:"https://www.lacartoons.com/serie/capitulo/3332"},
-  {start:"22:00", end:"22:30", title:"Shaman King", count:64, link:"https://www.lacartoons.com/serie/capitulo/5172"},
-  {start:"22:30", end:"23:00", title:"Digimon Adventures", count:54, link:"https://www.lacartoons.com/serie/capitulo/3395"},
-  {start:"23:00", end:"23:30", title:"Mighty Morphin Power Rangers", count:155, link:"https://www.lacartoons.com/serie/capitulo/4622"},
+  {start:"20:30", end:"21:00", title:"Code Lyoko", count:95, link:"https://www.lacartoons.com/serie/capitulo/3333"},
+  {start:"21:00", end:"21:30", title:"Medabots", count:91, link:"https://www.lacartoons.com/serie/capitulo/14283"},
+  {start:"21:30", end:"22:00", title:"BeyBlade", count:51, link:"https://www.lacartoons.com/serie/capitulo/4381"},
+  {start:"22:00", end:"22:30", title:"Shaman King", count:64, link:"https://www.lacartoons.com/serie/capitulo/3396"},
+  {start:"22:30", end:"23:00", title:"Digimon Adventures", count:54, link:"https://www.lacartoons.com/serie/capitulo/223"},
+  {start:"23:00", end:"23:30", title:"Mighty Morphin Power Rangers", count:155, link:"https://www.lacartoons.com/serie/capitulo/23426"},
   {start:"23:30", end:"00:00", title:"Beetleborgs (Masked Rider)", count:53, link:"https://www.lacartoons.com/serie/capitulo/20778"}
 ];
 
 const NICK_ROWS = [
-  {start:"00:00", end:"00:30", title:"Las Aventuras de Jimmy Neutrón", count:61, link:"https://www.lacartoons.com/serie/capitulo/8945"},
-  {start:"00:30", end:"01:00", title:"Bob Esponja", count:270, link:"https://www.lacartoons.com/serie/capitulo/7943"},
-  {start:"01:00", end:"01:30", title:"31 Minutos", count:68, link:"https://www.lacartoons.com/serie/capitulo/31054"},
-  {start:"01:30", end:"02:00", title:"Doug", count:52, link:"https://www.lacartoons.com/serie/capitulo/25360"},
-  {start:"02:00", end:"02:30", title:"Ginger", count:60, link:"https://www.lacartoons.com/serie/capitulo/22215"},
-  {start:"02:30", end:"03:00", title:"Rugrats: Aventuras en Pañales", count:172, link:"https://www.lacartoons.com/serie/capitulo/21996"},
-  {start:"03:00", end:"03:30", title:"Los Thornberries", count:91, link:"https://www.lacartoons.com/serie/capitulo/9307"},
-  {start:"03:30", end:"04:00", title:"Yu-Gi-Oh!", count:224, link:"https://www.lacartoons.com/serie/capitulo/11188"},
-  {start:"04:00", end:"04:30", title:"Martin Mystery", count:52, link:"https://www.lacartoons.com/serie/capitulo/11809"},
-  {start:"04:30", end:"05:00", title:"Danny Phantom", count:52, link:"https://www.lacartoons.com/serie/capitulo/8528"},
-  {start:"05:00", end:"05:30", title:"Avatar: El Último Maestro del Aire", count:61, link:"https://www.lacartoons.com/serie/capitulo/7830"},
-  {start:"05:30", end:"06:00", title:"Rugrats Crecidos", count:55, link:"https://www.lacartoons.com/serie/capitulo/25229"},
-  {start:"06:00", end:"06:30", title:"Oye Arnold!", count:100, link:"https://www.lacartoons.com/serie/capitulo/9612"},
-  {start:"06:30", end:"07:00", title:"Rocket Power", count:71, link:"https://www.lacartoons.com/serie/capitulo/25106"},
-  {start:"07:00", end:"07:30", title:"Franklin", count:78, link:"https://www.lacartoons.com/serie/capitulo/27655"},
-  {start:"07:30", end:"08:00", title:"Zona Tiza", count:40, link:"https://www.lacartoons.com/serie/capitulo/21962"},
-  {start:"08:00", end:"08:30", title:"Poochini", count:26, link:"https://www.lacartoons.com/serie/capitulo/21681"},
-  {start:"08:30", end:"09:00", title:"Los Padrinos Mágicos", count:171, link:"https://www.lacartoons.com/serie/capitulo/4255"},
-  {start:"09:00", end:"09:30", title:"Las Aventuras de Jimmy Neutrón", count:61, link:"https://www.lacartoons.com/serie/capitulo/8945"},
-  {start:"09:30", end:"10:00", title:"Bob Esponja", count:270, link:"https://www.lacartoons.com/serie/capitulo/7943"},
-  {start:"10:00", end:"10:30", title:"31 Minutos", count:68, link:"https://www.lacartoons.com/serie/capitulo/31054"},
-  {start:"10:30", end:"11:00", title:"Doug", count:52, link:"https://www.lacartoons.com/serie/capitulo/25360"},
-  {start:"11:00", end:"11:30", title:"Ginger", count:60, link:"https://www.lacartoons.com/serie/capitulo/22215"},
-  {start:"11:30", end:"12:00", title:"Rugrats: Aventuras en Pañales", count:172, link:"https://www.lacartoons.com/serie/capitulo/21996"},
-  {start:"12:00", end:"12:30", title:"Los Thornberries", count:91, link:"https://www.lacartoons.com/serie/capitulo/9307"},
-  {start:"12:30", end:"13:00", title:"Yu-Gi-Oh!", count:224, link:"https://www.lacartoons.com/serie/capitulo/11188"},
-  {start:"13:00", end:"13:30", title:"Martin Mystery", count:52, link:"https://www.lacartoons.com/serie/capitulo/11809"},
-  {start:"13:30", end:"14:00", title:"Danny Phantom", count:52, link:"https://www.lacartoons.com/serie/capitulo/8528"},
-  {start:"14:00", end:"14:30", title:"Avatar: El Último Maestro del Aire", count:61, link:"https://www.lacartoons.com/serie/capitulo/7830"},
-  {start:"14:30", end:"15:00", title:"Rugrats Crecidos", count:55, link:"https://www.lacartoons.com/serie/capitulo/25229"},
-  {start:"15:00", end:"15:30", title:"Oye Arnold!", count:100, link:"https://www.lacartoons.com/serie/capitulo/9612"},
-  {start:"15:30", end:"16:00", title:"Rocket Power", count:71, link:"https://www.lacartoons.com/serie/capitulo/25106"},
-  {start:"16:00", end:"16:30", title:"Los Castores Cascarrabias", count:62, link:"https://www.lacartoons.com/serie/capitulo/31397"},
-  {start:"16:30", end:"17:00", title:"CatDog", count:64, link:"https://www.frikiserie.com/ver-serie/catdog/capitulo/1"},
-  {start:"17:00", end:"17:30", title:"KaBlam!", count:48, link:"https://www.lacartoons.com/serie/capitulo/18710"},
-  {start:"17:30", end:"18:00", title:"La Vida Moderna de Rocko", count:52, link:"https://www.lacartoons.com/serie/capitulo/9255"},
-  {start:"18:00", end:"18:30", title:"Invasor Zim", count:27, link:"https://www.lacartoons.com/serie/capitulo/12292"},
-  {start:"18:30", end:"19:00", title:"Aahh! Monstruos de Verdad", count:52, link:"https://www.lacartoons.com/serie/capitulo/10975"},
-  {start:"19:00", end:"19:30", title:"¿Le temes a la oscuridad?", count:91, link:"https://www.lacartoons.com/serie/capitulo/9164"},
-  {start:"19:30", end:"20:00", title:"Drake & Josh", count:55, link:"https://www.lacartoons.com/serie/capitulo/8471"},
-  {start:"20:00", end:"20:30", title:"Clarissa lo explica todo", count:65, link:"https://www.lacartoons.com/serie/capitulo/25486"},
-  {start:"20:30", end:"21:00", title:"Sabrina, la bruja adolescente", count:163, link:"https://www.lacartoons.com/serie/capitulo/9713"},
-  {start:"21:00", end:"21:30", title:"Kenan & Kel", count:63, link:"https://www.lacartoons.com/serie/capitulo/9003"},
-  {start:"21:30", end:"22:00", title:"Los Castores Cascarrabias", count:62, link:"https://www.lacartoons.com/serie/capitulo/31397"},
-  {start:"22:00", end:"22:30", title:"CatDog", count:64, link:"https://www.frikiserie.com/ver-serie/catdog/capitulo/1"},
-  {start:"22:30", end:"23:00", title:"Oye Arnold!", count:100, link:"https://www.lacartoons.com/serie/capitulo/9612"},
-  {start:"23:00", end:"23:30", title:"Los Padrinos Mágicos", count:171, link:"https://www.lacartoons.com/serie/capitulo/4255"},
+  {start:"02:00", end:"02:30", title:"Las Aventuras de Jimmy Neutrón", count:61, link:"https://www.lacartoons.com/serie/capitulo/8945"},
+  {start:"02:30", end:"03:00", title:"Bob Esponja", count:270, link:"https://www.lacartoons.com/serie/capitulo/7943"},
+  {start:"03:00", end:"03:30", title:"31 Minutos", count:68, link:"https://www.lacartoons.com/serie/capitulo/31054"},
+  {start:"03:30", end:"04:00", title:"Doug", count:52, link:"https://www.lacartoons.com/serie/capitulo/25360"},
+  {start:"04:00", end:"04:30", title:"Ginger", count:60, link:"https://www.lacartoons.com/serie/capitulo/22215"},
+  {start:"04:30", end:"05:00", title:"Rugrats: Aventuras en Pañales", count:172, link:"https://www.lacartoons.com/serie/capitulo/21996"},
+  {start:"05:00", end:"05:30", title:"Los Thornberries", count:91, link:"https://www.lacartoons.com/serie/capitulo/9307"},
+  {start:"05:30", end:"06:00", title:"Yu-Gi-Oh!", count:224, link:"https://www.lacartoons.com/serie/capitulo/11188"},
+  {start:"06:00", end:"06:30", title:"Martin Mystery", count:52, link:"https://www.lacartoons.com/serie/capitulo/11809"},
+  {start:"06:30", end:"07:00", title:"Danny Phantom", count:52, link:"https://www.lacartoons.com/serie/capitulo/8528"},
+  {start:"07:00", end:"07:30", title:"Avatar", count:61, link:"https://www.lacartoons.com/serie/capitulo/7830"},
+  {start:"07:30", end:"08:00", title:"Rugrats Crecidos", count:55, link:"https://www.lacartoons.com/serie/capitulo/25229"},
+  {start:"08:00", end:"08:30", title:"Oye Arnold!", count:100, link:"https://www.lacartoons.com/serie/capitulo/9612"},
+  {start:"08:30", end:"09:00", title:"Rocket Power", count:71, link:"https://www.lacartoons.com/serie/capitulo/25106"},
+  {start:"09:00", end:"09:30", title:"Franklin", count:78, link:"https://www.lacartoons.com/serie/capitulo/27655"},
+  {start:"09:30", end:"10:00", title:"Zona Tiza", count:40, link:"https://www.lacartoons.com/serie/capitulo/21962"},
+  {start:"10:00", end:"10:30", title:"Poochini", count:26, link:"https://www.lacartoons.com/serie/capitulo/21681"},
+  {start:"10:30", end:"11:00", title:"Los Padrinos Mágicos", count:171, link:"https://www.lacartoons.com/serie/capitulo/4255"},
+  {start:"11:00", end:"11:30", title:"Las Aventuras de Jimmy Neutrón", count:61, link:"https://www.lacartoons.com/serie/capitulo/8945"},
+  {start:"11:30", end:"12:00", title:"Bob Esponja", count:270, link:"https://www.lacartoons.com/serie/capitulo/7943"},
+  {start:"12:00", end:"12:30", title:"31 Minutos", count:68, link:"https://www.lacartoons.com/serie/capitulo/31054"},
+  {start:"12:30", end:"13:00", title:"Doug", count:52, link:"https://www.lacartoons.com/serie/capitulo/25360"},
+  {start:"13:00", end:"13:30", title:"Ginger", count:60, link:"https://www.lacartoons.com/serie/capitulo/22215"},
+  {start:"13:30", end:"14:00", title:"Rugrats: Aventuras en Pañales", count:172, link:"https://www.lacartoons.com/serie/capitulo/21996"},
+  {start:"14:00", end:"14:30", title:"Los Thornberries", count:91, link:"https://www.lacartoons.com/serie/capitulo/9307"},
+  {start:"14:30", end:"15:00", title:"Yu-Gi-Oh!", count:224, link:"https://www.lacartoons.com/serie/capitulo/11188"},
+  {start:"15:00", end:"15:30", title:"Martin Mystery", count:52, link:"https://www.lacartoons.com/serie/capitulo/11809"},
+  {start:"15:30", end:"16:00", title:"Danny Phantom", count:52, link:"https://www.lacartoons.com/serie/capitulo/8528"},
+  {start:"16:00", end:"16:30", title:"Avatar", count:61, link:"https://www.lacartoons.com/serie/capitulo/7830"},
+  {start:"16:30", end:"17:00", title:"Rugrats Crecidos", count:55, link:"https://www.lacartoons.com/serie/capitulo/25229"},
+  {start:"17:00", end:"17:30", title:"Oye Arnold!", count:100, link:"https://www.lacartoons.com/serie/capitulo/9612"},
+  {start:"17:30", end:"18:00", title:"Rocket Power", count:71, link:"https://www.lacartoons.com/serie/capitulo/25106"},
+  {start:"18:00", end:"18:30", title:"Los Castores Cascarrabias", count:62, link:"https://www.lacartoons.com/serie/capitulo/31397"},
+  {start:"18:30", end:"19:00", title:"CatDog", count:64, link:"https://www.frikiserie.com/ver-serie/catdog/capitulo/1"},
+  {start:"19:00", end:"19:30", title:"KaBlam!", count:48, link:"https://www.lacartoons.com/serie/capitulo/18710"},
+  {start:"19:30", end:"20:00", title:"La Vida Moderna de Rocko", count:52, link:"https://www.lacartoons.com/serie/capitulo/9255"},
+  {start:"20:00", end:"20:30", title:"Invasor Zim", count:27, link:"https://www.lacartoons.com/serie/capitulo/12292"},
+  {start:"20:30", end:"21:00", title:"Aahh! Monstruos de Verdad", count:52, link:"https://www.lacartoons.com/serie/capitulo/10975"},
+  {start:"21:00", end:"21:30", title:"Avatar", count:61, link:"https://www.lacartoons.com/serie/capitulo/9164"},
+  {start:"21:30", end:"22:00", title:"Drake & Josh", count:55, link:"https://www.lacartoons.com/serie/capitulo/8471"},
+  {start:"22:00", end:"22:30", title:"Clarissa lo explica todo", count:65, link:"https://www.lacartoons.com/serie/capitulo/25486"},
+  {start:"22:30", end:"23:00", title:"Sabrina, la bruja adolescente", count:163, link:"https://www.lacartoons.com/serie/capitulo/9713"},
+  {start:"23:00", end:"23:30", title:"Kenan & Kel", count:63, link:"https://www.lacartoons.com/serie/capitulo/9003"},
   {start:"23:30", end:"00:00", title:"¿Le temes a la oscuridad?", count:91, link:"https://www.lacartoons.com/serie/capitulo/9164"}
 ];
 
 const DISNEY_ROWS = [
-  {start:"00:00", end:"00:30", title:"Bonkers", count:65, link:"https://www.lacartoons.com/serie/capitulo/19969"},
-  {start:"00:30", end:"01:00", title:"Tarzan", count:38, link:"https://www.lacartoons.com/serie/capitulo/18933"},
-  {start:"01:00", end:"01:30", title:"Hercules", count:65, link:"https://www.lacartoons.com/serie/capitulo/18783"},
-  {start:"01:30", end:"02:00", title:"La Sirenita Animada", count:31, link:"https://www.lacartoons.com/serie/capitulo/7697"},
-  {start:"02:00", end:"02:30", title:"Lilo & Stitch", count:65, link:"https://www.lacartoons.com/serie/capitulo/18653"},
-  {start:"02:30", end:"03:00", title:"Yin Yang Yo!", count:65, link:"https://www.lacartoons.com/serie/capitulo/20673"},
-  {start:"03:00", end:"03:30", title:"Pepper Ann", count:65, link:"https://www.lacartoons.com/serie/capitulo/28939"},
-  {start:"03:30", end:"04:00", title:"Power Rangers RPM", count:32, link:"https://www.lacartoons.com/serie/capitulo/28389"},
-  {start:"04:00", end:"04:30", title:"Sabrina La Brujita", count:65, link:"https://www.lacartoons.com/serie/capitulo/20099"},
-  {start:"04:30", end:"05:00", title:"Avengers: Unidos", count:103, link:"https://www.lacartoons.com/serie/capitulo/13180"},
-  {start:"05:00", end:"05:30", title:"Phineas y Ferb", count:126, link:"https://www.lacartoons.com/serie/capitulo/23642"},
-  {start:"05:30", end:"06:00", title:"Recreo", count:65, link:"https://www.lacartoons.com/serie/capitulo/18498"},
-  {start:"06:00", end:"06:30", title:"Kim Possible", count:87, link:"https://www.lacartoons.com/serie/capitulo/18848"},
-  {start:"06:30", end:"07:00", title:"Jake Long", count:52, link:"https://www.lacartoons.com/serie/capitulo/17502"},
-  {start:"07:00", end:"07:30", title:"Gargolas", count:78, link:"https://www.lacartoons.com/serie/capitulo/3805"},
-  {start:"07:30", end:"08:00", title:"Darkwing Duck", count:91, link:"https://www.lacartoons.com/serie/capitulo/18563"},
-  {start:"08:00", end:"08:30", title:"Talespin", count:65, link:"https://www.lacartoons.com/serie/capitulo/20034"},
-  {start:"08:30", end:"09:00", title:"Chip y Dale", count:65, link:"https://www.lacartoons.com/serie/capitulo/18718"},
-  {start:"09:00", end:"09:30", title:"Dave el Barbaro", count:21, link:"https://www.lacartoons.com/serie/capitulo/8358"},
-  {start:"09:30", end:"10:00", title:"Super Escuadrón Mono Fuerza A Go-Go!", count:52, link:"https://www.lacartoons.com/serie/capitulo/28887"},
-  {start:"10:00", end:"10:30", title:"Gummy Bears", count:95, link:"https://www.lacartoons.com/serie/capitulo/23495"},
-  {start:"10:30", end:"11:00", title:"Winnie The Pooh", count:49, link:"https://www.lacartoons.com/serie/capitulo/17453"},
-  {start:"11:00", end:"11:30", title:"Mighty Ducks", count:26, link:"https://www.lacartoons.com/serie/capitulo/20164"},
-  {start:"11:30", end:"12:00", title:"101 Dalmatas", count:65, link:"https://www.lacartoons.com/serie/capitulo/16068"},
-  {start:"12:00", end:"12:30", title:"Bonkers", count:65, link:"https://www.lacartoons.com/serie/capitulo/19969"},
-  {start:"12:30", end:"13:00", title:"Tarzan", count:38, link:"https://www.lacartoons.com/serie/capitulo/18933"},
-  {start:"13:00", end:"13:30", title:"Hercules", count:65, link:"https://www.lacartoons.com/serie/capitulo/18783"},
-  {start:"13:30", end:"14:00", title:"La Sirenita Animada", count:31, link:"https://www.lacartoons.com/serie/capitulo/7697"},
-  {start:"14:00", end:"14:30", title:"Lilo & Stitch", count:65, link:"https://www.lacartoons.com/serie/capitulo/18653"},
-  {start:"14:30", end:"15:00", title:"Yin Yang Yo!", count:65, link:"https://www.lacartoons.com/serie/capitulo/20673"},
-  {start:"15:00", end:"15:30", title:"Pepper Ann", count:65, link:"https://www.lacartoons.com/serie/capitulo/28939"},
-  {start:"15:30", end:"16:00", title:"Power Rangers RPM", count:32, link:"https://www.lacartoons.com/serie/capitulo/28389"},
-  {start:"16:00", end:"16:30", title:"Sabrina La Brujita", count:65, link:"https://www.lacartoons.com/serie/capitulo/20099"},
-  {start:"16:30", end:"17:00", title:"Avengers: Unidos", count:103, link:"https://www.lacartoons.com/serie/capitulo/13180"},
-  {start:"17:00", end:"17:30", title:"Phineas y Ferb", count:126, link:"https://www.lacartoons.com/serie/capitulo/23642"},
-  {start:"17:30", end:"18:00", title:"Recreo", count:65, link:"https://www.lacartoons.com/serie/capitulo/18498"},
-  {start:"18:00", end:"18:30", title:"Kim Possible", count:87, link:"https://www.lacartoons.com/serie/capitulo/18848"},
-  {start:"18:30", end:"19:00", title:"Jake Long", count:52, link:"https://www.lacartoons.com/serie/capitulo/17502"},
-  {start:"19:00", end:"19:30", title:"Gargolas", count:78, link:"https://www.lacartoons.com/serie/capitulo/3805"},
-  {start:"19:30", end:"20:00", title:"Darkwing Duck", count:91, link:"https://www.lacartoons.com/serie/capitulo/18563"},
-  {start:"20:00", end:"20:30", title:"Talespin", count:65, link:"https://www.lacartoons.com/serie/capitulo/20034"},
-  {start:"20:30", end:"21:00", title:"Chip y Dale", count:65, link:"https://www.lacartoons.com/serie/capitulo/18560"},
-  {start:"21:00", end:"21:30", title:"Dave el Barbaro", count:21, link:"https://www.lacartoons.com/serie/capitulo/8358"},
-  {start:"21:30", end:"22:00", title:"Super Escuadrón Mono Fuerza A Go-Go!", count:52, link:"https://www.lacartoons.com/serie/capitulo/28887"},
-  {start:"22:00", end:"22:30", title:"Gummy Bears", count:95, link:"https://www.lacartoons.com/serie/capitulo/23495"},
-  {start:"22:30", end:"23:00", title:"Winnie The Pooh", count:49, link:"https://www.lacartoons.com/serie/capitulo/17453"},
-  {start:"23:00", end:"23:30", title:"Mighty Ducks", count:26, link:"https://www.lacartoons.com/serie/capitulo/20164"},
-  {start:"23:30", end:"00:00", title:"101 Dalmatas", count:65, link:"https://www.lacartoons.com/serie/capitulo/16068"}
+  {start:"02:00", end:"02:30", title:"Bonkers", count:65, link:"https://www.lacartoons.com/serie/capitulo/19969"},
+  {start:"02:30", end:"03:00", title:"Tarzan", count:38, link:"https://www.lacartoons.com/serie/capitulo/18933"},
+  {start:"03:00", end:"03:30", title:"Hercules", count:65, link:"https://www.lacartoons.com/serie/capitulo/18783"},
+  {start:"03:30", end:"04:00", title:"La Sirenita Animada", count:31, link:"https://www.lacartoons.com/serie/capitulo/7697"},
+  {start:"04:00", end:"04:30", title:"Lilo & Stitch", count:65, link:"https://www.lacartoons.com/serie/capitulo/18653"},
+  {start:"04:30", end:"05:00", title:"Yin Yang Yo!", count:65, link:"https://www.lacartoons.com/serie/capitulo/20673"},
+  {start:"05:00", end:"05:30", title:"Pepper Ann", count:65, link:"https://www.lacartoons.com/serie/capitulo/28939"},
+  {start:"05:30", end:"06:00", title:"Power Rangers RPM", count:32, link:"https://www.lacartoons.com/serie/capitulo/28389"},
+  {start:"06:00", end:"06:30", title:"Sabrina La Brujita", count:65, link:"https://www.lacartoons.com/serie/capitulo/20099"},
+  {start:"06:30", end:"07:00", title:"Avengers: Unidos", count:103, link:"https://www.lacartoons.com/serie/capitulo/13180"},
+  {start:"07:00", end:"07:30", title:"Phineas y Ferb", count:126, link:"https://www.lacartoons.com/serie/capitulo/23642"},
+  {start:"07:30", end:"08:00", title:"Recreo", count:65, link:"https://www.lacartoons.com/serie/capitulo/18498"},
+  {start:"08:00", end:"08:30", title:"Kim Possible", count:87, link:"https://www.lacartoons.com/serie/capitulo/18848"},
+  {start:"08:30", end:"09:00", title:"Jake Long", count:52, link:"https://www.lacartoons.com/serie/capitulo/17502"},
+  {start:"09:00", end:"09:30", title:"Gargolas", count:78, link:"https://www.lacartoons.com/serie/capitulo/3805"},
+  {start:"09:30", end:"10:00", title:"Darkwing Duck", count:91, link:"https://www.lacartoons.com/serie/capitulo/18563"},
+  {start:"10:00", end:"10:30", title:"Talespin", count:65, link:"https://www.lacartoons.com/serie/capitulo/20034"},
+  {start:"10:30", end:"11:00", title:"Chip y Dale", count:65, link:"https://www.lacartoons.com/serie/capitulo/18718"},
+  {start:"11:00", end:"11:30", title:"Dave el Barbaro", count:21, link:"https://www.lacartoons.com/serie/capitulo/8358"},
+  {start:"11:30", end:"12:00", title:"Super Escuadrón Mono Fuerza A Go-Go!", count:52, link:"https://www.lacartoons.com/serie/capitulo/28887"},
+  {start:"12:00", end:"12:30", title:"Gummy Bears", count:95, link:"https://www.lacartoons.com/serie/capitulo/23495"},
+  {start:"12:30", end:"13:00", title:"Winnie The Pooh", count:49, link:"https://www.lacartoons.com/serie/capitulo/17453"},
+  {start:"13:00", end:"13:30", title:"Mighty Ducks", count:26, link:"https://www.lacartoons.com/serie/capitulo/20164"},
+  {start:"13:30", end:"14:00", title:"101 Dalmatas", count:65, link:"https://www.lacartoons.com/serie/capitulo/16068"},
+  {start:"14:00", end:"14:30", title:"Bonkers", count:65, link:"https://www.lacartoons.com/serie/capitulo/19969"},
+  {start:"14:30", end:"15:00", title:"Tarzan", count:38, link:"https://www.lacartoons.com/serie/capitulo/18933"},
+  {start:"15:00", end:"15:30", title:"Hercules", count:65, link:"https://www.lacartoons.com/serie/capitulo/18783"},
+  {start:"15:30", end:"16:00", title:"La Sirenita Animada", count:31, link:"https://www.lacartoons.com/serie/capitulo/7697"},
+  {start:"16:00", end:"16:30", title:"Lilo & Stitch", count:65, link:"https://www.lacartoons.com/serie/capitulo/18653"},
+  {start:"16:30", end:"17:00", title:"Yin Yang Yo!", count:65, link:"https://www.lacartoons.com/serie/capitulo/20673"},
+  {start:"17:00", end:"17:30", title:"Pepper Ann", count:65, link:"https://www.lacartoons.com/serie/capitulo/28939"},
+  {start:"17:30", end:"18:00", title:"Power Rangers RPM", count:32, link:"https://www.lacartoons.com/serie/capitulo/28389"},
+  {start:"18:00", end:"18:30", title:"Sabrina La Brujita", count:65, link:"https://www.lacartoons.com/serie/capitulo/20099"},
+  {start:"18:30", end:"19:00", title:"Avengers: Unidos", count:103, link:"https://www.lacartoons.com/serie/capitulo/13180"},
+  {start:"19:00", end:"19:30", title:"Phineas y Ferb", count:126, link:"https://www.lacartoons.com/serie/capitulo/23642"},
+  {start:"19:30", end:"20:00", title:"Recreo", count:65, link:"https://www.lacartoons.com/serie/capitulo/18498"},
+  {start:"20:00", end:"20:30", title:"Kim Possible", count:87, link:"https://www.lacartoons.com/serie/capitulo/18848"},
+  {start:"20:30", end:"21:00", title:"Jake Long", count:52, link:"https://www.lacartoons.com/serie/capitulo/17502"},
+  {start:"21:00", end:"21:30", title:"Gargolas", count:78, link:"https://www.lacartoons.com/serie/capitulo/3805"},
+  {start:"21:30", end:"22:00", title:"Darkwing Duck", count:91, link:"https://www.lacartoons.com/serie/capitulo/18563"},
+  {start:"22:00", end:"22:30", title:"Talespin", count:65, link:"https://www.lacartoons.com/serie/capitulo/20034"},
+  {start:"22:30", end:"23:00", title:"Chip y Dale", count:65, link:"https://www.lacartoons.com/serie/capitulo/18560"},
+  {start:"23:00", end:"23:30", title:"Dave el Barbaro", count:21, link:"https://www.lacartoons.com/serie/capitulo/8358"},
+  {start:"23:30", end:"00:00", title:"Super Escuadrón Mono Fuerza A Go-Go!", count:52, link:"https://www.lacartoons.com/serie/capitulo/28887"}
 ];
 
-const JETIX_ROWS = [];
-const NAHU_ROWS = [];
-
 const LOCOMOTION_ROWS = [
-  {start:"00:00", end:"00:30", title:"Paranoia Agent", count:13, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"00:30", end:"01:00", title:"Excel Saga", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"01:00", end:"01:30", title:"Monster", count:74, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"01:30", end:"02:00", title:"Witch Hunter Robin", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"02:00", end:"02:30", title:"Soul Hunter", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"02:30", end:"03:00", title:"Cyber Team in Akihabara", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"03:00", end:"03:30", title:"Wolf's Rain", count:30, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"03:30", end:"04:00", title:"Samurai 7", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"04:00", end:"04:30", title:"Slayers", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"04:30", end:"05:00", title:"Tenchi Muyo!", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"05:00", end:"05:30", title:"Blue Seed", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"05:30", end:"06:00", title:"Daria", count:65, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"06:00", end:"06:30", title:"Rurouni Kenshin (Samurai X)", count:95, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"06:30", end:"07:00", title:"Slayers", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"07:00", end:"07:30", title:"Tenchi Muyo!", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"07:30", end:"08:00", title:"Yu Yu Hakusho", count:112, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"08:00", end:"08:30", title:"Outlaw Star", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"08:30", end:"09:00", title:"Rave Master", count:51, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"09:00", end:"09:30", title:"Fushigi Yugi", count:52, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"09:30", end:"10:00", title:"Bobobo-bo Bo-bobo", count:76, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"10:00", end:"10:30", title:"Great Teacher Onizuka", count:43, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"10:30", end:"11:00", title:"Initial D", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"11:00", end:"11:30", title:"Hajime no Ippo", count:76, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"11:30", end:"12:00", title:"Mobile Suit Gundam Wing", count:49, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"12:00", end:"12:30", title:"Fullmetal Alchemist", count:51, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"12:30", end:"13:00", title:"Samurai Champloo", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"13:00", end:"13:30", title:"Cowboy Bebop", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"13:30", end:"14:00", title:"Trigun", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"14:00", end:"14:30", title:"Ghost in the Shell: Stand Alone Complex", count:52, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"14:30", end:"15:00", title:"Wolf's Rain", count:30, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"15:00", end:"15:30", title:"Ranma 1/2", count:161, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"15:30", end:"16:00", title:"Ren y Stimpy", count:52, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"16:00", end:"16:30", title:"Yu Yu Hakusho", count:112, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"16:30", end:"17:00", title:"Rurouni Kenshin (Samurai X)", count:95, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"17:00", end:"17:30", title:"Hajime no Ippo", count:76, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"17:30", end:"18:00", title:"Initial D", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"18:00", end:"18:30", title:"Neon Genesis Evangelion", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"18:30", end:"19:00", title:"Cowboy Bebop", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"19:00", end:"19:30", title:"Samurai Champloo", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"19:30", end:"20:00", title:"Trigun", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"20:00", end:"20:30", title:"Hellsing", count:13, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"20:30", end:"21:00", title:"Berserk", count:25, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"21:00", end:"21:30", title:"Aeon Flux", count:10, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"21:30", end:"22:00", title:"Daria", count:65, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"22:00", end:"22:30", title:"Paranoia Agent", count:13, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"22:30", end:"23:00", title:"Excel Saga", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"23:00", end:"23:30", title:"Monster", count:74, link:"https://www.lacartoons.com/serie/capitulo/25664"},
-  {start:"23:30", end:"00:00", title:"Witch Hunter Robin", count:26, link:"https://www.lacartoons.com/serie/capitulo/25664"}
+  {start:"02:00", end:"02:30", title:"Paranoia Agent", count:13, link:"https://www.lacartoons.com/serie/capitulo/23495"},
+  {start:"02:30", end:"03:00", title:"Excel Saga", count:26, link:"https://www.lacartoons.com/serie/capitulo/17453"},
+  {start:"03:00", end:"03:30", title:"Monster", count:74, link:"https://www.lacartoons.com/serie/capitulo/20164"},
+  {start:"03:30", end:"04:00", title:"Witch Hunter Robin", count:26, link:"https://www.lacartoons.com/serie/capitulo/16068"},
+  {start:"04:00", end:"04:30", title:"Soul Hunter", count:26, link:"https://www.lacartoons.com/serie/capitulo/19969"},
+  {start:"04:30", end:"05:00", title:"Cyber Team in Akihabara", count:26, link:"https://www.lacartoons.com/serie/capitulo/18933"},
+  {start:"05:00", end:"05:30", title:"Wolf's Rain", count:30, link:"https://www.lacartoons.com/serie/capitulo/18783"},
+  {start:"05:30", end:"06:00", title:"Samurai 7", count:26, link:"https://www.lacartoons.com/serie/capitulo/7697"},
+  {start:"06:00", end:"06:30", title:"Slayers", count:26, link:"https://www.lacartoons.com/serie/capitulo/18653"},
+  {start:"06:30", end:"07:00", title:"Tenchi Muyo!", count:26, link:"https://www.lacartoons.com/serie/capitulo/20673"},
+  {start:"07:00", end:"07:30", title:"Blue Seed", count:26, link:"https://www.lacartoons.com/serie/capitulo/28939"},
+  {start:"07:30", end:"08:00", title:"Daria", count:65, link:"https://www.lacartoons.com/serie/capitulo/28389"},
+  {start:"08:00", end:"08:30", title:"Rurouni Kenshin (Samurai X)", count:95, link:"https://www.lacartoons.com/serie/capitulo/20099"},
+  {start:"08:30", end:"09:00", title:"Slayers", count:26, link:"https://www.lacartoons.com/serie/capitulo/13180"},
+  {start:"09:00", end:"09:30", title:"Tenchi Muyo!", count:26, link:"https://www.lacartoons.com/serie/capitulo/23642"},
+  {start:"09:30", end:"10:00", title:"Yu Yu Hakusho", count:104, link:"https://www.lacartoons.com/serie/capitulo/18498"},
+  {start:"10:00", end:"10:30", title:"Outlaw Star", count:26, link:"https://www.lacartoons.com/serie/capitulo/18848"},
+  {start:"10:30", end:"11:00", title:"Rave Master", count:51, link:"https://www.lacartoons.com/serie/capitulo/17502"},
+  {start:"11:00", end:"11:30", title:"Fushigi Yugi", count:52, link:"https://www.lacartoons.com/serie/capitulo/3805"},
+  {start:"11:30", end:"12:00", title:"Bobobo-bo Bo-bobo", count:76, link:"https://www.lacartoons.com/serie/capitulo/18563"},
+  {start:"12:00", end:"12:30", title:"Great Teacher Onizuka", count:43, link:"https://www.lacartoons.com/serie/capitulo/20034"},
+  {start:"12:30", end:"13:00", title:"Initial D", count:26, link:"https://www.lacartoons.com/serie/capitulo/18560"},
+  {start:"13:00", end:"13:30", title:"Hajime no Ippo", count:75, link:"https://www.lacartoons.com/serie/capitulo/8358"},
+  {start:"13:30", end:"14:00", title:"Mobile Suit Gundam Wing", count:49, link:"https://www.lacartoons.com/serie/capitulo/28887"},
+  {start:"14:00", end:"14:30", title:"Fullmetal Alchemist", count:51, link:"https://www.lacartoons.com/serie/capitulo/23495"},
+  {start:"14:30", end:"15:00", title:"Samurai Champloo", count:26, link:"https://www.lacartoons.com/serie/capitulo/17453"},
+  {start:"15:00", end:"15:30", title:"Cowboy Bebop", count:26, link:"https://www.lacartoons.com/serie/capitulo/20164"},
+  {start:"15:30", end:"16:00", title:"Trigun", count:26, link:"https://www.lacartoons.com/serie/capitulo/16068"},
+  {start:"16:00", end:"16:30", title:"Ghost in the Shell: Stand Alone Complex", count:26, link:"https://www.lacartoons.com/serie/capitulo/19969"},
+  {start:"16:30", end:"17:00", title:"Wolf's Rain", count:30, link:"https://www.lacartoons.com/serie/capitulo/18933"},
+  {start:"17:00", end:"17:30", title:"Ranma 1/2", count:161, link:"https://www.lacartoons.com/serie/capitulo/18783"},
+  {start:"17:30", end:"18:00", title:"Ren y Stimpy", count:52, link:"https://www.lacartoons.com/serie/capitulo/7697"},
+  {start:"18:00", end:"18:30", title:"Yu Yu Hakusho", count:104, link:"https://www.lacartoons.com/serie/capitulo/18653"},
+  {start:"18:30", end:"19:00", title:"Rurouni Kenshin (Samurai X)", count:95, link:"https://www.lacartoons.com/serie/capitulo/20673"},
+  {start:"19:00", end:"19:30", title:"Hajime no Ippo", count:75, link:"https://www.lacartoons.com/serie/capitulo/28939"},
+  {start:"19:30", end:"20:00", title:"Initial D", count:26, link:"https://www.lacartoons.com/serie/capitulo/28389"},
+  {start:"20:00", end:"20:30", title:"Neon Genesis Evangelion", count:26, link:"https://www.lacartoons.com/serie/capitulo/20099"},
+  {start:"20:30", end:"21:00", title:"Cowboy Bebop", count:26, link:"https://www.lacartoons.com/serie/capitulo/13180"},
+  {start:"21:00", end:"21:30", title:"Samurai Champloo", count:26, link:"https://www.lacartoons.com/serie/capitulo/23642"},
+  {start:"21:30", end:"22:00", title:"Trigun", count:26, link:"https://www.lacartoons.com/serie/capitulo/18498"},
+  {start:"22:00", end:"22:30", title:"Hellsing", count:13, link:"https://www.lacartoons.com/serie/capitulo/18848"},
+  {start:"22:30", end:"23:00", title:"Berserk", count:25, link:"https://www.lacartoons.com/serie/capitulo/17502"},
+  {start:"23:00", end:"23:30", title:"Aeon Flux", count:10, link:"https://www.lacartoons.com/serie/capitulo/3805"},
+  {start:"23:30", end:"00:00", title:"Daria", count:65, link:"https://www.lacartoons.com/serie/capitulo/18563"}
 ];
 
 const CN_ROWS = [
-  {start:"00:00", end:"00:30", title:"ADULT SWIM: Harvey Birdman, Abogado", count:39, link:"https://www.lacartoons.com/serie/capitulo/16620"},
-  {start:"00:30", end:"01:00", title:"ADULT SWIM: Dos Perros Tontos", count:139, link:"https://www.lacartoons.com/serie/capitulo/1"},
   {start:"01:00", end:"01:30", title:"Hora de Aventura", count:283, link:"https://www.lacartoons.com/serie/capitulo/22721"},
   {start:"01:30", end:"02:00", title:"Flapjack", count:46, link:"https://www.lacartoons.com/serie/capitulo/897"},
   {start:"02:00", end:"02:30", title:"Un cachorro llamado Scooby-Doo", count:30, link:"https://www.lacartoons.com/serie/capitulo/10560"},
@@ -629,9 +623,9 @@ const CN_ROWS = [
   {start:"06:00", end:"06:30", title:"KND: Los chicos del barrio", count:78, link:"https://www.lacartoons.com/serie/capitulo/30845"},
   {start:"06:30", end:"07:00", title:"Un Show Mas", count:245, link:"https://www.lacartoons.com/serie/capitulo/22984"},
   {start:"07:00", end:"07:30", title:"Las sombrías aventuras de Billy y Mandy", count:84, link:"https://www.lacartoons.com/serie/capitulo/935"},
-  {start:"07:30", end:"08:00", title:"Robot Jones", count:13, link:"https://www.lacartoons.com/serie/capitulo/935"},
-  {start:"08:00", end:"08:30", title:"La Pequena Lulu", count:26, link:"https://www.lacartoons.com/serie/capitulo/22721"},
-  {start:"08:30", end:"09:00", title:"Mucha Lucha", count:52, link:"https://www.lacartoons.com/serie/capitulo/897"},
+  {start:"07:30", end:"08:00", title:"Coraje, el perro cobarde", count:52, link:"https://www.lacartoons.com/serie/capitulo/318"},
+  {start:"08:00", end:"08:30", title:"Hora de Aventura", count:283, link:"https://www.lacartoons.com/serie/capitulo/22721"},
+  {start:"08:30", end:"09:00", title:"Flapjack", count:46, link:"https://www.lacartoons.com/serie/capitulo/897"},
   {start:"09:00", end:"09:30", title:"Un cachorro llamado Scooby-Doo", count:30, link:"https://www.lacartoons.com/serie/capitulo/10560"},
   {start:"09:30", end:"10:00", title:"El Lagartijo De Ned", count:26, link:"https://www.lacartoons.com/serie/capitulo/25851"},
   {start:"10:00", end:"10:30", title:"La Vaca y el Pollito", count:51, link:"https://www.lacartoons.com/serie/capitulo/31003"},
@@ -644,7 +638,7 @@ const CN_ROWS = [
   {start:"13:00", end:"13:30", title:"Ed, Edd y Eddy", count:69, link:"https://www.lacartoons.com/serie/capitulo/21615"},
   {start:"13:30", end:"14:00", title:"El Campamento de Lazlo", count:61, link:"https://www.lacartoons.com/serie/capitulo/897"},
   {start:"14:00", end:"14:30", title:"La Isla del Drama", count:26, link:"https://www.lacartoons.com/serie/capitulo/30845"},
-  {start:"14:30", end:"15:00", title:"KND: Los chicos del barrio", count:78, link:"https://www.lacartoons.com/serie/capitulo/30845"},
+  {start:"14:30", end:"15:00", title:"KND: Los chicos del barrio", count:78, link:"https://www.lacartoons.com/serie/capitulo/22984"},
   {start:"15:00", end:"15:30", title:"Winx Club", episodes: WINX_EPISODES},
   {start:"15:30", end:"16:00", title:"Hi Hi Puffy AmiYumi", count:39, link:"https://www.lacartoons.com/serie/capitulo/30805"},
   {start:"16:00", end:"16:30", title:"Teen Titans (Jóvenes Titanes)", count:65, link:"https://www.lacartoons.com/serie/capitulo/2071"},
@@ -659,11 +653,14 @@ const CN_ROWS = [
   {start:"20:30", end:"21:00", title:"X-Men Evolution", count:52, link:"https://www.lacartoons.com/serie/capitulo/2383"},
   {start:"21:00", end:"21:30", title:"Liga de la Justicia", count:91, link:"https://www.lacartoons.com/serie/capitulo/8379"},
   {start:"21:30", end:"22:00", title:"Pokémon", count:276, link:"https://www.lacartoons.com/serie/capitulo/2435"},
-  {start:"22:00", end:"22:30", title:"Samurai Jack", count:52, link:"https://www.lacartoons.com/serie/capitulo/14147"},
+  {start:"22:00", end:"22:30", title:"Samurai Jack", count:51, link:"https://www.lacartoons.com/serie/capitulo/14147"},
   {start:"22:30", end:"23:00", title:"Hora de Aventura", count:283, link:"https://www.lacartoons.com/serie/capitulo/2435"},
   {start:"23:00", end:"23:30", title:"Un Show Mas", count:245, link:"https://www.lacartoons.com/serie/capitulo/1970"},
-  {start:"23:30", end:"00:00", title:"Flapjack", count:46, link:"https://www.lacartoons.com/serie/capitulo/1"}
+  {start:"23:30", end:"00:00", title:"Flapjack", count:46, link:"https://www.frikiserie.com/ver-serie/yu-yu-hakusho/capitulo/1"},
+  {start:"00:00", end:"00:30", title:"ADULT SWIM: Harvey Birdman, Abogado", count:39, link:"https://www.lacartoons.com/serie/capitulo/16620"},
+  {start:"00:30", end:"01:00", title:"ADULT SWIM: Dos Perros Tontos", count:139, link:"https://www.lacartoons.com/serie/capitulo/1"}
 ];
+
 // ── CONFIGURACIÓN DE CANALES ──
 const CHANNELS = [
   buildDailyChannel("magickids", 3, "Magic Kids", MAGICKIDS_ROWS, { altStreamUrl: MAGIC_KIDS_STREAM_URL }),
@@ -684,7 +681,6 @@ function daysBetween(a,b){
   return Math.round(ms/86400000);
 }
 
-// "00:00" como fin de franja significa medianoche (1440), no 0
 function parseEnd(str){ const m = parseHM(str); return m === 0 ? 1440 : m; }
 
 function computeNowPlaying(channel, now){
@@ -726,7 +722,7 @@ function computeNowPlaying(channel, now){
   const nextEntry = entries.find(e=>e.weekMin >= pivot) || entries[0];
 
   return {
-    slotId: channel.id + "|" + todayMid.toDateString() + "|" + block.start, // identifica esta franja puntual
+    slotId: channel.id + "|" + todayMid.toDateString() + "|" + block.start,
     show: block.show.title,
     nextShow: nextEntry ? nextEntry.title : null,
     episode: block.show.episodes[epIndex],
@@ -738,7 +734,6 @@ function computeNowPlaying(channel, now){
   };
 }
 
-// Decide qué ve el usuario: lo que está en el aire, o el programa retenido si su franja ya terminó
 function resolveView(ch, live){
   if(ch.streamUrl || ch.embedUrl) return live;
   const h = held[ch.id];
@@ -760,7 +755,6 @@ function currentSimTime(){
   return overrideDate ? new Date(overrideDate) : new Date();
 }
 
-// ── CONTROLADORES DE VIDEO ──
 function togglePlay(){
   const video = document.getElementById("hlsPlayer");
   const playBtn = document.getElementById("playBtn");
@@ -834,7 +828,6 @@ function loadHlsStream(streamUrl) {
   }
 }
 
-// ── CONFIGURACIÓN DEL EXTRACTOR DE CLOUDFLARE ──
 const PROXY_WORKER_URL = "https://extractor-series.nah-d-ruiz.workers.dev/"; 
 
 async function getCleanEmbedUrl(pageUrl) {
@@ -847,18 +840,15 @@ async function getCleanEmbedUrl(pageUrl) {
   }
 }
 
-// Único camino para pasar al programa que está en el aire: el clic en >>
 function advanceToLive(chId) {
   delete held[chId];
   lastEmbedKey = null;
   render();
 }
 
-// ── ACTUALIZACIÓN DEL REPRODUCTOR EN PANTALLA ──
 async function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
 
-  // A) MODO IFRAME DIRECTO
   if(ch.embedUrl){
     const key = ch.id + "|embed";
     if(key === lastEmbedKey) return;
@@ -872,7 +862,6 @@ async function updateEmbed(ch, info){
     return;
   }
 
-  // B) MODO STREAMING DIRECTO (.m3u8)
   if(ch.streamUrl){
     const key = ch.id + "|" + ch.streamUrl;
     if(key === lastEmbedKey) return;
@@ -899,7 +888,6 @@ async function updateEmbed(ch, info){
     return;
   }
 
-  // C) MODO REPRODUCCIÓN DE CAPÍTULOS
   if(info && info.episode && info.episode.url){
     const key = (info.slotId || ch.id) + "|" + info.episode.title;
     if(key === lastEmbedKey) return;
@@ -912,7 +900,7 @@ async function updateEmbed(ch, info){
     if (!finalEmbedUrl.includes("youtube.com") && !finalEmbedUrl.includes("youtu.be")) {
       container.innerHTML = `<div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">Sintonizando episodio...</div>`;
       finalEmbedUrl = await getCleanEmbedUrl(info.episode.url);
-      if(lastEmbedKey !== key) return; // el usuario ya cambió de canal/programa mientras cargaba
+      if(lastEmbedKey !== key) return;
     }
 
     container.innerHTML = `
@@ -939,12 +927,21 @@ function render(){
     ' · ' + now.toLocaleTimeString('es-AR');
 
   const list = document.getElementById("channelList");
-  list.innerHTML = CHANNELS.map(ch => `
-    <div class="ch-row ${ch.id===activeChannel?'active':''}" onclick="selectChannel('${ch.id}')">
-      <div class="ch-num">${ch.num}</div>
-      <div class="ch-name">${ch.name}</div>
-    </div>
-  `).join("");
+  list.innerHTML = CHANNELS.map(c => {
+    const liveInfo = computeNowPlaying(c, now);
+    const currentShowTitle = (c.streamUrl || c.embedUrl) ? 'Transmisión en vivo' : (liveInfo ? liveInfo.show : 'Fuera de aire');
+    return `
+      <div class="ch-row ${c.id===activeChannel?'active':''}" onclick="selectChannel('${c.id}')">
+        <div class="ch-header">
+          <div class="ch-num">${c.num}</div>
+          <div class="ch-name">${c.name}</div>
+        </div>
+        <div class="ch-ticker">
+          <span class="ch-ticker-text">${currentShowTitle}</span>
+        </div>
+      </div>
+    `;
+  }).join("");
 
   const ch = CHANNELS.find(c=>c.id===activeChannel);
   const info = resolveView(ch, computeNowPlaying(ch, now));
@@ -968,7 +965,6 @@ function render(){
       linkHtml = `<a class="watch-link" href="${info.episode.url}" target="_blank" rel="noopener">▶ Ver este capítulo</a>`;
     }
 
-    // El botón aparece solo cuando la franja del programa que estás viendo ya terminó
     const nextBtnHtml = info.pending ? `
       <button class="next-half-btn" onclick="advanceToLive('${ch.id}')" title="Cambiar al programa que está en el aire">
         ${info.liveNow ? info.liveNow.show : 'Fuera de aire'} &gt;&gt;
@@ -1013,7 +1009,7 @@ function render(){
 function selectChannel(id){
   if(id===activeChannel) return;
   activeChannel = id;
-  delete held[id]; // al cambiar de canal se sintoniza lo que está en el aire
+  delete held[id];
   const flash = document.getElementById("flash");
   flash.classList.add("on");
   setTimeout(()=>flash.classList.remove("on"), 80);
