@@ -77,9 +77,11 @@
   .ch-row:hover{background:#122543;}
   .ch-row.active{background:var(--guide); box-shadow:inset 3px 0 0 var(--yellow);}
   
-  .ch-header{ display:flex; align-items:center; gap:10px; }
+  .ch-header{ display: flex; 
+    align-items: center; 
+    gap: 8px; }
   .ch-num{
-    font-family:'VT323', monospace; font-size:22px; color:var(--muted); width:24px; text-align:left;
+    font-family:'VT323', monospace; font-size:22px; color:var(--muted); width:auto; text-align:left;
   }
   .ch-row.active .ch-num{color:var(--yellow);}
   .ch-name{font-size:15px; font-weight:600;}
@@ -94,8 +96,8 @@
   .ch-ticker-text{
 display: block;
     font-family: 'VT323', monospace;
-    font-size: 15px;
-    color: var(--cyan);
+    font-size: 13px;
+    color: var(--muted);
     text-align: left; /* <-- Fuerza alineación izquierda en el texto del programa */
     white-space: nowrap;
     overflow: hidden;
