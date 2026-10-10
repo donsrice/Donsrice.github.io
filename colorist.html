@@ -64,28 +64,42 @@
   .channels{
     width:210px; border-right:2px solid var(--line); background:#0b1524;
   }
+  
+  /* Filas de canales en el menú lateral */
   .ch-row{
-    display:flex; align-items:flex-start; gap:10px; padding:10px 14px;
+    display:flex; flex-direction:column; padding:10px 14px;
     border-bottom:1px solid var(--line); cursor:pointer;
   }
   .ch-row:hover{background:#122543;}
   .ch-row.active{background:var(--guide); box-shadow:inset 3px 0 0 var(--yellow);}
+  
+  .ch-header{ display:flex; align-items:center; gap:10px; }
   .ch-num{
-    font-family:'VT323', monospace; font-size:22px; color:var(--muted); width:26px; text-align:right; line-height: 1;
+    font-family:'VT323', monospace; font-size:22px; color:var(--muted); width:24px; text-align:right;
   }
   .ch-row.active .ch-num{color:var(--yellow);}
-  .ch-info { display: flex; flex-direction: column; overflow: hidden; }
-  .ch-name{font-size:14px; font-weight:600; line-height: 1.2;}
+  .ch-name{font-size:15px; font-weight:600;}
   .ch-row.active .ch-name{color:var(--yellow);}
-  .ch-current-show{
-    font-size: 12px;
-    color: var(--cyan);
-    white-space: nowrap;
+
+  /* Marquesina individual de cada canal */
+  .ch-ticker{
+    margin-top: 4px;
     overflow: hidden;
-    text-overflow: ellipsis;
-    margin-top: 3px;
-    opacity: 0.85;
+    white-space: nowrap;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    padding: 2px 0;
   }
+  .ch-ticker-text{
+    display: inline-block;
+    padding-left: 100%;
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    color: var(--cyan);
+    animation: chScroll 12s linear infinite;
+  }
+  @keyframes chScroll{ from{transform:translateX(0);} to{transform:translateX(-100%);} }
 
   .main{flex:1; padding:22px 26px;}
 
@@ -358,7 +372,7 @@ function buildDailyChannel(id, num, name, rows, opts={}){
   };
 }
 
-// ── GRILLA DE PROGRAMACIÓN ACTUALIZADA ──
+// ── GRILLA DE PROGRAMACIÓN ──
 const MAGICKIDS_ROWS = [
   {start:"02:00", end:"02:30", title:"Dragon Ball", count:153, link:"https://www.lacartoons.com/serie/capitulo/2712"},
   {start:"02:30", end:"03:00", title:"Doctor Slump", count:74, link:"https://www.lacartoons.com/serie/capitulo/16901"},
@@ -918,10 +932,12 @@ function render(){
     const currentShowTitle = (c.streamUrl || c.embedUrl) ? 'Transmisión en vivo' : (liveInfo ? liveInfo.show : 'Fuera de aire');
     return `
       <div class="ch-row ${c.id===activeChannel?'active':''}" onclick="selectChannel('${c.id}')">
-        <div class="ch-num">${c.num}</div>
-        <div class="ch-info">
+        <div class="ch-header">
+          <div class="ch-num">${c.num}</div>
           <div class="ch-name">${c.name}</div>
-          <div class="ch-current-show">${currentShowTitle}</div>
+        </div>
+        <div class="ch-ticker">
+          <span class="ch-ticker-text">${currentShowTitle}</span>
         </div>
       </div>
     `;
