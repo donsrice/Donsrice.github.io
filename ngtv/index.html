@@ -67,8 +67,12 @@
   
   /* Filas de canales en el menú lateral */
   .ch-row{
-    display:flex; flex-direction:column; padding:10px 14px;
-    border-bottom:1px solid var(--line); cursor:pointer;
+    display:flex; 
+    flex-direction:column; 
+    align-items: flex-start; /* <-- Alinea todos los elementos hijos a la izquierda */
+    padding:10px 14px;
+    border-bottom:1px solid var(--line); 
+    cursor:pointer;
   }
   .ch-row:hover{background:#122543;}
   .ch-row.active{background:var(--guide); box-shadow:inset 3px 0 0 var(--yellow);}
@@ -88,10 +92,11 @@
     overflow: hidden;
   }
   .ch-ticker-text{
-    display: block;
+display: block;
     font-family: 'VT323', monospace;
-    font-size: 13px;
+    font-size: 15px;
     color: var(--cyan);
+    text-align: left; /* <-- Fuerza alineación izquierda en el texto del programa */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
