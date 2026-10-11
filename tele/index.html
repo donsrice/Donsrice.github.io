@@ -69,7 +69,7 @@
   .ch-row{
     display:flex; 
     flex-direction:column; 
-    align-items: flex-start; /* <-- Alinea todos los elementos hijos a la izquierda */
+    align-items: flex-start;
     padding:10px 14px;
     border-bottom:1px solid var(--line); 
     cursor:pointer;
@@ -86,21 +86,20 @@
   .ch-row.active .ch-num{color:var(--yellow);}
   .ch-name{font-size:15px; font-weight:600;}
   .ch-row.active .ch-name{color:var(--yellow);}
-  .ch-row.active .ch-ticker-text{color: var(--yellow);
-  }
+  .ch-row.active .ch-ticker-text{color: var(--yellow);}
 
-  ./* Texto fijo del programa actual debajo del canal */
+  /* Texto fijo del programa actual debajo del canal */
   .ch-ticker{
     margin-top: 4px;
     width: 100%;
     overflow: hidden;
   }
   .ch-ticker-text{
-display: block;
+    display: block;
     font-family: 'VT323', monospace;
     font-size: 14px;
     color: var(--muted);
-    text-align: left; /* <-- Fuerza alineación izquierda en el texto del programa */
+    text-align: left;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -266,17 +265,14 @@ display: block;
 <script>
 const EPOCH = new Date("2026-05-27T00:00:00");
 
-// Programa que el usuario está viendo en cada canal
 let held = {};
 
-// ── ENLACES DE LOS CANALES ──
 const MAGIC_KIDS_STREAM_URL = "https://magickidsok.online/";
 const CN_ALT_STREAM_URL = "https://cn2021.jahh19channel.xyz/";
 const FOXKIDS_EMBED_URL = "https://foxkids2020.jahh19channel.xyz/";
 const JETIX_EMBED_URL = "https://jetix2021.jahh19channel.xyz/";
 const LOCOMOTION_EMBED_URL = "https://serenotv.com/?cdm_embed=canal&pid=25664";
 
-// ── LÓGICA DE CAPÍTULOS ──
 const WINX_EPISODES = [
   ...Array.from({ length: 26 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
@@ -331,11 +327,18 @@ const WITCH_EPISODES = [
   }))
 ];
 
-  // ── LÓGICA DE CAPÍTULOS DE KERBO (Dailymotion) ──
-const KIRBY_EPISODES = [Array.from({ length: 33 }, (_, i) => ({
-  title: `Capítulo ${i + 1}`,
-  url: `https://www.dailymotion.com/embed/playlist/x6q2iu?playlist-video=x6q2iu&start=${i}` 
+const KABLAM_EPISODES = [
+  ...Array.from({ length: 24 }, (_, i) => ({
+    title: `Capítulo ${i + 1}`,
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLEVVhVj3M7t0QMu6Y7jQNEdvuL_BpbhY-&index=${i + 1}`
+  }))
 ];
+
+// Corrección de la lista de Kirby / Kerbo con Dailymotion
+const KIRBY_EPISODES = Array.from({ length: 33 }, (_, i) => ({
+  title: `Capítulo ${i + 1}`,
+  url: `https://www.dailymotion.com/embed/playlist/x6q2iu?playlist-video=x6q2iu&start=${i}`
+}));
 
 function mkEpisodes(n){
   return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`}));
@@ -383,7 +386,6 @@ function buildDailyChannel(id, num, name, rows, opts={}){
   };
 }
 
-// ── GRILLA DE PROGRAMACIÓN ──
 const MAGICKIDS_ROWS = [
   {start:"00:00", end:"00:30", title:"Dragon Ball", count:153, link:"https://www.lacartoons.com/serie/capitulo/2712"},
   {start:"00:30", end:"01:00", title:"Doctor Slump", count:74, link:"https://www.lacartoons.com/serie/capitulo/16901"},
@@ -638,7 +640,7 @@ const DISNEY_ROWS = [
   { "start": "22:00", "end": "22:30", "title": "101 Dálmatas", "count": 65, "link": "https://www.lacartoons.com/serie/capitulo/16068" },
   { "start": "22:30", "end": "23:00", "title": "Winnie The Pooh", "count": 49, "link": "https://www.lacartoons.com/serie/capitulo/17453" },
   { "start": "23:00", "end": "23:30", "title": "Hércules", count:65, link:"https://www.lacartoons.com/serie/capitulo/18783"},
-  { "start": "23:30", "end": "00:00", "title": "La Sirenita Animada", count:31, link:"https://www.lacartoons.com/serie/capitulo/7697"}
+  { "start": "23:30", end: "00:00", "title": "La Sirenita Animada", count:31, link:"https://www.lacartoons.com/serie/capitulo/7697"}
 ];
 
 const LOCOMOTION_ROWS = [
@@ -690,10 +692,8 @@ const LOCOMOTION_ROWS = [
   { "start": "22:30", "end": "23:00", "title": "Berserk", "count": 0, "link": "" },
   { "start": "23:00", "end": "23:30", "title": "Ren y Stimpy", "count": 0, "link": "" },
   { "start": "23:30", "end": "00:00", "title": "Daria", "count": 0, "link": "" }
-]
+];
 
-
-// ── CONFIGURACIÓN DE CANALES ──
 const CHANNELS = [
   buildDailyChannel("magickids", 3, "Magic Kids", MAGICKIDS_ROWS, { altStreamUrl: MAGIC_KIDS_STREAM_URL }),
   buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { altStreamUrl: CN_ALT_STREAM_URL }),
@@ -929,7 +929,7 @@ async function updateEmbed(ch, info){
 
     let finalEmbedUrl = info.episode.url;
 
-    if (!finalEmbedUrl.includes("youtube.com") && !finalEmbedUrl.includes("youtu.be")) {
+    if (!finalEmbedUrl.includes("youtube.com") && !finalEmbedUrl.includes("youtu.be") && !finalEmbedUrl.includes("dailymotion.com")) {
       container.innerHTML = `<div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">Sintonizando episodio...</div>`;
       finalEmbedUrl = await getCleanEmbedUrl(info.episode.url);
       if(lastEmbedKey !== key) return;
