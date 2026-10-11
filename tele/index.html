@@ -331,6 +331,12 @@ const WITCH_EPISODES = [
   }))
 ];
 
+  // ── LÓGICA DE CAPÍTULOS DE KERBO (Dailymotion) ──
+const KIRBY_EPISODES = [Array.from({ length: 33 }, (_, i) => ({
+  title: `Capítulo ${i + 1}`,
+  url: `https://www.dailymotion.com/embed/playlist/x6q2iu?playlist-video=x6q2iu&start=${i}` 
+];
+
 function mkEpisodes(n){
   return Array.from({length:n}, (_,i)=>({title:`Capítulo ${i+1}`}));
 }
@@ -542,19 +548,19 @@ const FOXKIDS_ROWS = [
   {start:"02:30", end:"03:00", title:"INSOMNIA: Spawn", count:18, link:"https://www.lacartoons.com/serie/capitulo/5258"},
   {start:"03:00", end:"03:30", title:"Angela Anaconda", count:65, link:"https://www.lacartoons.com/serie/capitulo/27994"},
   {start:"03:30", end:"04:00", title:"Shaman King", count:64, link:"https://www.lacartoons.com/serie/capitulo/5172"},
-  {start:"04:00", end:"04:30", title:"Las Tortugas Ninja", count:60, link:"https://www.lacartoons.com/serie/capitulo/4062"},
+  {start:"04:00", end:"04:30", title:"TMNT", count:26, link:"https://www.frikiserie.com/ver-serie/tmnt-2003/capitulo/1"},
   {start:"04:30", end:"05:00", title:"Monster Rancher", count:73, link:"https://www.lacartoons.com/serie/capitulo/4472"},
   {start:"05:00", end:"05:30", title:"Oggy y Las Cucarachas", count:65, link:"https://www.lacartoons.com/serie/capitulo/27994"},
   {start:"05:30", end:"06:00", title:"Kid Musculo", count:77, link:"https://www.lacartoons.com/serie/capitulo/11913"},
   {start:"06:00", end:"06:30", title:"Spider-Man: La Serie Animada", count:65, link:"https://www.lacartoons.com/serie/capitulo/5300"},
-  {start:"06:30", end:"07:00", title:"Kirby", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
+  {start:"06:30", end:"07:00", title:"Kirby", episodes: KIRBY_EPISODES},
   {start:"07:00", end:"07:30", title:"El pajaro Loco", count:79, link:"https://www.lacartoons.com/serie/capitulo/3686"},
   {start:"07:30", end:"08:00", title:"El Mundo de Bobby", count:40, link:"https://www.lacartoons.com/serie/capitulo/20738"},
   {start:"08:00", end:"08:30", title:"Sonic X", count:78, link:"https://www.lacartoons.com/serie/capitulo/13938"},
   {start:"08:30", end:"09:00", title:"Angela Anaconda", count:65, link:"https://www.lacartoons.com/serie/capitulo/27994"},
   {start:"09:00", end:"09:30", title:"Shuriken School", count:26, link:"https://www.lacartoons.com/serie/capitulo/14283"},
   {start:"09:30", end:"10:00", title:"Digimon Adventures", count:54, link:"https://www.lacartoons.com/serie/capitulo/3395"},
-  {start:"10:00", end:"10:30", title:"Kirby", count:100, link:"https://www.lacartoons.com/serie/capitulo/4471"},
+  {start:"10:00", end:"10:30", title:"Kirby", episodes: KIRBY_EPISODES},
   {start:"10:30", end:"11:00", title:"Sonic X", count:78, link:"https://www.lacartoons.com/serie/capitulo/13938"},
   {start:"11:00", end:"11:30", title:"Mighty Morphin Power Rangers", count:155, link:"https://www.lacartoons.com/serie/capitulo/4622"},
   {start:"11:30", end:"12:00", title:"Beetleborgs ", count:89, link:"https://www.lacartoons.com/serie/capitulo/13497"},
@@ -572,7 +578,7 @@ const FOXKIDS_ROWS = [
   {start:"17:30", end:"18:00", title:"Digimon Tamers", count:51, link:"https://www.lacartoons.com/serie/capitulo/3499"},
   {start:"18:00", end:"18:30", title:"Power rangers Wild Force", count:40, link:"https://www.lacartoons.com/serie/capitulo/28139"},
   {start:"18:30", end:"19:00", title:"Power Rangers Ninja Storm", count:38, link:"https://www.lacartoons.com/serie/capitulo/28179"},
-  {start:"19:00", end:"19:30", title:"Las Tortugas Ninja", count:60, link:"https://www.lacartoons.com/serie/capitulo/13030"},
+  {start:"19:00", end:"19:30", title:"TMNT", count:26, link:"https://www.frikiserie.com/ver-serie/tmnt-2003/capitulo/1"},
   {start:"19:30", end:"20:00", title:"Tres Espias sin Límite", count:0, link:"https://media.istockphoto.com/id/925012442/es/vector/patr%C3%B3n-de-prueba-de-televisi%C3%B3n.jpg?s=612x612&w=0&k=20&c=qLh1ODRPJ_kXIE08mx1TE2fMk1eOYt9hawu4HEW12yg="},
   {start:"20:00", end:"20:30", title:"Kid Musculo", count:77, link:"https://www.lacartoons.com/serie/capitulo/11913"},
   {start:"20:30", end:"21:00", title:"Code Lyoko", count:95, link:"https://www.lacartoons.com/serie/capitulo/3333"},
