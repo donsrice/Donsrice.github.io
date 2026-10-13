@@ -45,10 +45,13 @@
     padding:14px 20px; border-bottom:2px solid var(--line); background:var(--guide);
   }
   .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
-  .clockbox{display:flex; align-items:center; gap:10px; font-family:'VT323', monospace; font-size:20px; color:var(--cyan);}
+
+  /* Controles de fecha movidos a la barra lateral */
+  .clockbox{display:flex; flex-direction:column; gap:8px; font-family:'VT323', monospace; font-size:18px; color:var(--cyan); padding:14px; border-bottom:2px solid var(--line); background:#0b1524;}
+  .clockbox-row{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
   .clockbox input[type="datetime-local"]{
     background:#0a1830; color:var(--ink); border:1px solid var(--line); border-radius:4px;
-    font-family:'VT323', monospace; font-size:16px; padding:3px 6px;
+    font-family:'VT323', monospace; font-size:14px; padding:3px 6px; width: 100%;
   }
   .clockbox button{
     background:var(--cyan); color:#04222a; border:none; border-radius:4px; padding:5px 10px;
@@ -58,11 +61,15 @@
   .clockbox .live{
     background:transparent; color:var(--muted); border:1px solid var(--line); font-weight:400;
   }
-  .live-date{color:var(--ink); font-size:16px; padding-right:4px;}
+  .live-date{color:var(--ink); font-size:15px;}
 
   .body{display:flex; min-height:420px;}
-  .channels{
+  .sidebar-column {
     width:210px; border-right:2px solid var(--line); background:#0b1524;
+    display: flex; flex-direction: column;
+  }
+  .channels{
+    flex: 1;
   }
   
   /* Filas de canales en el menú lateral */
@@ -107,10 +114,26 @@
 
   .main{flex:1; padding:22px 26px;}
 
+  /* Barra de info superior del reproductor */
+  .video-top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--guide);
+    border: 1px solid var(--line);
+    border-bottom: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    padding: 6px 14px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: var(--yellow);
+  }
+
   /* ── REPRODUCTOR DE VIDEO Y MARCO ── */
   .cover{
-    width:100%; height:520px; background:#000; border:1px solid var(--line);
-    border-radius:6px; overflow:hidden; margin-bottom:18px; position:relative;
+    width:100%; height:460px; background:#000; border:1px solid var(--line);
+    border-radius:0 0 6px 6px; overflow:hidden; margin-bottom:18px; position:relative;
   }
 
   .cover iframe {
@@ -216,11 +239,16 @@
   }
 
   .up-next{
-    margin-top:26px; padding-top:14px; border-top:1px dashed var(--line);
+    margin-top:20px; padding-top:12px; border-top:1px dashed var(--line);
     display:flex; justify-content:space-between; align-items:flex-end;
   }
+  .up-next-columns {
+    display: flex;
+    gap: 40px;
+    flex: 1;
+  }
   .up-next-info{ flex:1; }
-  .up-next .eyebrow{margin-bottom:8px;}
+  .up-next .eyebrow{margin-bottom:6px;}
   .up-next-item{font-size:13px; color:var(--ink); opacity:.8; margin:3px 0;}
 
   .off-air{font-family:'VT323', monospace; font-size:22px; color:var(--muted); padding:40px 0;}
@@ -243,16 +271,20 @@
 
   <div class="topbar">
     <div class="brand">◉ TELE</div>
-    <div class="clockbox">
-      <span id="liveDate" class="live-date"></span>
-      <input type="datetime-local" id="dtInput">
-      <button onclick="sintonizar()">Sintonizar</button>
-      <button class="live" onclick="volverEnVivo()">En vivo</button>
-    </div>
   </div>
 
   <div class="body">
-    <div class="channels" id="channelList"></div>
+    <div class="sidebar-column">
+      <div class="clockbox">
+        <span id="liveDate" class="live-date"></span>
+        <input type="datetime-local" id="dtInput">
+        <div class="clockbox-row">
+          <button onclick="sintonizar()">Sintonizar</button>
+          <button class="live" onclick="volverEnVivo()">En vivo</button>
+        </div>
+      </div>
+      <div class="channels" id="channelList"></div>
+    </div>
     <div class="main">
       <div id="embedContainer"></div>
       <div id="mainPanel"></div>
@@ -334,7 +366,6 @@ const KABLAM_EPISODES = [
   }))
 ];
 
-// Corrección de la lista de Kirby / Kerbo con Dailymotion
 const KIRBY_EPISODES = Array.from({ length: 33 }, (_, i) => ({
   title: `Capítulo ${i + 1}`,
   url: `https://www.dailymotion.com/embed/playlist/x6q2iu?playlist-video=x6q2iu&start=${i}`
@@ -750,13 +781,19 @@ function computeNowPlaying(channel, now){
     });
   });
   entries.sort((a,b)=>a.weekMin-b.weekMin);
+  
   const pivot = weekday*1440 + parseEnd(block.end);
-  const nextEntry = entries.find(e=>e.weekMin >= pivot) || entries[0];
+  const nextEntries = entries.filter(e => e.weekMin >= pivot);
+  const upcoming = nextEntries.length > 0 ? nextEntries : entries;
+  
+  const nextShow = upcoming[0] ? upcoming[0].title : null;
+  const afterNextShow = upcoming[1] ? upcoming[1].title : (entries[0] ? entries[0].title : null);
 
   return {
     slotId: channel.id + "|" + todayMid.toDateString() + "|" + block.start,
     show: block.show.title,
-    nextShow: nextEntry ? nextEntry.title : null,
+    nextShow: nextShow,
+    afterNextShow: afterNextShow,
     episode: block.show.episodes[epIndex],
     offsetMin: Math.floor(offset),
     offsetSec: Math.floor((offset % 1) * 60),
@@ -881,6 +918,13 @@ function advanceToLive(chId) {
 async function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
 
+  let topBarHtml = `
+    <div class="video-top-bar">
+      <span>CANAL ${ch.num}</span>
+      <span>${ch.name.toUpperCase()}</span>
+    </div>
+  `;
+
   if(ch.embedUrl){
     const key = ch.id + "|embed";
     if(key === lastEmbedKey) return;
@@ -888,6 +932,7 @@ async function updateEmbed(ch, info){
     if (currentHls) { currentHls.destroy(); currentHls = null; }
 
     container.innerHTML = `
+      ${topBarHtml}
       <div class="cover">
         <iframe src="${ch.embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
       </div>`;
@@ -900,6 +945,7 @@ async function updateEmbed(ch, info){
     lastEmbedKey = key;
 
     container.innerHTML = `
+      ${topBarHtml}
       <div class="cover">
         <div class="player-wrapper" id="playerWrapper">
           <video id="hlsPlayer" playsinline></video>
@@ -930,12 +976,15 @@ async function updateEmbed(ch, info){
     let finalEmbedUrl = info.episode.url;
 
     if (!finalEmbedUrl.includes("youtube.com") && !finalEmbedUrl.includes("youtu.be") && !finalEmbedUrl.includes("dailymotion.com")) {
-      container.innerHTML = `<div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">Sintonizando episodio...</div>`;
+      container.innerHTML = `
+        ${topBarHtml}
+        <div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">Sintonizando episodio...</div>`;
       finalEmbedUrl = await getCleanEmbedUrl(info.episode.url);
       if(lastEmbedKey !== key) return;
     }
 
     container.innerHTML = `
+      ${topBarHtml}
       <div class="cover">
         <iframe src="${finalEmbedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>`;
@@ -955,8 +1004,8 @@ function render(){
   const now = currentSimTime();
 
   document.getElementById("liveDate").textContent =
-    now.toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) +
-    ' · ' + now.toLocaleTimeString('es-AR');
+    now.toLocaleDateString('es-AR', {weekday:'short', day:'numeric', month:'short', year:'numeric'}) +
+    ' · ' + now.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'});
 
   const list = document.getElementById("channelList");
   list.innerHTML = CHANNELS.map(c => {
@@ -1022,9 +1071,15 @@ function render(){
         </div>
       </div>
       <div class="up-next">
-        <div class="up-next-info">
-          <p class="eyebrow">${info.pending ? 'Ya en el aire' : 'A continuación'}</p>
-          <p class="up-next-item">${info.pending ? (info.liveNow ? info.liveNow.show : 'Fuera de aire') : (info.nextShow || 'Fin de transmisión')}</p>
+        <div class="up-next-columns">
+          <div class="up-next-info">
+            <p class="eyebrow">${info.pending ? 'Ya en el aire' : 'A continuación'}</p>
+            <p class="up-next-item">${info.pending ? (info.liveNow ? info.liveNow.show : 'Fuera de aire') : (info.nextShow || 'Fin de transmisión')}</p>
+          </div>
+          <div class="up-next-info">
+            <p class="eyebrow">Después</p>
+            <p class="up-next-item">${info.pending ? '---' : (info.afterNextShow || '---')}</p>
+          </div>
         </div>
         ${altBtnHtml}
       </div>
