@@ -40,14 +40,21 @@
   }
   .static-flash.on{opacity:.9;}
 
-  .topbar{
-    display:flex; justify-content:space-between; align-items:center;
-    padding:14px 20px; border-bottom:2px solid var(--line); background:var(--guide);
+  /* Encabezado lateral donde ahora se ubica la marca TELE */
+  .sidebar-header {
+    padding:14px 20px;
+    border-bottom:2px solid var(--line);
+    background:var(--guide);
+    display: flex;
+    align-items: center;
   }
   .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
 
-  /* Controles de fecha movidos a la barra lateral */
-  .clockbox{display:flex; flex-direction:column; gap:8px; font-family:'VT323', monospace; font-size:18px; color:var(--cyan); padding:14px; border-bottom:2px solid var(--line); background:#0b1524;}
+  /* Controles de fecha ubicados debajo de los canales */
+  .clockbox{
+    display:flex; flex-direction:column; gap:8px; font-family:'VT323', monospace; font-size:18px; color:var(--cyan);
+    padding:14px; border-top:2px solid var(--line); background:#0b1524;
+  }
   .clockbox-row{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
   .clockbox input[type="datetime-local"]{
     background:#0a1830; color:var(--ink); border:1px solid var(--line); border-radius:4px;
@@ -66,7 +73,7 @@
   .body{display:flex; min-height:420px;}
   .sidebar-column {
     width:210px; border-right:2px solid var(--line); background:#0b1524;
-    display: flex; flex-direction: column;
+    display: flex; flex-direction: column; justify-content: space-between;
   }
   .channels{
     flex: 1;
@@ -195,15 +202,24 @@
   }
 
   .eyebrow{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:0 0 4px;}
-  .show-title{font-family:'VT323', monospace; font-size:34px; color:var(--ink); margin:0 0 2px; line-height:1;}
+  
+  /* Cabecera del título del programa y botón alineado a la derecha */
+  .show-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .show-title{font-family:'VT323', monospace; font-size:34px; color:var(--ink); margin:0; line-height:1;}
 
   .link-container{
-    display:flex; align-items:center; gap:10px; margin-bottom:18px;
+    display:flex; align-items:center; gap:10px;
   }
 
   .watch-link{
     display:inline-flex; align-items:center; gap:8px; background:var(--yellow); color:#2a1e00;
     text-decoration:none; font-weight:600; font-size:13px; padding:8px 14px; border-radius:5px;
+    white-space: nowrap;
   }
   .watch-link:hover{background:#ffe08a;}
 
@@ -269,12 +285,16 @@
   <div class="scanlines"></div>
   <div class="static-flash" id="flash"></div>
 
-  <div class="topbar">
-    <div class="brand">◉ TELE</div>
-  </div>
-
   <div class="body">
     <div class="sidebar-column">
+      <div>
+        <div class="sidebar-header">
+          <div class="brand">◉ TELE</div>
+        </div>
+        <div class="channels" id="channelList"></div>
+      </div>
+      
+      <!-- Reloj sintonizador abajo de la lista de canales -->
       <div class="clockbox">
         <span id="liveDate" class="live-date"></span>
         <input type="datetime-local" id="dtInput">
@@ -283,7 +303,6 @@
           <button class="live" onclick="volverEnVivo()">En vivo</button>
         </div>
       </div>
-      <div class="channels" id="channelList"></div>
     </div>
     <div class="main">
       <div id="embedContainer"></div>
@@ -1057,11 +1076,13 @@ function render(){
       </a>` : '';
 
     main.innerHTML = `
-      <p class="eyebrow">Canal ${ch.num} · ${ch.name} · ${info.pending ? 'terminó su franja' : 'ahora'}</p>
-      <h2 class="show-title">${info.show}</h2>
-      <div class="link-container">
-        ${linkHtml}
-        ${nextBtnHtml}
+      <p class="eyebrow">CANAL ${ch.num} · ${ch.name.toUpperCase()} · ${info.pending ? 'TERMINÓ SU FRANJA' : 'AHORA'}</p>
+      <div class="show-header-row">
+        <h2 class="show-title">${info.show}</h2>
+        <div class="link-container">
+          ${linkHtml}
+          ${nextBtnHtml}
+        </div>
       </div>
       <div class="progress-wrap">
         <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
