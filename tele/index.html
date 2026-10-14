@@ -185,7 +185,7 @@
     width:70px; accent-color:var(--yellow); cursor:pointer;
   }
 
-  /* Contenedor flexible para alinear AHORA a la izquierda y el canal a la derecha */
+  /* Contenedor flexible para alinear AHORA a la izquierda y el canal a la derecha (mismo color) */
   .meta-header-row {
     display: flex;
     justify-content: space-between;
@@ -194,12 +194,17 @@
   }
   .eyebrow{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:0;}
   
-  /* Cabecera del título del programa y botón alineado a la derecha */
+  /* Cabecera del título del programa y sus elementos adyacentes */
   .show-header-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 14px;
+  }
+  .title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
   .show-title{font-family:'VT323', monospace; font-size:34px; color:var(--ink); margin:0; line-height:1;}
 
@@ -214,12 +219,12 @@
   }
   .watch-link:hover{background:#ffe08a;}
 
-  /* Botón de Siguiente Media Hora (estilo >>) */
+  /* Botón de Siguiente Programa (estilo >>) posicionado al lado del título */
   .next-half-btn{
     background: #142a4d; color: var(--yellow); border: 2px solid var(--yellow);
-    font-size: 16px; font-weight: bold; padding: 6px 12px; border-radius: 5px;
+    font-size: 15px; font-weight: bold; padding: 5px 12px; border-radius: 5px;
     cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
-    transition: all 0.2s ease;
+    transition: all 0.2s ease; white-space: nowrap;
   }
   .next-half-btn{ animation: pulse 1.6s infinite ease-in-out; }
   @keyframes pulse{ 0%,100%{box-shadow:0 0 0 0 rgba(255,207,63,.5);} 50%{box-shadow:0 0 0 6px rgba(255,207,63,0);} }
@@ -1058,13 +1063,15 @@ function render(){
     main.innerHTML = `
       <div class="meta-header-row">
         <p class="eyebrow">${info.pending ? 'TERMINÓ SU FRANJA' : 'AHORA'}</p>
-        <p class="eyebrow" style="color: var(--yellow);">CANAL ${ch.num} · ${ch.name.toUpperCase()}</p>
+        <p class="eyebrow">CANAL ${ch.num} · ${ch.name.toUpperCase()}</p>
       </div>
       <div class="show-header-row">
-        <h2 class="show-title">${info.show}</h2>
+        <div class="title-group">
+          <h2 class="show-title">${info.show}</h2>
+          ${nextBtnHtml}
+        </div>
         <div class="link-container">
           ${linkHtml}
-          ${nextBtnHtml}
         </div>
       </div>
       <div class="progress-wrap">
