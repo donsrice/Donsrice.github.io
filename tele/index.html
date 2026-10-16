@@ -381,6 +381,13 @@ const KABLAM_EPISODES = [
   }))
 ];
 
+  const TRESESPIAS_EPISODES = [
+  ...Array.from({ length: 56 }, (_, i) => ({
+    title: `Temporada 1 - Capítulo ${i + 1}`,
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLz_IrUBx1RH86Rb-InoTsuAMYxJwJIOqP&index=${i + 1}`
+  }))
+];
+
 const KIRBY_EPISODES = Array.from({ length: 33 }, (_, i) => ({
   title: `Capítulo ${i + 1}`,
   url: `https://www.dailymotion.com/embed/playlist/x6q2iu?playlist-video=x6q2iu&start=${i}`
@@ -614,7 +621,7 @@ const FOXKIDS_ROWS = [
   {start:"11:30", end:"12:00", title:"Beetleborgs ", count:89, link:"https://www.lacartoons.com/serie/capitulo/13497"},
   {start:"12:00", end:"12:30", title:"X-Men", count:76, link:"https://www.lacartoons.com/serie/capitulo/12103"},
   {start:"12:30", end:"13:00", title:"Spider-Man: La Serie Animada", count:65, link:"https://www.lacartoons.com/serie/capitulo/5300"},
-  {start:"13:00", end:"13:30", title:"Tres Espias sin Límite", count:0, link:"https://media.istockphoto.com/id/925012442/es/vector/patr%C3%B3n-de-prueba-de-televisi%C3%B3n.jpg?s=612x612&w=0&k=20&c=qLh1ODRPJ_kXIE08mx1TE2fMk1eOYt9hawu4HEW12yg="},
+  {start:"13:00", end:"13:30", title:"Tres Espias sin Límite", episodes: TRESESPIAS_EPISODES},
   {start:"13:30", end:"14:00", title:"Kid Musculo", count:77, link:"https://www.lacartoons.com/serie/capitulo/11913"},
   {start:"14:00", end:"14:30", title:"Code Lyoko", count:95, link:"https://www.lacartoons.com/serie/capitulo/223"},
   {start:"14:30", end:"15:00", title:"Transformers Animado", count:42, link:"https://www.frikiserie.com/ver-serie/transformers-animated/capitulo/1"},
@@ -627,7 +634,7 @@ const FOXKIDS_ROWS = [
   {start:"18:00", end:"18:30", title:"Power rangers Wild Force", count:40, link:"https://www.lacartoons.com/serie/capitulo/28139"},
   {start:"18:30", end:"19:00", title:"Power Rangers Ninja Storm", count:38, link:"https://www.lacartoons.com/serie/capitulo/28179"},
   {start:"19:00", end:"19:30", title:"TMNT", count:26, link:"https://www.frikiserie.com/ver-serie/tmnt-2003/capitulo/1"},
-  {start:"19:30", end:"20:00", title:"Tres Espias sin Límite", count:0, link:"https://media.istockphoto.com/id/925012442/es/vector/patr%C3%B3n-de-prueba-de-televisi%C3%B3n.jpg?s=612x612&w=0&k=20&c=qLh1ODRPJ_kXIE08mx1TE2fMk1eOYt9hawu4HEW12yg="},
+  {start:"19:30", end:"20:00", title:"Tres Espias sin Límite", episodes: TRESESPIAS_EPISODES},},
   {start:"20:00", end:"20:30", title:"Kid Musculo", count:77, link:"https://www.lacartoons.com/serie/capitulo/11913"},
   {start:"20:30", end:"21:00", title:"Code Lyoko", count:95, link:"https://www.lacartoons.com/serie/capitulo/223"},
   {start:"21:00", end:"21:30", title:"Medabots", count:91, link:"https://www.lacartoons.com/serie/capitulo/14283"},
