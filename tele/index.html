@@ -354,6 +354,10 @@
 <script>
 const EPOCH = new Date("2026-05-27T00:00:00");
 
+ 
+const BANNED_URLS = [https: "https://www.lacartoons.com/serie/capitulo/16693";
+];
+
 let held = {};
 
 const MAGIC_KIDS_STREAM_URL = "https://magickidsok.online/";
@@ -458,13 +462,21 @@ function mkEpisodesFromLink(baseUrl, n, opts={}){
   const pad = numStr.length;
   const field = opts.field || "url";
   const titlePrefix = opts.titlePrefix || "Capítulo";
+  
+  // Imagen oficial de placa de prueba analógica para reemplazar enlaces caídos
+  const testPatternImg = "https://media.istockphoto.com/id/925012442/es/vector/patr%C3%B3n-de-prueba-de-televisi%C3%B3n.jpg?s=612x612&w=0&k=20&c=qLh1ODRPJ_kXIE08mx1TE2fMk1eOYt9hawu4HEW12yg=";
 
   return Array.from({length:n}, (_,i)=>{
     const num = startNum + i;
     const numFormatted = opts.zeroPad ? String(num).padStart(pad,"0") : String(num);
+    const generatedUrl = `${prefix}${numFormatted}${suffix}`;
+    
+    // Si el link está en la lista negra, se muestra la placa de prueba en su lugar
+    const finalUrl = BANNED_URLS.includes(generatedUrl) ? testPatternImg : generatedUrl;
+
     return {
       title:`${titlePrefix} ${i+1}`,
-      [field]: `${prefix}${numFormatted}${suffix}`
+      [field]: finalUrl
     };
   });
 }
