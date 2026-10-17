@@ -145,15 +145,16 @@
   }
 
   /* ── TRUCO DE RECORTE CSS PARA FRIKISERIES ── */
-  .cover.frikiserie-clean {
-    overflow: hidden;
-    position: relative;
-  }
-  .cover.frikiserie-clean iframe {
-    width: 100%;
-    height: 175%;
-    margin-top: -145px;
-  }
+ .cover.frikiserie-clean {
+  overflow: hidden;
+  position: relative;
+}
+.cover.frikiserie-clean iframe {
+  width: 130%;             /* Aumenta el ancho para recortar los laterales */
+  height: 210%;            /* Aumenta el alto para recortar arriba y abajo */
+  margin-left: -15%;       /* Centra horizontalmente el iframe agrandado */
+  margin-top: -210px;      /* Desplaza hacia arriba para ocultar el título superior */
+}
   
   .video-container, .player-wrapper {
     width: 100%;
