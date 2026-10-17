@@ -320,6 +320,7 @@
 <body>
 
 <div class="tv">
+  <!-- Las capas de efectos globales ya no van aquí fuera para evitar duplicación -->
 
   <div class="body">
     <div class="sidebar-column">
@@ -987,11 +988,8 @@ function advanceToLive(chId) {
 }
 
 async function updateEmbed(ch, info){
-async function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
   const logoHtml = ch.logo ? `<div class="channel-logo-overlay ${ch.id}-logo"><img src="${ch.logo}" alt="${ch.name}"></div>` : '';
-  
-  // Capas de efectos de tele vieja para que siempre estén arriba de todo
   const tvEffectsHtml = `
     <div class="scanlines"></div>
     <div class="static-flash" id="flash"></div>
@@ -1077,6 +1075,7 @@ async function updateEmbed(ch, info){
     }
   }
 }
+
 function render(){
   const now = currentSimTime();
 
@@ -1199,8 +1198,10 @@ function selectChannel(id){
   activeChannel = id;
   delete held[id];
   const flash = document.getElementById("flash");
-  flash.classList.add("on");
-  setTimeout(()=>flash.classList.remove("on"), 80);
+  if(flash){
+    flash.classList.add("on");
+    setTimeout(()=>flash.classList.remove("on"), 80);
+  }
   render();
 }
 
