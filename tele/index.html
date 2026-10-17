@@ -416,7 +416,14 @@ const WITCH_EPISODES = [
     url: `https://www.youtube.com/embed?listType=playlist&list=PL06debXY-tNwaWywkY9aP63a9Pi4KloyA&index=${i + 1}`
   }))
 ];
-
+  
+const DRAMA_EPISODES = [
+  ...Array.from({ length: 26 }, (_, i) => ({
+    title: `Capítulo ${i + 1}`,
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLbz5RUc_fCeSaiWJ-83Frmm2muUyCOI34&index=${i + 1}`
+  }))
+];
+  
 const KABLAM_EPISODES = [
   ...Array.from({ length: 24 }, (_, i) => ({
     title: `Capítulo ${i + 1}`,
