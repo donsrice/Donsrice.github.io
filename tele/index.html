@@ -50,15 +50,26 @@
   }
   .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
 
-  /* Controles de fecha ubicados debajo de los canales */
+  /* Controles de fecha ubicados debajo de los canales - CAMBIO 3: Alineación centrada y hora destacada */
   .clockbox{
-    display:flex; flex-direction:column; gap:8px; font-family:'VT323', monospace; font-size:18px; color:var(--cyan);
+    display:flex; flex-direction:column; gap:8px; font-family:'VT323', monospace; color:var(--cyan);
     padding:14px; border-top:2px solid var(--line); background:#0b1524;
+    text-align: center;
+    align-items: center;
   }
-  .clockbox-row{display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+  .clock-time {
+    font-size: 26px;
+    color: var(--yellow);
+    line-height: 1;
+  }
+  .clock-date {
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .clockbox-row{display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; width:100%;}
   .clockbox input[type="datetime-local"]{
     background:#0a1830; color:var(--ink); border:1px solid var(--line); border-radius:4px;
-    font-family:'VT323', monospace; font-size:14px; padding:3px 6px; width: 100%;
+    font-family:'VT323', monospace; font-size:14px; padding:3px 6px; width: 100%; text-align:center;
   }
   .clockbox button{
     background:var(--cyan); color:#04222a; border:none; border-radius:4px; padding:5px 10px;
@@ -68,7 +79,6 @@
   .clockbox .live{
     background:transparent; color:var(--muted); border:1px solid var(--line); font-weight:400;
   }
-  .live-date{color:var(--ink); font-size:15px;}
 
   .body{display:flex; min-height:420px;}
   .sidebar-column {
@@ -152,6 +162,27 @@
     display: block;
   }
 
+  /* CAMBIO 1: Overlay para Logo del Canal */
+  .channel-logo-overlay {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 10;
+    pointer-events: none;
+    max-width: 100px;
+    max-height: 60px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .channel-logo-overlay img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    opacity: 0.85;
+    filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.7));
+  }
+
   /* Barra de controles personalizada */
   .custom-controls{
     position:absolute; bottom:0; left:0; right:0; height:48px;
@@ -185,7 +216,7 @@
     width:70px; accent-color:var(--yellow); cursor:pointer;
   }
 
-  /* Contenedor flexible para alinear AHORA a la izquierda y el canal a la derecha (mismo color) */
+  /* CAMBIO 2: Filas de metadatos y enlaces actualizadas */
   .meta-header-row {
     display: flex;
     justify-content: space-between;
@@ -194,7 +225,6 @@
   }
   .eyebrow{font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin:0;}
   
-  /* Cabecera del título del programa y sus elementos adyacentes */
   .show-header-row {
     display: flex;
     justify-content: space-between;
@@ -207,17 +237,17 @@
     gap: 12px;
   }
   .show-title{font-family:'VT323', monospace; font-size:34px; color:var(--ink); margin:0; line-height:1;}
-
-  .link-container{
-    display:flex; align-items:center; gap:10px;
+  
+  /* Titulo como link clicable */
+  a.show-title-link {
+    color: var(--ink);
+    text-decoration: none;
+    transition: color 0.2s ease;
   }
-
-  .watch-link{
-    display:inline-flex; align-items:center; gap:8px; background:var(--yellow); color:#2a1e00;
-    text-decoration:none; font-weight:600; font-size:13px; padding:8px 14px; border-radius:5px;
-    white-space: nowrap;
+  a.show-title-link:hover {
+    color: var(--yellow);
+    text-decoration: underline;
   }
-  .watch-link:hover{background:#ffe08a;}
 
   /* Botón de Siguiente Programa (estilo >>) posicionado al lado del título */
   .next-half-btn{
@@ -290,9 +320,10 @@
         <div class="channels" id="channelList"></div>
       </div>
       
-      <!-- Reloj sintonizador abajo de la lista de canales -->
+      <!-- CAMBIO 3: Reloj sintonizador centrado con hora arriba de la fecha -->
       <div class="clockbox">
-        <span id="liveDate" class="live-date"></span>
+        <span id="liveTime" class="clock-time"></span>
+        <span id="liveDate" class="clock-date"></span>
         <input type="datetime-local" id="dtInput">
         <div class="clockbox-row">
           <button onclick="sintonizar()">Sintonizar</button>
@@ -381,7 +412,7 @@ const KABLAM_EPISODES = [
   }))
 ];
 
-  const TRESESPIAS_EPISODES = [
+const TRESESPIAS_EPISODES = [
   ...Array.from({ length: 56 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
     url: `https://www.youtube.com/embed?listType=playlist&list=PLz_IrUBx1RH86Rb-InoTsuAMYxJwJIOqP&index=${i + 1}`
@@ -426,6 +457,7 @@ function buildDailyChannel(id, num, name, rows, opts={}){
   const days = opts.days || [0,1,2,3,4,5,6];
   return {
     id, num, name,
+    logo: opts.logo || null, /* CAMBIO 1: Soporte para logo */
     streamUrl: opts.streamUrl || null,
     embedUrl: opts.embedUrl || null,
     altStreamUrl: opts.altStreamUrl || null,
@@ -748,12 +780,12 @@ const LOCOMOTION_ROWS = [
 ];
 
 const CHANNELS = [
-  buildDailyChannel("magickids", 3, "Magic Kids", MAGICKIDS_ROWS, { altStreamUrl: MAGIC_KIDS_STREAM_URL }),
-  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { altStreamUrl: CN_ALT_STREAM_URL }),
-  buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS),
-  buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS, { altStreamUrl: FOXKIDS_EMBED_URL }),
-  buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS),
-  buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS, { altStreamUrl: LOCOMOTION_EMBED_URL }),
+  buildDailyChannel("magickids", 3, "Magic Kids", MAGICKIDS_ROWS, { altStreamUrl: MAGIC_KIDS_STREAM_URL, logo: "" }),
+  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { altStreamUrl: CN_ALT_STREAM_URL, logo: "" }),
+  buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS, { logo: "" }),
+  buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS, { altStreamUrl: FOXKIDS_EMBED_URL, logo: "" }),
+  buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS, { logo: "" }),
+  buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS, { altStreamUrl: LOCOMOTION_EMBED_URL, logo: "" }),
 ];
 
 function parseHM(str){
@@ -939,6 +971,7 @@ function advanceToLive(chId) {
 
 async function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
+  const logoHtml = ch.logo ? `<div class="channel-logo-overlay"><img src="${ch.logo}" alt="${ch.name}"></div>` : '';
 
   if(ch.embedUrl){
     const key = ch.id + "|embed";
@@ -948,6 +981,7 @@ async function updateEmbed(ch, info){
 
     container.innerHTML = `
       <div class="cover">
+        ${logoHtml}
         <iframe src="${ch.embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
       </div>`;
     return;
@@ -960,6 +994,7 @@ async function updateEmbed(ch, info){
 
     container.innerHTML = `
       <div class="cover">
+        ${logoHtml}
         <div class="player-wrapper" id="playerWrapper">
           <video id="hlsPlayer" playsinline></video>
           <div class="custom-controls">
@@ -990,13 +1025,17 @@ async function updateEmbed(ch, info){
 
     if (!finalEmbedUrl.includes("youtube.com") && !finalEmbedUrl.includes("youtu.be") && !finalEmbedUrl.includes("dailymotion.com")) {
       container.innerHTML = `
-        <div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">Sintonizando episodio...</div>`;
+        <div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">
+          ${logoHtml}
+          Sintonizando episodio...
+        </div>`;
       finalEmbedUrl = await getCleanEmbedUrl(info.episode.url);
       if(lastEmbedKey !== key) return;
     }
 
     container.innerHTML = `
       <div class="cover">
+        ${logoHtml}
         <iframe src="${finalEmbedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>`;
     return;
@@ -1014,9 +1053,9 @@ async function updateEmbed(ch, info){
 function render(){
   const now = currentSimTime();
 
-  document.getElementById("liveDate").textContent =
-    now.toLocaleDateString('es-AR', {weekday:'short', day:'numeric', month:'short', year:'numeric'}) +
-    ' · ' + now.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'});
+  /* CAMBIO 3: Renderizado de Fecha y Hora Separados */
+  document.getElementById("liveTime").textContent = now.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'});
+  document.getElementById("liveDate").textContent = now.toLocaleDateString('es-AR', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
 
   const list = document.getElementById("channelList");
   list.innerHTML = CHANNELS.map(c => {
@@ -1042,20 +1081,30 @@ function render(){
   updateEmbed(ch, info);
 
   if(!info && !ch.streamUrl && !ch.embedUrl){
-    const notStarted = now < EPOCH;
     main.innerHTML = `
-      <p class="eyebrow">Canal ${ch.num} · ${ch.name}</p>
-      <div class="off-air">${notStarted ? 'La programación todavía no arrancó' : 'Fuera de programación en este horario'}<br><span style="font-size:15px;">${notStarted ? `Arranca el ${EPOCH.toLocaleDateString('es-AR')}` : ''}</span></div>
+      <div class="meta-header-row">
+        <p class="eyebrow">${ch.name.toUpperCase()}</p>
+        <p class="eyebrow">CANAL ${ch.num}</p>
+      </div>
+      <div class="off-air">${now < EPOCH ? 'La programación todavía no arrancó' : 'Fuera de programación en este horario'}<br><span style="font-size:15px;">${now < EPOCH ? `Arranca el ${EPOCH.toLocaleDateString('es-AR')}` : ''}</span></div>
     `;
   } else if(ch.streamUrl || ch.embedUrl) {
-    main.innerHTML = `<p class="eyebrow">Canal ${ch.num} · ${ch.name} · Transmisión en vivo</p>`;
+    main.innerHTML = `
+      <div class="meta-header-row">
+        <p class="eyebrow">${ch.name.toUpperCase()}</p>
+        <p class="eyebrow">CANAL ${ch.num}</p>
+      </div>
+      <div class="show-header-row">
+        <h2 class="show-title">Transmisión en vivo</h2>
+      </div>
+    `;
   } else {
     const pct = Math.min(100, (info.offsetMin*60+info.offsetSec)/(info.epMin*60)*100);
 
-    let linkHtml = "";
-    if(info.episode.url){
-      linkHtml = `<a class="watch-link" href="${info.episode.url}" target="_blank" rel="noopener">▶ Ver este capítulo</a>`;
-    }
+    /* CAMBIO 2: Título como enlace al capítulo */
+    let titleHtml = info.episode.url 
+      ? `<a class="show-title show-title-link" href="${info.episode.url}" target="_blank" rel="noopener">${info.show}</a>`
+      : `<h2 class="show-title">${info.show}</h2>`;
 
     const nextBtnHtml = info.pending ? `
       <button class="next-half-btn" onclick="advanceToLive('${ch.id}')" title="Cambiar al programa que está en el aire">
@@ -1069,16 +1118,13 @@ function render(){
 
     main.innerHTML = `
       <div class="meta-header-row">
-        <p class="eyebrow">${info.pending ? 'TERMINÓ SU FRANJA' : 'AHORA'}</p>
-        <p class="eyebrow">CANAL ${ch.num} · ${ch.name.toUpperCase()}</p>
+        <p class="eyebrow">${ch.name.toUpperCase()} <span style="opacity:0.5;">•</span> ${info.pending ? 'TERMINÓ SU FRANJA' : 'AHORA'}</p>
+        <p class="eyebrow">CANAL ${ch.num}</p>
       </div>
       <div class="show-header-row">
         <div class="title-group">
-          <h2 class="show-title">${info.show}</h2>
+          ${titleHtml}
           ${nextBtnHtml}
-        </div>
-        <div class="link-container">
-          ${linkHtml}
         </div>
       </div>
       <div class="progress-wrap">
