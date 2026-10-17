@@ -50,20 +50,21 @@
   }
   .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
 
-  /* Controles de fecha ubicados debajo de los canales - CAMBIO 3: Alineación centrada y hora destacada */
+  /* Controles de fecha ubicados debajo de los canales - MODIFICACIÓN 1: Hora más pequeña y sin espacios en am/pm */
   .clockbox{
-    display:flex; flex-direction:column; gap:8px; font-family:'VT323', monospace; color:var(--cyan);
+    display:flex; flex-direction:column; gap:6px; font-family:'VT323', monospace; color:var(--cyan);
     padding:14px; border-top:2px solid var(--line); background:#0b1524;
     text-align: center;
     align-items: center;
   }
   .clock-time {
-    font-size: 26px;
+    font-size: 21px; /* Ligeramente más chico */
     color: var(--yellow);
     line-height: 1;
+    letter-spacing: 0.5px;
   }
   .clock-date {
-    font-size: 15px;
+    font-size: 14px;
     color: var(--ink);
   }
   .clockbox-row{display:flex; align-items:center; justify-content:center; gap:6px; flex-wrap:wrap; width:100%;}
@@ -162,15 +163,15 @@
     display: block;
   }
 
-  /* CAMBIO 1: Overlay para Logo del Canal */
+  /* MODIFICACIÓN 2: Overlay para Logo del Canal más pequeño (tamaño cuadro azul) */
   .channel-logo-overlay {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 12px;
+    right: 12px;
     z-index: 10;
     pointer-events: none;
-    max-width: 100px;
-    max-height: 60px;
+    max-width: 65px;
+    max-height: 45px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -216,7 +217,6 @@
     width:70px; accent-color:var(--yellow); cursor:pointer;
   }
 
-  /* CAMBIO 2: Filas de metadatos y enlaces actualizadas */
   .meta-header-row {
     display: flex;
     justify-content: space-between;
@@ -320,7 +320,7 @@
         <div class="channels" id="channelList"></div>
       </div>
       
-      <!-- CAMBIO 3: Reloj sintonizador centrado con hora arriba de la fecha -->
+      <!-- Reloj sintonizador centrado -->
       <div class="clockbox">
         <span id="liveTime" class="clock-time"></span>
         <span id="liveDate" class="clock-date"></span>
@@ -457,7 +457,7 @@ function buildDailyChannel(id, num, name, rows, opts={}){
   const days = opts.days || [0,1,2,3,4,5,6];
   return {
     id, num, name,
-    logo: opts.logo || null, /* CAMBIO 1: Soporte para logo */
+    logo: opts.logo || null,
     streamUrl: opts.streamUrl || null,
     embedUrl: opts.embedUrl || null,
     altStreamUrl: opts.altStreamUrl || null,
@@ -781,11 +781,11 @@ const LOCOMOTION_ROWS = [
 
 const CHANNELS = [
   buildDailyChannel("magickids", 3, "Magic Kids", MAGICKIDS_ROWS, { altStreamUrl: MAGIC_KIDS_STREAM_URL, logo: "" }),
-  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { altStreamUrl: CN_ALT_STREAM_URL, logo: "" }),
-  buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS, { logo: "" }),
+  buildDailyChannel("cn", 5, "Cartoon Network", CN_ROWS, { altStreamUrl: CN_ALT_STREAM_URL, logo: "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8e/Cartoon_Network_logo_%282004-2010%29.svg/1920px-Cartoon_Network_logo_%282004-2010%29.svg.png" }),
+  buildDailyChannel("nick", 7, "Nickelodeon", NICK_ROWS, { logo: "https://static.wikia.nocookie.net/logopedia/images/e/ee/Nickelodeon_1993.svg/revision/latest?cb=20230522040704" }),
   buildDailyChannel("foxkids", 9, "Fox Kids", FOXKIDS_ROWS, { altStreamUrl: FOXKIDS_EMBED_URL, logo: "https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/FOX_Kids_logo.svg/960px-FOX_Kids_logo.svg.png" }),
-  buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS, { logo: "" }),
-  buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS, { altStreamUrl: LOCOMOTION_EMBED_URL, logo: "" }),
+  buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS, { logo: "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/2014_Disney_Channel_logo.svg/3840px-2014_Disney_Channel_logo.svg.png" }),
+  buildDailyChannel("locomotion", 21, "Locomotion", LOCOMOTION_ROWS, { altStreamUrl: LOCOMOTION_EMBED_URL, logo: "https://static.wikia.nocookie.net/logopedia/images/c/cf/Locomotion_2005.svg/revision/latest/scale-to-width-down/200?cb=20190307025525" }),
 ];
 
 function parseHM(str){
@@ -1053,9 +1053,19 @@ async function updateEmbed(ch, info){
 function render(){
   const now = currentSimTime();
 
-  /* CAMBIO 3: Renderizado de Fecha y Hora Separados */
-  document.getElementById("liveTime").textContent = now.toLocaleTimeString('es-AR', {hour: '2-digit', minute:'2-digit'});
-  document.getElementById("liveDate").textContent = now.toLocaleDateString('es-AR', {weekday:'short', day:'numeric', month:'short', year:'numeric'});
+  /* MODIFICACIÓN 1 & 3: Formateo limpio para la Hora (sin espacios en p.m./a.m.) y Día de la semana COMPLETO */
+  let hours = now.getHours();
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const ampm = hours >= 12 ? 'p.m.' : 'a.m.';
+  hours = hours % 12;
+  hours = hours ? hours : 12;
+  
+  // Render de la Hora formateada limpiamente
+  document.getElementById("liveTime").textContent = `${hours}:${minutes} ${ampm}`;
+
+  // Render de la Fecha con día de la semana completo (ej. "sábado, 17 oct 2026")
+  const formattedDate = now.toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'short', year:'numeric'});
+  document.getElementById("liveDate").textContent = formattedDate;
 
   const list = document.getElementById("channelList");
   list.innerHTML = CHANNELS.map(c => {
@@ -1101,7 +1111,7 @@ function render(){
   } else {
     const pct = Math.min(100, (info.offsetMin*60+info.offsetSec)/(info.epMin*60)*100);
 
-    /* CAMBIO 2: Título como enlace al capítulo */
+    /* Título como enlace al capítulo */
     let titleHtml = info.episode.url 
       ? `<a class="show-title show-title-link" href="${info.episode.url}" target="_blank" rel="noopener">${info.show}</a>`
       : `<h2 class="show-title">${info.show}</h2>`;
