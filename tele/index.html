@@ -30,7 +30,7 @@
     position:relative;
   }
 .scanlines{
-  position:absolute; inset:0; pointer-events:none; z-index:15; /* <-- Cambiado de 5 a 15 */
+  position:absolute; inset:0; pointer-events:none; z-index:15;
   background:repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.15) 1px, transparent 1px, transparent 3px);
   opacity:.35;
 }
@@ -50,7 +50,7 @@
   }
   .brand{font-family:'VT323', monospace; font-size:26px; color:var(--yellow); letter-spacing:1px;}
 
-  /* Controles de fecha ubicados debajo de los canales - MODIFICACIÓN 1: Hora más pequeña y sin espacios en am/pm */
+  /* Controles de fecha ubicados debajo de los canales */
   .clockbox{
     display:flex; flex-direction:column; gap:6px; font-family:'VT323', monospace; color:var(--cyan);
     padding:14px; border-top:2px solid var(--line); background:#0b1524;
@@ -58,7 +58,7 @@
     align-items: center;
   }
   .clock-time {
-    font-size: 21px; /* Ligeramente más chico */
+    font-size: 21px;
     color: var(--yellow);
     line-height: 1;
     letter-spacing: 0.5px;
@@ -113,7 +113,6 @@
   .ch-row.active .ch-name{color:var(--yellow);}
   .ch-row.active .ch-ticker-text{color: var(--yellow);}
 
-  /* Texto fijo del programa actual debajo del canal */
   .ch-ticker{
     margin-top: 4px;
     width: 100%;
@@ -143,6 +142,17 @@
     height: 100%;
     border: none;
     display: block;
+  }
+
+  /* ── TRUCO DE RECORTE CSS PARA FRIKISERIES ── */
+  .cover.frikiserie-clean {
+    overflow: hidden;
+    position: relative;
+  }
+  .cover.frikiserie-clean iframe {
+    width: 100%;
+    height: 175%;
+    margin-top: -145px;
   }
   
   .video-container, .player-wrapper {
@@ -182,18 +192,11 @@
   filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.7));
 }
 
-/* POSICIONES INDIVIDUALES (ANULAN LA POSICIÓN POR DEFECTO) */
-
-/* Margen superior derecho (con espacio al borde) */
 .magickids-logo { top: 22px; right: 28px; bottom: auto; left: auto; }
 .locomotion-logo { top: 22px; right: 22px;  max-width: 70px; max-height: 70px; bottom: auto; left: auto; }
-
-/* Margen inferior derecho (donde apunta tu flecha) */
 .cn-logo { bottom: 50px; right: 22px; top: auto; left: auto; }
 .foxkids-logo { bottom: 55px; right: 30px; top: auto; left: auto; }
 .nick-logo { bottom: 55px; right: 22px; max-width: 100px; max-height: 70px; top: auto; left: auto; }
-
-/* Margen inferior izquierdo (Disney Channel pegado a los bordes) */
 .disney-logo { bottom: 50px; left: 12px;  max-width: 100px; max-height: 70px; top: auto; right: auto; }
 
   /* Barra de controles personalizada */
@@ -250,7 +253,6 @@
   }
   .show-title{font-family:'VT323', monospace; font-size:34px; color:var(--ink); margin:0; line-height:1;}
   
-  /* Titulo como link clicable */
   a.show-title-link {
     color: var(--ink);
     text-decoration: none;
@@ -261,14 +263,13 @@
     text-decoration: underline;
   }
 
-  /* Botón de Siguiente Programa (estilo >>) posicionado al lado del título */
   .next-half-btn{
     background: #142a4d; color: var(--yellow); border: 2px solid var(--yellow);
     font-size: 15px; font-weight: bold; padding: 5px 12px; border-radius: 5px;
     cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
     transition: all 0.2s ease; white-space: nowrap;
+    animation: pulse 1.6s infinite ease-in-out;
   }
-  .next-half-btn{ animation: pulse 1.6s infinite ease-in-out; }
   @keyframes pulse{ 0%,100%{box-shadow:0 0 0 0 rgba(255,207,63,.5);} 50%{box-shadow:0 0 0 6px rgba(255,207,63,0);} }
   .next-half-btn:hover{
     background: var(--yellow); color: #0a0e18;
@@ -320,8 +321,6 @@
 <body>
 
 <div class="tv">
-  <!-- Las capas de efectos globales ya no van aquí fuera para evitar duplicación -->
-
   <div class="body">
     <div class="sidebar-column">
       <div>
@@ -331,7 +330,6 @@
         <div class="channels" id="channelList"></div>
       </div>
       
-      <!-- Reloj sintonizador centrado -->
       <div class="clockbox">
         <span id="liveTime" class="clock-time"></span>
         <span id="liveDate" class="clock-date"></span>
@@ -354,7 +352,6 @@
 <script>
 const EPOCH = new Date("2026-05-27T00:00:00");
 
- 
 const BANNED_URLS = [
   "https://www.lacartoons.com/serie/capitulo/16693"
 ];
@@ -464,7 +461,6 @@ function mkEpisodesFromLink(baseUrl, n, opts={}){
   const field = opts.field || "url";
   const titlePrefix = opts.titlePrefix || "Capítulo";
   
-  // Imagen oficial de placa de prueba analógica para reemplazar enlaces caídos
   const testPatternImg = "https://media.istockphoto.com/id/925012442/es/vector/patr%C3%B3n-de-prueba-de-televisi%C3%B3n.jpg?s=612x612&w=0&k=20&c=qLh1ODRPJ_kXIE08mx1TE2fMk1eOYt9hawu4HEW12yg=";
 
   return Array.from({length:n}, (_,i)=>{
@@ -472,7 +468,6 @@ function mkEpisodesFromLink(baseUrl, n, opts={}){
     const numFormatted = opts.zeroPad ? String(num).padStart(pad,"0") : String(num);
     const generatedUrl = `${prefix}${numFormatted}${suffix}`;
     
-    // Si el link está en la lista negra, se muestra la placa de prueba en su lugar
     const finalUrl = BANNED_URLS.includes(generatedUrl) ? testPatternImg : generatedUrl;
 
     return {
@@ -1059,8 +1054,9 @@ async function updateEmbed(ch, info){
     if (currentHls) { currentHls.destroy(); currentHls = null; }
 
     let finalEmbedUrl = info.episode.url;
+    const isFriki = finalEmbedUrl.includes("frikiserie.com");
 
-    if (!finalEmbedUrl.includes("youtube.com") && !finalEmbedUrl.includes("youtu.be") && !finalEmbedUrl.includes("dailymotion.com")) {
+    if (!finalEmbedUrl.includes("youtube.com") && !finalEmbedUrl.includes("youtu.be") && !finalEmbedUrl.includes("dailymotion.com") && !isFriki) {
       container.innerHTML = `
         <div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">
           Sintonizando episodio...
@@ -1072,7 +1068,7 @@ async function updateEmbed(ch, info){
     }
 
     container.innerHTML = `
-      <div class="cover">
+      <div class="cover ${isFriki ? 'frikiserie-clean' : ''}">
         <iframe src="${finalEmbedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
         ${logoHtml}
         ${tvEffectsHtml}
@@ -1092,17 +1088,13 @@ async function updateEmbed(ch, info){
 function render(){
   const now = currentSimTime();
 
-  /* MODIFICACIÓN 1 & 3: Formateo limpio para la Hora (sin espacios en p.m./a.m.) y Día de la semana COMPLETO */
   let hours = now.getHours();
   const minutes = String(now.getMinutes()).padStart(2, '0');
   const ampm = hours >= 12 ? 'p.m.' : 'a.m.';
   hours = hours % 12;
   hours = hours ? hours : 12;
   
-  // Render de la Hora formateada limpiamente
   document.getElementById("liveTime").textContent = `${hours}:${minutes} ${ampm}`;
-
-  // Render de la Fecha con día de la semana completo (ej. "sábado, 17 oct 2026")
   const formattedDate = now.toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'short', year:'numeric'});
   document.getElementById("liveDate").textContent = formattedDate;
 
@@ -1150,7 +1142,6 @@ function render(){
   } else {
     const pct = Math.min(100, (info.offsetMin*60+info.offsetSec)/(info.epMin*60)*100);
 
-    /* Título como enlace al capítulo */
     let titleHtml = info.episode.url 
       ? `<a class="show-title show-title-link" href="${info.episode.url}" target="_blank" rel="noopener">${info.show}</a>`
       : `<h2 class="show-title">${info.show}</h2>`;
