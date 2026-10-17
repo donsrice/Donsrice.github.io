@@ -320,8 +320,6 @@
 <body>
 
 <div class="tv">
-  <div class="scanlines"></div>
-  <div class="static-flash" id="flash"></div>
 
   <div class="body">
     <div class="sidebar-column">
@@ -989,8 +987,16 @@ function advanceToLive(chId) {
 }
 
 async function updateEmbed(ch, info){
+async function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
   const logoHtml = ch.logo ? `<div class="channel-logo-overlay ${ch.id}-logo"><img src="${ch.logo}" alt="${ch.name}"></div>` : '';
+  
+  // Capas de efectos de tele vieja para que siempre estén arriba de todo
+  const tvEffectsHtml = `
+    <div class="scanlines"></div>
+    <div class="static-flash" id="flash"></div>
+  `;
+
   if(ch.embedUrl){
     const key = ch.id + "|embed";
     if(key === lastEmbedKey) return;
@@ -999,8 +1005,9 @@ async function updateEmbed(ch, info){
 
     container.innerHTML = `
       <div class="cover">
-        ${logoHtml}
         <iframe src="${ch.embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        ${logoHtml}
+        ${tvEffectsHtml}
       </div>`;
     return;
   }
@@ -1012,7 +1019,6 @@ async function updateEmbed(ch, info){
 
     container.innerHTML = `
       <div class="cover">
-        ${logoHtml}
         <div class="player-wrapper" id="playerWrapper">
           <video id="hlsPlayer" playsinline></video>
           <div class="custom-controls">
@@ -1027,6 +1033,8 @@ async function updateEmbed(ch, info){
             </div>
           </div>
         </div>
+        ${logoHtml}
+        ${tvEffectsHtml}
       </div>`;
     loadHlsStream(ch.streamUrl);
     return;
@@ -1044,8 +1052,9 @@ async function updateEmbed(ch, info){
     if (!finalEmbedUrl.includes("youtube.com") && !finalEmbedUrl.includes("youtu.be") && !finalEmbedUrl.includes("dailymotion.com")) {
       container.innerHTML = `
         <div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">
-          ${logoHtml}
           Sintonizando episodio...
+          ${logoHtml}
+          ${tvEffectsHtml}
         </div>`;
       finalEmbedUrl = await getCleanEmbedUrl(info.episode.url);
       if(lastEmbedKey !== key) return;
@@ -1053,8 +1062,9 @@ async function updateEmbed(ch, info){
 
     container.innerHTML = `
       <div class="cover">
-        ${logoHtml}
         <iframe src="${finalEmbedUrl}" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        ${logoHtml}
+        ${tvEffectsHtml}
       </div>`;
     return;
   }
@@ -1067,7 +1077,6 @@ async function updateEmbed(ch, info){
     }
   }
 }
-
 function render(){
   const now = currentSimTime();
 
