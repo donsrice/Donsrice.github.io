@@ -163,20 +163,7 @@
     display: block;
   }
 
-  /* MODIFICACIÓN 2: Overlay para Logo del Canal más pequeño (tamaño cuadro azul) */
-  .channel-logo-overlay {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    z-index: 10;
-    pointer-events: none;
-    max-width: 80px;
-    max-height: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-/* Tamaño base del logo (80x60) */
+  /* Configuración base del logo */
 .channel-logo-overlay {
   position: absolute;
   z-index: 10;
@@ -195,24 +182,19 @@
   filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.7));
 }
 
-/* POSICIONES ESPECÍFICAS POR CANAL */
-/* Magic Kids (Superior derecho - con margen hacia adentro) */
-.magickids-logo { top: 22px; right: 22px; }
+/* POSICIONES INDIVIDUALES (ANULAN LA POSICIÓN POR DEFECTO) */
 
-/* Locomotion (Superior derecho - con margen hacia adentro) */
-.locomotion-logo { top: 22px; right: 22px; }
+/* Margen superior derecho (con espacio al borde) */
+.magickids-logo { top: 22px; right: 22px; bottom: auto; left: auto; }
+.locomotion-logo { top: 22px; right: 22px; bottom: auto; left: auto; }
 
-/* Cartoon Network (Inferior derecho - con margen hacia adentro) */
-.cn-logo { bottom: 22px; right: 22px; }
+/* Margen inferior derecho (donde apunta tu flecha) */
+.cn-logo { bottom: 22px; right: 22px; top: auto; left: auto; }
+.foxkids-logo { bottom: 22px; right: 22px; top: auto; left: auto; }
+.nick-logo { bottom: 22px; right: 22px; top: auto; left: auto; }
 
-/* Fox Kids (Inferior derecho - con margen hacia adentro) */
-.foxkids-logo { bottom: 22px; right: 22px; }
-
-/* Nickelodeon (Inferior derecho - con margen hacia adentro) */
-.nick-logo { bottom: 22px; right: 22px; }
-
-/* Disney Channel (Inferior izquierdo - más pegado a los bordes) */
-.disney-logo { bottom: 12px; left: 12px; }
+/* Margen inferior izquierdo (Disney Channel pegado a los bordes) */
+.disney-logo { bottom: 12px; left: 12px; top: auto; right: auto; }
 
   /* Barra de controles personalizada */
   .custom-controls{
@@ -1002,7 +984,6 @@ function advanceToLive(chId) {
 async function updateEmbed(ch, info){
   const container = document.getElementById("embedContainer");
   const logoHtml = ch.logo ? `<div class="channel-logo-overlay ${ch.id}-logo"><img src="${ch.logo}" alt="${ch.name}"></div>` : '';
-
   if(ch.embedUrl){
     const key = ch.id + "|embed";
     if(key === lastEmbedKey) return;
