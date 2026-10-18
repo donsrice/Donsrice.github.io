@@ -20,24 +20,14 @@
   }
   *{box-sizing:border-box;}
   body{
-    margin:0; 
-    padding:24px; 
-    background:var(--bg); 
-    color:var(--ink);
+    margin:0; padding:24px; background:var(--bg); color:var(--ink);
     font-family:'Archivo Narrow', sans-serif;
-    display:flex; 
-    justify-content:center;
-    overflow-x: auto; /* Permite el desplazamiento horizontal cuando hagas zoom */
-    max-width: 100%;
+    display:flex; justify-content:center;
+    overflow-x: auto; /* Fuerza a que aparezca el scroll horizontal si es necesario */
   }
-
   .tv{
-    width: 920px; /* Cambia width: 100% por un ancho fijo mínimo para forzar el scroll */
-    max-width: none; 
-    background:var(--panel);
-    border:2px solid var(--line); 
-    border-radius:10px; 
-    overflow:hidden;
+    width:920px; min-width:920px; background:var(--panel);
+    border:2px solid var(--line); border-radius:10px; overflow:hidden;
     position:relative;
   }
 .scanlines{
