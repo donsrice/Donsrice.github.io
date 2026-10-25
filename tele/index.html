@@ -699,7 +699,7 @@ const FOXKIDS_ROWS = [
 ];
 
 const DISNEY_ROWS = [
- { "start": "00:00", "end": "00:30", "title": "Jake Long: El dragón occidental", "count": 52, "link": "https://www.lacartoons.com/serie/capitulo/17502" },
+  { "start": "00:00", "end": "00:30", "title": "Jake Long: El dragón occidental", "count": 52, "link": "https://www.lacartoons.com/serie/capitulo/17502" },
   { "start": "00:30", "end": "01:00", "title": "Kim Possible", "count": 87, "link": "https://www.lacartoons.com/serie/capitulo/18848" },
   { "start": "01:00", "end": "01:30", "title": "W.I.T.C.H.", episodes: WITCH_EPISODES},
   { "start": "01:30", "end": "02:00", "title": "Pepper Ann", "count": 65, "link": "https://www.lacartoons.com/serie/capitulo/28939" },
@@ -749,7 +749,7 @@ const DISNEY_ROWS = [
   { "start": "23:30", "end": "00:00", "title": "Yin Yang Yo!", "count": 65, "link": "https://www.lacartoons.com/serie/capitulo/20673" }
 ];
 
-  const BOOMERANG_ROWS = [
+const BOOMERANG_ROWS = [
   { "start": "00:00", "end": "00:30", "title": "Los Looney Tunes", "count": 150, "link": "https://www.lacartoons.com/serie/capitulo/1115" },
   { "start": "00:30", "end": "01:00", "title": "Tom y Jerry", "count": 161, "link": "https://www.lacartoons.com/serie/capitulo/2170" },
   { "start": "01:00", "end": "01:30", "title": "Don Gato y su Pandilla", "count": 30, "link": "https://www.lacartoons.com/serie/capitulo/6879" },
@@ -774,7 +774,6 @@ const DISNEY_ROWS = [
   { "start": "10:30", "end": "11:00", "title": "Dinamita, El Perro Dinamita", "count": 16, "link": "https://www.lacartoons.com/serie/capitulo/6099" },
   { "start": "11:00", "end": "11:30", "title": "Magila Gorila", "count": 31, "link": "https://www.lacartoons.com/serie/capitulo/6599" },
   { "start": "11:30", "end": "12:00", "title": "Los Imposibles", "count": 36, "link": "https://www.lacartoons.com/serie/capitulo/6521" },
-  // Repetición cíclica para la tarde y noche (completando las 24 horas con los mismos datos correctos)
   { "start": "12:00", "end": "12:30", "title": "Los Looney Tunes", "count": 150, "link": "https://www.lacartoons.com/serie/capitulo/1115" },
   { "start": "12:30", "end": "13:00", "title": "Tom y Jerry", "count": 161, "link": "https://www.lacartoons.com/serie/capitulo/2170" },
   { "start": "13:00", "end": "13:30", "title": "Don Gato y su Pandilla", "count": 30, "link": "https://www.lacartoons.com/serie/capitulo/6879" },
@@ -809,7 +808,6 @@ const CHANNELS = [
   buildDailyChannel("disney", 11, "Disney Channel", DISNEY_ROWS, { logo: "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6c/2014_Disney_Channel_logo.svg/3840px-2014_Disney_Channel_logo.svg.png" }),
   buildDailyChannel("boomerang", 13, "Boomerang", BOOMERANG_ROWS, { logo: "https://images.seeklogo.com/logo-png/2/2/boomerang-logo-png_seeklogo-21296.png" }),
   buildDailyChannel("locomotion", 67, "Locomotion", LOCOMOTION_ROWS, { altStreamUrl: LOCOMOTION_EMBED_URL, logo: "https://cdn.freebiesupply.com/logos/large/2x/locomotion-logo-png-transparent.png" })
- 
 ];
 
 function parseHM(str){
