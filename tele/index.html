@@ -372,6 +372,13 @@ const WINX_EPISODES = [
   }))
 ];
 
+  const ARTATT_EPISODES = [
+  ...Array.from({ length: 25 }, (_, i) => ({
+    title: `Temporada 1 - Capítulo ${i + 1}`,
+    url: `https://www.youtube.com/embed?listType=playlist&list=PLr6JB07CExshRmA0k-vDU4li5ZpwzsHu9&si=fX5XXknUlWP1Qg8r&index=${i + 1}`
+  })),
+];
+
 const ORPHEN_EPISODES = [
   ...Array.from({ length: 24 }, (_, i) => ({
     title: `Temporada 1 - Capítulo ${i + 1}`,
@@ -731,7 +738,7 @@ const DISNEY_ROWS = [
   { "start": "14:30", "end": "15:00", "title": "La Sirenita Animada", "count": 31, "link": "https://www.lacartoons.com/serie/capitulo/7697" },
   { "start": "15:00", "end": "15:30", "title": "Winnie The Pooh", "count": 49, "link": "https://www.lacartoons.com/serie/capitulo/17453" },
   { "start": "15:30", "end": "16:00", "title": "101 Dálmatas", "count": 65, "link": "https://www.lacartoons.com/serie/capitulo/16068" },
-  { "start": "16:00", "end": "16:30", "title": "Goof Troop", "count": 1, "link": "https://media.istockphoto.com/id/925012442/es/vector/patr%C3%B3n-de-prueba-de-televisi%C3%B3n.jpg?s=612x612&w=0&k=20&c=qLh1ODRPJ_kXIE08mx1TE2fMk1eOYt9hawu4HEW12yg=" },
+  { "start": "16:00", "end": "16:30", "title": "Art Attack", episodes: ARTATT_EPISODES},
   { "start": "16:30", "end": "17:00", "title": "TaleSpin", "count": 65, "link": "https://www.lacartoons.com/serie/capitulo/20034" },
   { "start": "17:00", "end": "17:30", "title": "W.I.T.C.H.", episodes: WITCH_EPISODES},
   { "start": "17:30", "end": "18:00", "title": "Dave el Bárbaro", "count": 21, "link": "https://www.lacartoons.com/serie/capitulo/8358" },
