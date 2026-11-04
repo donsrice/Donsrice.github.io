@@ -763,9 +763,9 @@ const DISNEY_ROWS = [
   { "start": "16:30", "end": "17:00", "title": "TaleSpin", "count": 65, "link": "https://www.lacartoons.com/serie/capitulo/20034" },
   { "start": "17:00", "end": "17:30", "title": "W.I.T.C.H.", episodes: WITCH_EPISODES},
   { "start": "17:30", "end": "18:00", "title": "Dave el Bárbaro", "count": 21, "link": "https://www.lacartoons.com/serie/capitulo/8358" },
-  { "start": "18:00", "end": "18:30", "title": "Gravity Falls", episodes: GRAVITY_FALLS_EPISODES },
+  { "start": "18:00", "end": "18:30", "title": "Phineas y Ferb", "count": 126, "link": "https://www.lacartoons.com/serie/capitulo/23642" },
   
-  // Reemplazados los horarios de Yin Yang Yo! por Gravity Falls
+  // Reemplazado Yin Yang Yo! por Gravity Falls
   { "start": "18:30", "end": "19:00", "title": "Gravity Falls", episodes: GRAVITY_FALLS_EPISODES },
   
   { "start": "19:00", "end": "19:30", "title": "Sabrina La Brujita", "count": 65, "link": "https://www.lacartoons.com/serie/capitulo/20099" },
@@ -778,11 +778,11 @@ const DISNEY_ROWS = [
   { "start": "22:30", "end": "23:00", "title": "Tarzán", "count": 38, "link": "https://www.lacartoons.com/serie/capitulo/18933" },
   { "start": "23:00", "end": "23:30", "title": "Super Escuadrón Mono Fuerza A Go-Go!", "count": 52, "link": "https://www.lacartoons.com/serie/capitulo/28887" },
   
-  // Reemplazados los horarios de Yin Yang Yo! por Gravity Falls
+  // Reemplazado Yin Yang Yo! por Gravity Falls
   { "start": "23:30", "end": "00:00", "title": "Gravity Falls", episodes: GRAVITY_FALLS_EPISODES }
 ];
   
-  const LOCOMOTION_ROWS = [
+const LOCOMOTION_ROWS = [
   { "start": "00:00", "end": "00:30", "title": "Ren y Stimpy", "count": 79, "link": "https://www.frikiserie.com/ver-serie/ren-y-stimpy/capitulo/1" },
   { "start": "00:30", "end": "01:00", "title": "Futurama", "count": 124, "link": "https://www.lacartoons.com/serie/capitulo/19845" },
   { "start": "01:00", "end": "01:30", "title": "Los Simpsons", "count": 330, "link": "https://www.lacartoons.com/serie/capitulo/24245" },
@@ -1074,13 +1074,21 @@ async function updateEmbed(ch, info){
     return;
   }
 
- // 1. Agrupas las plataformas que SÍ permiten embeds directos o que manejas aparte:
+  if(info && info.episode && info.episode.url){
+    const key = (info.slotId || ch.id) + "|" + info.episode.title;
+    if(key === lastEmbedKey) return;
+    lastEmbedKey = key;
+
+    if (currentHls) { currentHls.destroy(); currentHls = null; }
+
+    let finalEmbedUrl = info.episode.url;
+    const isFriki = finalEmbedUrl.includes("frikiserie.com");
+
     const isStandardEmbed = finalEmbedUrl.includes("youtube.com") || 
                             finalEmbedUrl.includes("youtu.be") || 
                             finalEmbedUrl.includes("dailymotion.com") || 
                             finalEmbedUrl.includes("frikiserie.com");
 
-    // 2. Si NO es un embed directo estándar, obligas a que pase por tu proxy:
     if (!isStandardEmbed) {
       container.innerHTML = `
         <div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">
