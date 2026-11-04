@@ -1074,17 +1074,14 @@ async function updateEmbed(ch, info){
     return;
   }
 
-  if(info && info.episode && info.episode.url){
-    const key = (info.slotId || ch.id) + "|" + info.episode.title;
-    if(key === lastEmbedKey) return;
-    lastEmbedKey = key;
+ // 1. Agrupas las plataformas que SÍ permiten embeds directos o que manejas aparte:
+    const isStandardEmbed = finalEmbedUrl.includes("youtube.com") || 
+                            finalEmbedUrl.includes("youtu.be") || 
+                            finalEmbedUrl.includes("dailymotion.com") || 
+                            finalEmbedUrl.includes("frikiserie.com");
 
-    if (currentHls) { currentHls.destroy(); currentHls = null; }
-
-    let finalEmbedUrl = info.episode.url;
-    const isFriki = finalEmbedUrl.includes("frikiserie.com");
-
-    if (!finalEmbedUrl.includes("youtube.com") && !finalEmbedUrl.includes("youtu.be") && !finalEmbedUrl.includes("dailymotion.com") && !isFriki) {
+    // 2. Si NO es un embed directo estándar, obligas a que pase por tu proxy:
+    if (!isStandardEmbed) {
       container.innerHTML = `
         <div class="cover" style="display:flex; justify-content:center; align-items:center; color:var(--cyan); font-family:'VT323', monospace; font-size:24px;">
           Sintonizando episodio...
